@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Section F: Kubernetes (Weeks 17–20) · Cloud-Native .NET Plan</title>
+<meta name="color-scheme" content="light dark">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/common.js"></script>
+</head>
+<body data-page="weeks/F-kubernetes-weeks-17-20.html" data-root="../">
+<a class="skip" href="#content">Skip to the lesson</a>
+<div class="read-progress" aria-hidden="true"><span></span></div>
+<header class="topbar">
+  <button type="button" class="icon-btn toc-toggle" id="toc-btn" aria-controls="toc" aria-expanded="false" aria-label="Show contents">☰</button>
+  <a class="brand" href="../schedule.html"><span class="logo" aria-hidden="true">CN</span><span class="brand-text">Cloud-Native .NET Plan</span></a>
+  <nav class="top-links" aria-label="Plan">
+    <a href="../schedule.html">Schedule</a>
+    <a href="../plan.html">Plan</a>
+    <a href="../resources.html">Resources</a>
+  </nav>
+  <span class="grow"></span>
+  <button type="button" class="icon-btn" id="theme-btn"></button>
+</header>
+<div class="layout">
+  <nav class="toc" id="toc" aria-label="On this page"></nav>
+  <main class="prose" id="content">
+<h1 id="section-f-kubernetes-weeks-1720">Section F: Kubernetes (Weeks 17–20)<a class="anchor" href="#section-f-kubernetes-weeks-1720" aria-label="Link to this heading">#</a></h1>
+<p>Kubernetes runs containers across many machines: it schedules them, restarts them, scales them, and routes traffic to them. You'll learn it on <strong>kind</strong> (Kubernetes in Docker), a free local cluster that behaves like a real one. Everything you write here is reused unchanged on EKS in Section G.</p>
+<p><strong>Setup:</strong> install <a href="https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/" target="_blank" rel="noopener">kubectl</a>, <a href="https://kind.sigs.k8s.io/docs/user/quick-start/" target="_blank" rel="noopener">kind</a>, and <a href="https://helm.sh/docs/intro/install/" target="_blank" rel="noopener">Helm</a> in Ubuntu. Give Docker Desktop at least 8 GB of memory (<strong>Settings → Resources</strong>).</p>
+<p><strong>Courses for this section (optional, see <a href="../resources.html">resources.md</a>):</strong> Udemy's <a href="https://www.udemy.com/course/learn-kubernetes/" target="_blank" rel="noopener">Kubernetes for the Absolute Beginners</a> and <a href="https://www.udemy.com/course/certified-kubernetes-application-developer/" target="_blank" rel="noopener">Certified Kubernetes Application Developer (CKAD)</a> by Mumshad Mannambeth, and the free <a href="https://kubernetes.io/docs/tutorials/" target="_blank" rel="noopener">Kubernetes tutorials</a>. <strong>roadmap.sh:</strong> <a href="https://roadmap.sh/kubernetes" target="_blank" rel="noopener">Kubernetes</a>.</p>
+<hr>
+<h2 id="week-17-kubernetes-basics-with-kind">Week 17: Kubernetes basics with kind<a class="anchor" href="#week-17-kubernetes-basics-with-kind" aria-label="Link to this heading">#</a></h2>
+<p><strong>By the end of the week:</strong> a three-node kind cluster running StudyHub as a Deployment with a Service, and the kubectl skills to inspect, update, and roll back anything.</p>
+<h3 id="day-1-how-kubernetes-works">Day 1: How Kubernetes works<a class="anchor" href="#day-1-how-kubernetes-works" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> you describe the state you want in YAML (for example &quot;3 copies of StudyHub&quot;), and controllers keep making the cluster match it. The control plane makes decisions, and the worker nodes run your containers.</p>
+<p><strong>Learn (~25 min)</strong></p>
+<ul>
+<li><a href="https://kubernetes.io/docs/concepts/overview/components/" target="_blank" rel="noopener">Kubernetes components</a> and <a href="https://kubernetes.io/docs/concepts/overview/working-with-objects/" target="_blank" rel="noopener">Objects in Kubernetes</a></li>
+</ul>
+<p><strong>Do:</strong> draw the components: the API server, etcd, the scheduler, and controller manager on the control plane, and the kubelet, kube-proxy, and container runtime on each node. Mark which ones you'd see failing if a node lost power.</p>
+<p><strong>Done when:</strong> you can explain &quot;desired state&quot; and &quot;reconciliation&quot; in two sentences.</p>
+<h3 id="day-2-a-multi-node-cluster-with-kind">Day 2: A multi-node cluster with kind<a class="anchor" href="#day-2-a-multi-node-cluster-with-kind" aria-label="Link to this heading">#</a></h3>
+<p><strong>Learn (~10 min)</strong></p>
+<ul>
+<li><a href="https://kind.sigs.k8s.io/docs/user/quick-start/" target="_blank" rel="noopener">kind quick start</a></li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li>Create <code>kind-config.yaml</code>:
+<pre><code class="lang-yaml">kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: lab
+nodes:
+  - role: control-plane
+    extraPortMappings:
+      - { containerPort: 30080, hostPort: 30080 }
+  - role: worker
+  - role: worker</code></pre></li>
+<li>Create the cluster and look around:
+<pre><code class="lang-bash">kind create cluster --config kind-config.yaml
+kubectl cluster-info
+kubectl get nodes -o wide
+kubectl get pods -A           # the system pods
+docker ps                     # each node is a container</code></pre></li>
+</ol>
+<p><strong>Done when:</strong> three nodes show <code>Ready</code>, and you can explain why each one is a Docker container.</p>
+<h3 id="day-3-pods-and-kubectl">Day 3: Pods and kubectl<a class="anchor" href="#day-3-pods-and-kubectl" aria-label="Link to this heading">#</a></h3>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li><a href="https://kubernetes.io/docs/concepts/workloads/pods/" target="_blank" rel="noopener">Pods</a> and the <a href="https://kubernetes.io/docs/reference/kubectl/quick-reference/" target="_blank" rel="noopener">kubectl quick reference</a></li>
+</ul>
+<p><strong>Do</strong></p>
+<pre><code class="lang-bash">kubectl run web --image=nginx --port=80
+kubectl get pods -o wide              # which node it landed on
+kubectl describe pod web              # events: scheduled, pulled, started
+kubectl logs web
+kubectl exec -it web -- sh
+kubectl port-forward pod/web 8080:80  # open http://localhost:8080, then Ctrl+C
+kubectl get pod web -o yaml | less    # the full object, as the API server stores it
+kubectl explain pod.spec.containers   # built-in docs for any field
+kubectl delete pod web                # nothing brings it back: a bare pod isn't managed</code></pre>
+<p><strong>Done when:</strong> you've created, inspected, entered, and deleted a pod, and seen that a bare pod isn't recreated.</p>
+<h3 id="day-4-deployments-and-services-for-studyhub">Day 4: Deployments and Services for StudyHub<a class="anchor" href="#day-4-deployments-and-services-for-studyhub" aria-label="Link to this heading">#</a></h3>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://kubernetes.io/docs/concepts/workloads/controllers/deployment/" target="_blank" rel="noopener">Deployments</a> and <a href="https://kubernetes.io/docs/concepts/services-networking/service/" target="_blank" rel="noopener">Services</a></li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li>Load your image into the cluster (kind can't see your local Docker images otherwise): <code>kind load docker-image studyhub:5 --name lab</code>.</li>
+<li>Create <code>k8s/studyhub.yaml</code>:
+<pre><code class="lang-yaml">apiVersion: apps/v1
+kind: Deployment
+metadata: { name: studyhub, labels: { app: studyhub } }
+spec:
+  replicas: 3
+  selector: { matchLabels: { app: studyhub } }
+  template:
+    metadata: { labels: { app: studyhub } }
+    spec:
+      containers:
+        - name: api
+          image: studyhub:5
+          imagePullPolicy: IfNotPresent
+          ports: [{ containerPort: 8080 }]
+---
+apiVersion: v1
+kind: Service
+metadata: { name: studyhub }
+spec:
+  type: NodePort
+  selector: { app: studyhub }
+  ports: [{ port: 80, targetPort: 8080, nodePort: 30080 }]</code></pre></li>
+<li>Apply it and test:
+<pre><code class="lang-bash">kubectl apply -f k8s/studyhub.yaml
+kubectl get deploy,rs,pods,svc -o wide
+for i in $(seq 1 6); do curl -s localhost:30080/whoami; echo; done   # different pods answer
+kubectl delete pod -l app=studyhub --wait=false; kubectl get pods -w  # replaced at once</code></pre>
+<p>Your app still expects MongoDB and Valkey. Endpoints that need them fail until Week 18, but <code>/health</code> and <code>/whoami</code> work.</p></li>
+</ol>
+<p><strong>Done when:</strong> three pods spread across the workers answer on port 30080, and deleted pods come back.</p>
+<h3 id="day-5-rolling-updates-and-rollbacks">Day 5: Rolling updates and rollbacks<a class="anchor" href="#day-5-rolling-updates-and-rollbacks" aria-label="Link to this heading">#</a></h3>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li><a href="https://kubernetes.io/docs/tutorials/kubernetes-basics/update/update-intro/" target="_blank" rel="noopener">Performing a rolling update</a></li>
+</ul>
+<p><strong>Do</strong></p>
+<pre><code class="lang-bash">docker build -t studyhub:6 ./StudyHub.Api &amp;&amp; kind load docker-image studyhub:6 --name lab
+kubectl set image deployment/studyhub api=studyhub:6
+kubectl rollout status deployment/studyhub
+kubectl rollout history deployment/studyhub
+kubectl set image deployment/studyhub api=studyhub:does-not-exist   # a bad release
+kubectl get pods                                                    # ErrImageNeverPull or ImagePullBackOff
+kubectl rollout undo deployment/studyhub
+kubectl rollout status deployment/studyhub</code></pre>
+<p>While the update runs, keep <code>while true; do curl -s -o /dev/null -w &quot;%{http_code} &quot; localhost:30080/health; sleep 0.2; done</code> going in another terminal.</p>
+<p><strong>Done when:</strong> a good release rolls out with no failed requests, and a bad one is rolled back with one command.</p>
+<h3 id="day-6-mini-project-namespaces-and-labels">Day 6: Mini project, namespaces and labels<a class="anchor" href="#day-6-mini-project-namespaces-and-labels" aria-label="Link to this heading">#</a></h3>
+<p><strong>Do</strong></p>
+<ol>
+<li>Create <code>dev</code> and <code>test</code> namespaces, and deploy StudyHub to both: <code>kubectl apply -f k8s/studyhub.yaml -n dev</code>. Change the NodePort in the <code>test</code> copy to avoid a clash, or switch its Service to <code>ClusterIP</code>.</li>
+<li>Add labels <code>tier: api</code> and <code>team: you</code>, and practice selecting: <code>kubectl get pods -A -l tier=api</code>.</li>
+<li>Set a default namespace for your shell: <code>kubectl config set-context --current --namespace=dev</code>.</li>
+<li>Write <code>k8s/CHEATSHEET.md</code> with the 20 kubectl commands you used most.</li>
+</ol>
+<p><strong>Done when:</strong> the same app runs in two namespaces, and you can switch between them easily.</p>
+<h3 id="day-7-review-and-catch-up-light">Day 7: Review and catch-up (light)<a class="anchor" href="#day-7-review-and-catch-up-light" aria-label="Link to this heading">#</a></h3>
+<ul>
+<li>Push <code>k8s/</code> to <code>cloud-native-lab/week-17</code>. You can stop the cluster's nodes to save memory with <code>docker stop lab-control-plane lab-worker lab-worker2</code>, and start them again later.</li>
+</ul>
+<hr>
+<h2 id="week-18-configuration-health-probes-storage-and-stateful-apps">Week 18: Configuration, health probes, storage, and stateful apps<a class="anchor" href="#week-18-configuration-health-probes-storage-and-stateful-apps" aria-label="Link to this heading">#</a></h2>
+<p><strong>By the end of the week:</strong> the whole StudyHub stack on Kubernetes: the API and worker configured with ConfigMaps and Secrets, with probes and resource limits, plus MongoDB as a StatefulSet with persistent storage, Valkey, and a nightly CronJob.</p>
+<h3 id="day-1-configmaps-and-secrets">Day 1: ConfigMaps and Secrets<a class="anchor" href="#day-1-configmaps-and-secrets" aria-label="Link to this heading">#</a></h3>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://kubernetes.io/docs/concepts/configuration/configmap/" target="_blank" rel="noopener">ConfigMaps</a> and <a href="https://kubernetes.io/docs/concepts/configuration/secret/" target="_blank" rel="noopener">Secrets</a></li>
+</ul>
+<p><strong>Do</strong></p>
+<pre><code class="lang-bash">kubectl create configmap studyhub-config \
+  --from-literal=ConnectionStrings__Valkey=&quot;valkey:6379,abortConnect=false&quot; \
+  --from-literal=DynamoDb__ServiceUrl=&quot;http://dynamodb:8000&quot;
+kubectl create secret generic studyhub-secrets \
+  --from-literal=ConnectionStrings__Mongo=&quot;mongodb://studyhub:change-me@mongo-0.mongo:27017/studyhub?authSource=admin&quot;
+kubectl get secret studyhub-secrets -o jsonpath='{.data}' | jq   # base64, not encrypted</code></pre>
+<p>In the Deployment, load both with <code>envFrom: [{ configMapRef: { name: studyhub-config } }, { secretRef: { name: studyhub-secrets } }]</code>.</p>
+<p><strong>Done when:</strong> the pods get their settings from the ConfigMap and Secret, and you can explain why a Kubernetes Secret is only base64-encoded unless the cluster encrypts it at rest.</p>
+<h3 id="day-2-health-probes-and-resources">Day 2: Health probes and resources<a class="anchor" href="#day-2-health-probes-and-resources" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> a <strong>readiness</strong> probe says &quot;send me traffic&quot;, a <strong>liveness</strong> probe says &quot;restart me if I'm stuck&quot;, and a <strong>startup</strong> probe gives slow starters time. Requests and limits tell the scheduler what a pod needs, and stop it using too much.</p>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/" target="_blank" rel="noopener">Configure liveness, readiness, and startup probes</a> and <a href="https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/" target="_blank" rel="noopener">Resource management</a></li>
+<li><a href="https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/health-checks" target="_blank" rel="noopener">Health checks in ASP.NET Core</a> (Microsoft Learn)</li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li>In StudyHub, add <code>builder.Services.AddHealthChecks()</code> with a check that pings MongoDB and Valkey, tagged <code>ready</code>. Map <code>/healthz/live</code> (no checks, just &quot;the process works&quot;) and <code>/healthz/ready</code> (only the <code>ready</code> checks).</li>
+<li>Add to the container spec:
+<pre><code class="lang-yaml">readinessProbe: { httpGet: { path: /healthz/ready, port: 8080 }, periodSeconds: 5, failureThreshold: 3 }
+livenessProbe:  { httpGet: { path: /healthz/live,  port: 8080 }, periodSeconds: 10, failureThreshold: 3 }
+startupProbe:   { httpGet: { path: /healthz/live,  port: 8080 }, periodSeconds: 2,  failureThreshold: 30 }
+resources:
+  requests: { cpu: 100m, memory: 128Mi }
+  limits:   { memory: 256Mi }</code></pre></li>
+<li>Scale Valkey to zero once it exists (tomorrow) and watch pods become <code>0/1 READY</code>, but not restart.</li>
+</ol>
+<p><strong>Done when:</strong> pods only receive traffic when their dependencies work, and you can explain why liveness doesn't check the database.</p>
+<h3 id="day-3-persistent-storage-and-a-mongodb-statefulset">Day 3: Persistent storage and a MongoDB StatefulSet<a class="anchor" href="#day-3-persistent-storage-and-a-mongodb-statefulset" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> a StatefulSet gives each pod a stable name (<code>mongo-0</code>) and its own PersistentVolumeClaim that follows it across restarts. kind's default StorageClass creates volumes on the node.</p>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://kubernetes.io/docs/concepts/storage/persistent-volumes/" target="_blank" rel="noopener">Persistent volumes</a> and <a href="https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/" target="_blank" rel="noopener">StatefulSets</a></li>
+</ul>
+<p><strong>Do:</strong> create <code>k8s/mongo.yaml</code> with a headless Service and a one-replica StatefulSet:</p>
+<pre><code class="lang-yaml">apiVersion: v1
+kind: Service
+metadata: { name: mongo }
+spec: { clusterIP: None, selector: { app: mongo }, ports: [{ port: 27017 }] }
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata: { name: mongo }
+spec:
+  serviceName: mongo
+  replicas: 1
+  selector: { matchLabels: { app: mongo } }
+  template:
+    metadata: { labels: { app: mongo } }
+    spec:
+      containers:
+        - name: mongo
+          image: mongo:8
+          env:
+            - { name: MONGO_INITDB_ROOT_USERNAME, value: studyhub }
+            - { name: MONGO_INITDB_ROOT_PASSWORD, valueFrom: { secretKeyRef: { name: mongo-root, key: password } } }
+          ports: [{ containerPort: 27017 }]
+          volumeMounts: [{ name: data, mountPath: /data/db }]
+  volumeClaimTemplates:
+    - metadata: { name: data }
+      spec: { accessModes: [ReadWriteOnce], resources: { requests: { storage: 1Gi } } }</code></pre>
+<p>Create the <code>mongo-root</code> secret first, apply the file, then insert a document, delete <code>mongo-0</code>, and check the data is still there after it comes back.</p>
+<p><strong>Done when:</strong> MongoDB data survives the pod being deleted, and <code>kubectl get pvc</code> shows the claim bound.</p>
+<h3 id="day-4-valkey-dynamodb-local-and-the-worker">Day 4: Valkey, DynamoDB Local, and the worker<a class="anchor" href="#day-4-valkey-dynamodb-local-and-the-worker" aria-label="Link to this heading">#</a></h3>
+<p><strong>Do:</strong> write <code>k8s/valkey.yaml</code> (a Deployment and a Service named <code>valkey</code>), <code>k8s/dynamodb.yaml</code> (the same for <code>amazon/dynamodb-local</code>, with a Service named <code>dynamodb</code> on port 8000), and <code>k8s/worker.yaml</code> (a Deployment for <code>StudyHub.Worker</code>, using the same ConfigMap and Secret, with no Service). Load the worker image with <code>kind load docker-image</code>. Create the DynamoDB table with a one-off pod:</p>
+<pre><code class="lang-bash">kubectl run ddb-init --rm -it --restart=Never --image=amazon/aws-cli \
+  --env AWS_ACCESS_KEY_ID=local --env AWS_SECRET_ACCESS_KEY=local --env AWS_REGION=us-east-1 -- \
+  dynamodb create-table --endpoint-url http://dynamodb:8000 --table-name studyhub-events \
+  --attribute-definitions AttributeName=PK,AttributeType=S AttributeName=SK,AttributeType=S \
+  --key-schema AttributeName=PK,KeyType=HASH AttributeName=SK,KeyType=RANGE --billing-mode PAY_PER_REQUEST</code></pre>
+<p>Then run your Week 14 <code>smoke-test.sh</code> against <code>localhost:30080</code>.</p>
+<p><strong>Done when:</strong> the smoke test passes against the cluster.</p>
+<h3 id="day-5-jobs-and-cronjobs">Day 5: Jobs and CronJobs<a class="anchor" href="#day-5-jobs-and-cronjobs" aria-label="Link to this heading">#</a></h3>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li><a href="https://kubernetes.io/docs/concepts/workloads/controllers/job/" target="_blank" rel="noopener">Jobs</a> and <a href="https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/" target="_blank" rel="noopener">CronJobs</a></li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li>Run your Week 12 <code>StudyHub.Seed</code> app as a Job with <code>restartPolicy: Never</code> and <code>backoffLimit: 2</code>, and check its logs with <code>kubectl logs job/studyhub-seed</code>.</li>
+<li>Add a CronJob that runs every 5 minutes and calls <code>POST /admin/reports/rebuild</code> using <code>curlimages/curl</code>. Set <code>concurrencyPolicy: Forbid</code> and <code>successfulJobsHistoryLimit: 3</code>.</li>
+</ol>
+<p><strong>Done when:</strong> the seed Job completes, and the CronJob has run at least twice.</p>
+<h3 id="day-6-mini-project-the-whole-stack-from-one-folder">Day 6: Mini project, the whole stack from one folder<a class="anchor" href="#day-6-mini-project-the-whole-stack-from-one-folder" aria-label="Link to this heading">#</a></h3>
+<p><strong>Do:</strong> put every manifest in <code>k8s/base/</code>. Add a <code>kustomization.yaml</code> that lists them and sets <code>namespace: studyhub</code> and common labels, then:</p>
+<pre><code class="lang-bash">kubectl create namespace studyhub
+kubectl apply -k k8s/base
+kubectl get all -n studyhub</code></pre>
+<p>Delete the namespace and recreate it all with one command, timing it.</p>
+<p><strong>Done when:</strong> <code>kubectl apply -k k8s/base</code> brings up the whole working stack from nothing.</p>
+<h3 id="day-7-review-and-catch-up-light-1">Day 7: Review and catch-up (light)<a class="anchor" href="#day-7-review-and-catch-up-light-1" aria-label="Link to this heading">#</a></h3>
+<ul>
+<li>Push <code>k8s/</code> to <code>cloud-native-lab/week-18</code>.</li>
+</ul>
+<hr>
+<h2 id="week-19-gateway-api-helm-and-autoscaling">Week 19: Gateway API, Helm, and autoscaling<a class="anchor" href="#week-19-gateway-api-helm-and-autoscaling" aria-label="Link to this heading">#</a></h2>
+<p><strong>By the end of the week:</strong> StudyHub reachable through a Gateway with path routing, packaged as a Helm chart with values per environment, and scaling automatically with load.</p>
+<p><strong>Why Gateway API, not Ingress NGINX:</strong> the Kubernetes project retired the community Ingress NGINX controller in March 2026, with no more security fixes. Gateway API is its successor, supported by many controllers. This plan uses Envoy Gateway.</p>
+<h3 id="day-1-gateway-api-concepts">Day 1: Gateway API concepts<a class="anchor" href="#day-1-gateway-api-concepts" aria-label="Link to this heading">#</a></h3>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://kubernetes.io/docs/concepts/services-networking/gateway/" target="_blank" rel="noopener">Gateway API</a> (Kubernetes docs)</li>
+<li><a href="https://www.kubernetes.dev/blog/2025/11/12/ingress-nginx-retirement/" target="_blank" rel="noopener">Ingress NGINX retirement</a> (Kubernetes blog)</li>
+</ul>
+<p><strong>Do:</strong> draw how a request flows: GatewayClass (which controller), Gateway (the listener, run by the platform team), HTTPRoute (the app's routing rules, owned by the app team), then the Service and its pods.</p>
+<p><strong>Done when:</strong> you can say who owns each of the three resources, and why splitting them helps.</p>
+<h3 id="day-2-envoy-gateway-on-kind">Day 2: Envoy Gateway on kind<a class="anchor" href="#day-2-envoy-gateway-on-kind" aria-label="Link to this heading">#</a></h3>
+<p><strong>Learn (~10 min)</strong></p>
+<ul>
+<li><a href="https://gateway.envoyproxy.io/docs/tasks/quickstart/" target="_blank" rel="noopener">Envoy Gateway quickstart</a></li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li>Install Envoy Gateway with Helm, using the version from the quickstart page:
+<pre><code class="lang-bash">helm install eg oci://docker.io/envoyproxy/gateway-helm --version &lt;version from the docs&gt; -n envoy-gateway-system --create-namespace
+kubectl wait --timeout=5m -n envoy-gateway-system deployment/envoy-gateway --for=condition=Available</code></pre></li>
+<li>Create a GatewayClass, a Gateway listening on port 80, and an HTTPRoute that sends <code>/api</code> to the StudyHub Service with a <code>URLRewrite</code> filter removing the prefix.</li>
+<li>kind has no cloud load balancer, so reach the Gateway with port forwarding:
+<pre><code class="lang-bash">kubectl -n envoy-gateway-system port-forward svc/$(kubectl -n envoy-gateway-system get svc -o name | grep envoy-default | cut -d/ -f2) 8888:80
+curl localhost:8888/api/lessons</code></pre></li>
+</ol>
+<p><strong>Done when:</strong> requests through the Gateway reach StudyHub.</p>
+<h3 id="day-3-traffic-splitting">Day 3: Traffic splitting<a class="anchor" href="#day-3-traffic-splitting" aria-label="Link to this heading">#</a></h3>
+<p><strong>Do:</strong> deploy <code>studyhub-v2</code> (your <code>studyhub:6</code> image, with a changed <code>/</code> message) as a second Deployment and Service. In the HTTPRoute, use <code>backendRefs</code> weights of 90 and 10, then send 100 requests and count the answers. Move to 50/50, then 0/100. This is a canary release.</p>
+<p><strong>Done when:</strong> the split you set matches roughly what you measure.</p>
+<h3 id="day-4-helm-charts">Day 4: Helm charts<a class="anchor" href="#day-4-helm-charts" aria-label="Link to this heading">#</a></h3>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://helm.sh/docs/chart_template_guide/getting_started/" target="_blank" rel="noopener">Helm: chart template guide</a></li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li><code>helm create charts/studyhub</code>, then replace its templates with your Deployment, Service, ConfigMap, and HTTPRoute.</li>
+<li>Move everything that changes per environment into <code>values.yaml</code>: image tag, replicas, resources, connection settings, and the route hostname.</li>
+<li>Check and install it:
+<pre><code class="lang-bash">helm lint charts/studyhub
+helm template charts/studyhub | less
+helm install studyhub charts/studyhub -n studyhub
+helm upgrade studyhub charts/studyhub -n studyhub --set image.tag=6
+helm history studyhub -n studyhub; helm rollback studyhub 1 -n studyhub</code></pre></li>
+<li>Create <code>values-dev.yaml</code> (1 replica, small resources) and <code>values-prod.yaml</code> (3 replicas, bigger resources). You'll use the prod file on EKS.</li>
+</ol>
+<p><strong>Done when:</strong> you can install, upgrade, and roll back StudyHub with Helm, with different values per environment.</p>
+<h3 id="day-5-autoscaling-with-the-horizontal-pod-autoscaler">Day 5: Autoscaling with the Horizontal Pod Autoscaler<a class="anchor" href="#day-5-autoscaling-with-the-horizontal-pod-autoscaler" aria-label="Link to this heading">#</a></h3>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li><a href="https://kubernetes.io/docs/concepts/workloads/autoscaling/horizontal-pod-autoscale/" target="_blank" rel="noopener">Horizontal Pod Autoscaling</a></li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li>Install metrics-server. On kind, it needs one extra flag:
+<pre><code class="lang-bash">helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/
+helm install metrics-server metrics-server/metrics-server -n kube-system --set args={--kubelet-insecure-tls}
+kubectl top nodes; kubectl top pods -n studyhub</code></pre></li>
+<li>Add an HPA to your chart: 2 to 8 replicas, targeting 60% CPU. It needs the CPU <strong>request</strong> you set in Week 18.</li>
+<li>Run k6 with 50 users against the Gateway for 3 minutes, and watch <code>kubectl get hpa -n studyhub -w</code>.</li>
+</ol>
+<p><strong>Done when:</strong> pods scale up under load and back down a few minutes after it stops.</p>
+<h3 id="day-6-mini-project-safe-releases">Day 6: Mini project, safe releases<a class="anchor" href="#day-6-mini-project-safe-releases" aria-label="Link to this heading">#</a></h3>
+<p><strong>Do:</strong> add to your chart:</p>
+<ul>
+<li>a PodDisruptionBudget with <code>minAvailable: 1</code>, so draining a node can't take all pods down</li>
+<li><code>topologySpreadConstraints</code>, to spread pods across nodes</li>
+<li>a <code>preStop</code> sleep of 5 seconds and <code>terminationGracePeriodSeconds: 30</code>, so pods finish their requests before stopping</li>
+</ul>
+<p>Then drain a worker with <code>kubectl drain lab-worker --ignore-daemonsets --delete-emptydir-data</code> while your curl loop runs, and uncordon it afterwards.</p>
+<p><strong>Done when:</strong> draining a node causes no failed requests.</p>
+<h3 id="day-7-review-and-catch-up-light-2">Day 7: Review and catch-up (light)<a class="anchor" href="#day-7-review-and-catch-up-light-2" aria-label="Link to this heading">#</a></h3>
+<ul>
+<li>Push <code>charts/</code> to <code>cloud-native-lab/week-19</code>.</li>
+</ul>
+<hr>
+<h2 id="week-20-security-and-troubleshooting">Week 20: Security and troubleshooting<a class="anchor" href="#week-20-security-and-troubleshooting" aria-label="Link to this heading">#</a></h2>
+<p><strong>By the end of the week:</strong> StudyHub locked down with RBAC, network policies, and Pod Security Standards, with telemetry flowing from the cluster, and the troubleshooting skills to fix the common failures quickly.</p>
+<h3 id="day-1-service-accounts-and-rbac">Day 1: Service accounts and RBAC<a class="anchor" href="#day-1-service-accounts-and-rbac" aria-label="Link to this heading">#</a></h3>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://kubernetes.io/docs/reference/access-authn-authz/rbac/" target="_blank" rel="noopener">Using RBAC authorization</a></li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li>Create a <code>studyhub</code> ServiceAccount, and set <code>automountServiceAccountToken: false</code> on the pods that don't need the API.</li>
+<li>Create a Role allowing only <code>get</code>, <code>list</code>, and <code>watch</code> on pods in the <code>studyhub</code> namespace, and bind it to a <code>viewer</code> ServiceAccount.</li>
+<li>Test it: <code>kubectl auth can-i delete pods -n studyhub --as=system:serviceaccount:studyhub:viewer</code> should say <code>no</code>, and <code>list</code> should say <code>yes</code>.</li>
+</ol>
+<p><strong>Done when:</strong> <code>kubectl auth can-i</code> confirms the viewer can read but not change anything.</p>
+<h3 id="day-2-network-policies">Day 2: Network policies<a class="anchor" href="#day-2-network-policies" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> by default every pod can reach every other pod. A NetworkPolicy limits traffic to what's needed.</p>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://kubernetes.io/docs/concepts/services-networking/network-policies/" target="_blank" rel="noopener">Network policies</a></li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li>Add a default-deny ingress policy for the <code>studyhub</code> namespace.</li>
+<li>Allow the Gateway to reach the API, the API and worker to reach MongoDB, Valkey, and DynamoDB, and nothing else.</li>
+<li>Test with a throwaway pod: <code>kubectl run probe -n studyhub --rm -it --image=busybox -- wget -qO- -T 3 http://mongo:27017</code> should time out, while the API still works.</li>
+</ol>
+<p>Recent kind versions enforce NetworkPolicy with their built-in network plugin. If your test isn't blocked, check your kind version, or recreate the cluster with Calico as described in the kind docs.</p>
+<p><strong>Done when:</strong> a random pod can't reach MongoDB, but StudyHub still works end to end.</p>
+<h3 id="day-3-pod-security">Day 3: Pod security<a class="anchor" href="#day-3-pod-security" aria-label="Link to this heading">#</a></h3>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://kubernetes.io/docs/concepts/security/pod-security-standards/" target="_blank" rel="noopener">Pod Security Standards</a> and <a href="https://kubernetes.io/docs/tasks/configure-pod-container/security-context/" target="_blank" rel="noopener">Configure a security context</a></li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li>Label the namespace to enforce the <code>restricted</code> standard: <code>kubectl label ns studyhub pod-security.kubernetes.io/enforce=restricted</code>.</li>
+<li>Watch which pods are now rejected (<code>kubectl get events -n studyhub</code>), and fix each one with a securityContext:
+<pre><code class="lang-yaml">securityContext:
+  runAsNonRoot: true
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities: { drop: [ALL] }
+  seccompProfile: { type: RuntimeDefault }</code></pre>
+<p>StudyHub's chiseled image already runs as non-root. For <code>readOnlyRootFilesystem</code>, mount an <code>emptyDir</code> at <code>/tmp</code>. Third-party images like MongoDB may need the <code>baseline</code> level instead; note which and why.</p></li>
+</ol>
+<p><strong>Done when:</strong> StudyHub's own pods pass the <code>restricted</code> standard.</p>
+<h3 id="day-4-telemetry-from-the-cluster">Day 4: Telemetry from the cluster<a class="anchor" href="#day-4-telemetry-from-the-cluster" aria-label="Link to this heading">#</a></h3>
+<p><strong>Do</strong></p>
+<ol>
+<li>Deploy your Week 16 OpenTelemetry Collector into the cluster (the <a href="https://github.com/open-telemetry/opentelemetry-helm-charts/tree/main/charts/opentelemetry-collector" target="_blank" rel="noopener">official Helm chart</a> in <code>deployment</code> mode), with the same pipelines.</li>
+<li>Run Jaeger and Prometheus in the cluster too, or keep them in Docker Compose and point the Collector at them through <code>host.docker.internal</code>.</li>
+<li>Set <code>OTEL_EXPORTER_OTLP_ENDPOINT</code> in your chart to the Collector Service, and add <code>k8s.pod.name</code> and <code>k8s.namespace.name</code> to the resource attributes with the Collector's <code>k8sattributes</code> processor.</li>
+</ol>
+<p><strong>Done when:</strong> traces from the cluster show which pod handled each request.</p>
+<h3 id="day-5-troubleshooting-drill">Day 5: Troubleshooting drill<a class="anchor" href="#day-5-troubleshooting-drill" aria-label="Link to this heading">#</a></h3>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li><a href="https://kubernetes.io/docs/tasks/debug/debug-application/debug-running-pod/" target="_blank" rel="noopener">Debug running pods</a></li>
+</ul>
+<p><strong>Do:</strong> cause each failure, fix it using only <code>kubectl get</code>, <code>describe</code>, <code>logs</code>, <code>events</code>, and <code>debug</code>, and write down the symptom and the fix:</p>
+<ol>
+<li><strong>ImagePullBackOff:</strong> set the image to a tag that doesn't exist.</li>
+<li><strong>CrashLoopBackOff:</strong> set an invalid MongoDB connection string, and read <code>kubectl logs --previous</code>.</li>
+<li><strong>Pending:</strong> request 64 CPUs.</li>
+<li><strong>Running but not Ready:</strong> break the readiness endpoint's dependency.</li>
+<li><strong>Service with no endpoints:</strong> change the Service selector to a label that doesn't match. Check with <code>kubectl get endpointslices</code>.</li>
+<li><strong>OOMKilled:</strong> set the memory limit to 32Mi.</li>
+</ol>
+<p><strong>Done when:</strong> you have a six-row table of symptom, command that showed the cause, and fix.</p>
+<h3 id="day-6-mini-project-a-cluster-runbook">Day 6: Mini project, a cluster runbook<a class="anchor" href="#day-6-mini-project-a-cluster-runbook" aria-label="Link to this heading">#</a></h3>
+<p><strong>Do:</strong> write <code>k8s/RUNBOOK.md</code> for StudyHub on Kubernetes: how to deploy, roll back, scale, read logs and traces, the six failures from Day 5, and how to restore MongoDB data from a backup. Make a backup with <code>kubectl exec mongo-0 -n studyhub -- mongodump --archive --gzip &gt; backup.gz</code>, then restore it into a fresh cluster to prove the steps work.</p>
+<p><strong>Done when:</strong> you've restored StudyHub's data into a new cluster by following only your runbook.</p>
+<h3 id="day-7-review-and-catch-up-light-3">Day 7: Review and catch-up (light)<a class="anchor" href="#day-7-review-and-catch-up-light-3" aria-label="Link to this heading">#</a></h3>
+<ul>
+<li>Push to <code>cloud-native-lab/week-20</code>. Section F is complete. Mark the topics on <a href="https://roadmap.sh/kubernetes" target="_blank" rel="noopener">roadmap.sh/kubernetes</a>.</li>
+<li>Keep the kind cluster. You'll use it again for Datadog in Week 25.</li>
+</ul>
+<nav class="pager" aria-label="Sections"><a class="prev" href="E-telemetry-weeks-15-16.html"><small>Previous</small>← E. Telemetry (Weeks 15–16)</a><a class="next" href="G-eks-weeks-21-23.html"><small>Next</small>G. EKS (Weeks 21–23) →</a></nav>
+  </main>
+</div>
+<script src="../assets/plan-data.js"></script>
+<script src="../assets/lessons.js"></script>
+</body>
+</html>

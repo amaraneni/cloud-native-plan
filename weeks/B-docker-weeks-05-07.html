@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Section B: Docker in depth (Weeks 5–7) · Cloud-Native .NET Plan</title>
+<meta name="color-scheme" content="light dark">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/common.js"></script>
+</head>
+<body data-page="weeks/B-docker-weeks-05-07.html" data-root="../">
+<a class="skip" href="#content">Skip to the lesson</a>
+<div class="read-progress" aria-hidden="true"><span></span></div>
+<header class="topbar">
+  <button type="button" class="icon-btn toc-toggle" id="toc-btn" aria-controls="toc" aria-expanded="false" aria-label="Show contents">☰</button>
+  <a class="brand" href="../schedule.html"><span class="logo" aria-hidden="true">CN</span><span class="brand-text">Cloud-Native .NET Plan</span></a>
+  <nav class="top-links" aria-label="Plan">
+    <a href="../schedule.html">Schedule</a>
+    <a href="../plan.html">Plan</a>
+    <a href="../resources.html">Resources</a>
+  </nav>
+  <span class="grow"></span>
+  <button type="button" class="icon-btn" id="theme-btn"></button>
+</header>
+<div class="layout">
+  <nav class="toc" id="toc" aria-label="On this page"></nav>
+  <main class="prose" id="content">
+<h1 id="section-b-docker-in-depth-weeks-57">Section B: Docker in depth (Weeks 5–7)<a class="anchor" href="#section-b-docker-in-depth-weeks-57" aria-label="Link to this heading">#</a></h1>
+<p>You'll go past &quot;it runs in a container&quot; to understanding what a container is on Linux, building small and secure .NET images, and running StudyHub with its databases in Docker Compose. Everything here is used again in Kubernetes and EKS.</p>
+<p><strong>Setup:</strong> Docker Desktop with the WSL 2 backend. In Docker Desktop, open <strong>Settings → Resources → WSL integration</strong> and turn it on for Ubuntu. Then <strong>(Ubuntu)</strong> run <code>docker version</code>, and check that both Client and Server appear.</p>
+<p><strong>Courses for this section (optional, see <a href="../resources.html">resources.md</a>):</strong> Udemy's <a href="https://www.udemy.com/course/docker-and-kubernetes-the-complete-guide/" target="_blank" rel="noopener">Docker and Kubernetes: The Complete Guide</a> (Docker sections), and the free <a href="https://docs.docker.com/get-started/" target="_blank" rel="noopener">Docker: Get started</a>. <strong>roadmap.sh:</strong> <a href="https://roadmap.sh/docker" target="_blank" rel="noopener">Docker</a>.</p>
+<hr>
+<h2 id="week-5-images-and-containers-and-how-they-really-work">Week 5: Images and containers, and how they really work<a class="anchor" href="#week-5-images-and-containers-and-how-they-really-work" aria-label="Link to this heading">#</a></h2>
+<p><strong>By the end of the week:</strong> you can explain a container as a Linux process with namespaces and cgroups, read image layers, and manage the full container lifecycle.</p>
+<h3 id="day-1-containers-are-linux-processes">Day 1: Containers are Linux processes<a class="anchor" href="#day-1-containers-are-linux-processes" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> a container is an ordinary process that the kernel isolates with <strong>namespaces</strong> (what it can see) and limits with <strong>cgroups</strong> (what it can use). Docker packages that up with an image.</p>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-a-container/" target="_blank" rel="noopener">What is a container?</a> (Docker docs)</li>
+</ul>
+<p><strong>Do (Ubuntu)</strong></p>
+<ol>
+<li>Isolate a shell yourself, without Docker:
+<pre><code class="lang-bash">sudo unshare --pid --fork --mount-proc --uts bash
+hostname isolated-box; hostname   # changes only inside
+ps -ef                            # you are PID 1 and see almost nothing
+exit</code></pre></li>
+<li>Now run a container and find it from the outside:
+<pre><code class="lang-bash">docker run -d --name sleeper alpine sleep 600
+docker top sleeper                 # the process, seen from the host
+docker inspect -f '{{.State.Pid}}' sleeper
+docker stats --no-stream sleeper   # cgroup limits and usage
+docker rm -f sleeper</code></pre></li>
+</ol>
+<p><strong>Done when:</strong> you can explain namespaces and cgroups in two sentences, with today's commands as the evidence.</p>
+<h3 id="day-2-images-and-layers">Day 2: Images and layers<a class="anchor" href="#day-2-images-and-layers" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> an image is a stack of read-only layers plus settings. Containers add one writable layer on top. Layers are shared between images, which saves space and download time.</p>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li><a href="https://docs.docker.com/get-started/docker-concepts/building-images/understanding-image-layers/" target="_blank" rel="noopener">Understanding the image layers</a> (Docker docs)</li>
+</ul>
+<p><strong>Do</strong></p>
+<pre><code class="lang-bash">docker pull mcr.microsoft.com/dotnet/aspnet:10.0
+docker pull mcr.microsoft.com/dotnet/aspnet:10.0-alpine
+docker images | grep dotnet                  # compare sizes
+docker history mcr.microsoft.com/dotnet/aspnet:10.0
+docker image inspect mcr.microsoft.com/dotnet/aspnet:10.0 --format '{{json .Config}}' | jq
+docker system df                             # space used by images, containers, and volumes</code></pre>
+<p><strong>Done when:</strong> you can say which layers make up the aspnet image, and why the Alpine one is smaller.</p>
+<h3 id="day-3-the-container-lifecycle">Day 3: The container lifecycle<a class="anchor" href="#day-3-the-container-lifecycle" aria-label="Link to this heading">#</a></h3>
+<p><strong>Do:</strong> practice each state and command:</p>
+<pre><code class="lang-bash">docker run -d --name web -p 8080:80 nginx
+docker ps; docker logs -f web          # open http://localhost:8080, then Ctrl+C
+docker exec -it web sh                 # look around inside, then exit
+docker stop web; docker ps -a          # stopped, but still there
+docker start web; docker restart web
+docker cp web:/etc/nginx/nginx.conf .  # copy a file out
+docker rm -f web
+docker run --rm -it ubuntu:24.04 bash  # a throwaway container, removed on exit</code></pre>
+<p>Then run a container with limits, and watch them apply:</p>
+<pre><code class="lang-bash">docker run --rm -m 64m --cpus 0.5 alpine sh -c &quot;cat /sys/fs/cgroup/memory.max; cat /sys/fs/cgroup/cpu.max&quot;</code></pre>
+<p><strong>Done when:</strong> you can move a container through created, running, stopped, and removed, and you've set memory and CPU limits.</p>
+<h3 id="day-4-writing-a-dockerfile">Day 4: Writing a Dockerfile<a class="anchor" href="#day-4-writing-a-dockerfile" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> a Dockerfile is the recipe for an image. Each instruction creates a layer, so order matters for caching.</p>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://docs.docker.com/get-started/docker-concepts/building-images/writing-a-dockerfile/" target="_blank" rel="noopener">Writing a Dockerfile</a> and <a href="https://docs.docker.com/get-started/docker-concepts/building-images/using-the-build-cache/" target="_blank" rel="noopener">Using the build cache</a> (Docker docs)</li>
+</ul>
+<p><strong>Do:</strong> containerize your Week 1 <code>sysinfo.sh</code>:</p>
+<pre><code class="lang-dockerfile">FROM ubuntu:24.04
+RUN apt-get update &amp;&amp; apt-get install -y --no-install-recommends procps &amp;&amp; rm -rf /var/lib/apt/lists/*
+COPY sysinfo.sh /usr/local/bin/sysinfo
+RUN chmod +x /usr/local/bin/sysinfo
+ENTRYPOINT [&quot;sysinfo&quot;]</code></pre>
+<pre><code class="lang-bash">docker build -t sysinfo:1 .
+docker run --rm sysinfo:1</code></pre>
+<p>Edit <code>sysinfo.sh</code>, rebuild, and watch which steps say <code>CACHED</code>.</p>
+<p><strong>Done when:</strong> your script runs in a container, and you can explain why <code>COPY</code> comes after <code>apt-get</code>.</p>
+<h3 id="day-5-environment-ports-and-restart-policies">Day 5: Environment, ports, and restart policies<a class="anchor" href="#day-5-environment-ports-and-restart-policies" aria-label="Link to this heading">#</a></h3>
+<p><strong>Do</strong></p>
+<pre><code class="lang-bash">docker run -d --name h1 --restart unless-stopped -p 8081:80 -e NGINX_HOST=lab nginx
+docker inspect -f '{{.HostConfig.RestartPolicy.Name}}' h1
+docker exec h1 env | grep NGINX
+docker kill h1; sleep 2; docker ps -a --filter name=h1   # killed containers aren't restarted
+docker exec h1 nginx -s stop 2&gt;/dev/null; sleep 3; docker ps --filter name=h1  # a crash is restarted
+docker rm -f h1</code></pre>
+<p>Then use an env file: create <code>app.env</code> with two <code>KEY=value</code> lines, and run <code>docker run --rm --env-file app.env alpine env</code>.</p>
+<p><strong>Done when:</strong> you know the difference between <code>no</code>, <code>on-failure</code>, <code>always</code>, and <code>unless-stopped</code>.</p>
+<h3 id="day-6-mini-project-debug-a-broken-container">Day 6: Mini project, debug a broken container<a class="anchor" href="#day-6-mini-project-debug-a-broken-container" aria-label="Link to this heading">#</a></h3>
+<p><strong>Do:</strong> build this deliberately broken image and fix it using only <code>docker logs</code>, <code>docker inspect</code>, and <code>docker exec</code>:</p>
+<pre><code class="lang-dockerfile">FROM python:3.13-slim
+WORKDIR /app
+RUN echo 'import os, http.server; http.server.test(port=int(os.environ[&quot;PORT&quot;]))' &gt; app.py
+EXPOSE 9000
+CMD [&quot;python&quot;, &quot;app.py&quot;]</code></pre>
+<p>Run it with <code>docker run -d -p 9000:9000 --name broken broken:1</code>. There are two problems: a missing environment variable, and a port mismatch. Write down how you found each one.</p>
+<p><strong>Done when:</strong> <code>curl localhost:9000</code> works, and you've written down the steps you took to find both bugs.</p>
+<h3 id="day-7-review-and-catch-up-light">Day 7: Review and catch-up (light)<a class="anchor" href="#day-7-review-and-catch-up-light" aria-label="Link to this heading">#</a></h3>
+<ul>
+<li>Push your Dockerfiles and notes to <code>cloud-native-lab/week-05</code>.</li>
+<li>Clean up with <code>docker system prune</code> (it removes stopped containers and unused images; read the prompt first).</li>
+</ul>
+<hr>
+<h2 id="week-6-building-small-secure-net-images">Week 6: Building small, secure .NET images<a class="anchor" href="#week-6-building-small-secure-net-images" aria-label="Link to this heading">#</a></h2>
+<p><strong>By the end of the week:</strong> StudyHub in a multi-stage, non-root, chiseled image under 120 MB, built with cache mounts, scanned for vulnerabilities, and also built with the .NET SDK's container publishing.</p>
+<h3 id="day-1-a-multi-stage-dockerfile-for-studyhub">Day 1: A multi-stage Dockerfile for StudyHub<a class="anchor" href="#day-1-a-multi-stage-dockerfile-for-studyhub" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> the SDK image is large and full of build tools. A multi-stage build compiles in the SDK image, then copies only the output into a small runtime image.</p>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://learn.microsoft.com/en-us/dotnet/core/docker/build-container" target="_blank" rel="noopener">Containerize a .NET app</a> (Microsoft Learn)</li>
+</ul>
+<p><strong>Do:</strong> in <code>~/code/studyhub/StudyHub.Api</code>, create <code>Dockerfile</code> and <code>.dockerignore</code>:</p>
+<pre><code class="lang-dockerfile">FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+COPY StudyHub.Api.csproj .
+RUN dotnet restore
+COPY . .
+RUN dotnet publish -c Release -o /app --no-restore
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
+WORKDIR /app
+COPY --from=build /app .
+EXPOSE 8080
+ENTRYPOINT [&quot;dotnet&quot;, &quot;StudyHub.Api.dll&quot;]</code></pre>
+<pre><code class="lang-text">bin/
+obj/
+publish/</code></pre>
+<p>Build it with <code>docker build -t studyhub:1 .</code> and run it with <code>docker run --rm -p 5080:8080 studyhub:1</code>. The .NET 8+ images listen on port 8080 by default.</p>
+<p><strong>Done when:</strong> <code>curl localhost:5080/lessons</code> works from the container, and you've noted the image size with <code>docker images studyhub</code>.</p>
+<h3 id="day-2-non-root-and-chiseled-images">Day 2: Non-root and chiseled images<a class="anchor" href="#day-2-non-root-and-chiseled-images" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> containers shouldn't run as root. Microsoft's <strong>chiseled</strong> Ubuntu images contain only what .NET needs: no shell, no package manager, and a non-root user. They're smaller and have far fewer vulnerabilities.</p>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li><a href="https://learn.microsoft.com/en-us/dotnet/core/docker/container-images" target="_blank" rel="noopener">Container images for .NET</a> (Microsoft Learn), the chiseled images section</li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li>Check who your current image runs as: <code>docker run --rm --entrypoint whoami studyhub:1</code>. The .NET images define an <code>app</code> user, but don't switch to it automatically in every image.</li>
+<li>Change the final stage to the chiseled image and the non-root user:
+<pre><code class="lang-dockerfile">FROM mcr.microsoft.com/dotnet/aspnet:10.0-noble-chiseled
+WORKDIR /app
+COPY --from=build /app .
+USER $APP_UID
+EXPOSE 8080
+ENTRYPOINT [&quot;dotnet&quot;, &quot;StudyHub.Api.dll&quot;]</code></pre></li>
+<li>Build <code>studyhub:2</code>, and compare sizes. Try <code>docker exec -it &lt;id&gt; sh</code>. It fails, because there's no shell, which is the point.</li>
+</ol>
+<p><strong>Done when:</strong> <code>studyhub:2</code> runs, is clearly smaller than <code>studyhub:1</code>, and has no shell.</p>
+<h3 id="day-3-faster-builds-with-buildkit-cache-mounts">Day 3: Faster builds with BuildKit cache mounts<a class="anchor" href="#day-3-faster-builds-with-buildkit-cache-mounts" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> every <code>dotnet restore</code> downloads NuGet packages again. A BuildKit cache mount keeps the package folder between builds, without putting it in the image.</p>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li><a href="https://docs.docker.com/build/cache/optimize/" target="_blank" rel="noopener">Optimize cache usage in builds</a> (Docker docs)</li>
+</ul>
+<p><strong>Do:</strong> change the restore and publish lines to use a cache mount:</p>
+<pre><code class="lang-dockerfile">RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages dotnet restore
+COPY . .
+RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages dotnet publish -c Release -o /app --no-restore</code></pre>
+<p>Add a NuGet package (<code>dotnet add package Humanizer</code>), then time a rebuild with <code>time docker build -t studyhub:3 .</code> before and after the change.</p>
+<p><strong>Done when:</strong> a rebuild after adding a package is noticeably faster with the cache mount.</p>
+<h3 id="day-4-building-with-the-net-sdk-no-dockerfile">Day 4: Building with the .NET SDK, no Dockerfile<a class="anchor" href="#day-4-building-with-the-net-sdk-no-dockerfile" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> <code>dotnet publish</code> can build a container image directly. It picks a matching base image, runs as non-root by default, and is easy to use in CI.</p>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li><a href="https://learn.microsoft.com/en-us/dotnet/core/containers/sdk-publish" target="_blank" rel="noopener">Containerize a .NET app with dotnet publish</a> (Microsoft Learn)</li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li>Add these properties to <code>StudyHub.Api.csproj</code>:
+<pre><code class="lang-xml">&lt;PropertyGroup&gt;
+  &lt;ContainerRepository&gt;studyhub&lt;/ContainerRepository&gt;
+  &lt;ContainerImageTags&gt;sdk-4&lt;/ContainerImageTags&gt;
+  &lt;ContainerFamily&gt;noble-chiseled&lt;/ContainerFamily&gt;
+&lt;/PropertyGroup&gt;</code></pre></li>
+<li>Build it: <code>dotnet publish -c Release --os linux --arch x64 /t:PublishContainer</code>.</li>
+<li>Run <code>docker images studyhub</code>, and compare the <code>sdk-4</code> image with your Dockerfile build.</li>
+</ol>
+<p><strong>Done when:</strong> you've built the same app both ways, and can say when you'd pick each one.</p>
+<h3 id="day-5-scanning-images-for-vulnerabilities">Day 5: Scanning images for vulnerabilities<a class="anchor" href="#day-5-scanning-images-for-vulnerabilities" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> images include OS packages with known security bugs (CVEs). Scanners compare them with vulnerability databases. Scan before you push, and rebuild regularly to pick up patches.</p>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li><a href="https://trivy.dev/docs/latest/target/container_image/" target="_blank" rel="noopener">Trivy: scanning container images</a></li>
+</ul>
+<p><strong>Do</strong></p>
+<pre><code class="lang-bash">docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image --severity HIGH,CRITICAL studyhub:1
+docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image --severity HIGH,CRITICAL studyhub:2
+docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image --severity HIGH,CRITICAL python:3.13</code></pre>
+<p>If you're signed in to Docker Desktop, also try <code>docker scout quickview studyhub:2</code>.</p>
+<p><strong>Done when:</strong> you have a table of HIGH and CRITICAL counts for the three images, and the chiseled image has the fewest.</p>
+<h3 id="day-6-mini-project-an-image-checklist">Day 6: Mini project, an image checklist<a class="anchor" href="#day-6-mini-project-an-image-checklist" aria-label="Link to this heading">#</a></h3>
+<p><strong>Do:</strong> write <code>docker/IMAGE-CHECKLIST.md</code> for StudyHub, and make the image pass every item:</p>
+<ul>
+<li>multi-stage build, chiseled runtime image</li>
+<li>runs as a non-root user</li>
+<li><code>.dockerignore</code> keeps <code>bin</code>, <code>obj</code>, and secrets out</li>
+<li>image size under 120 MB</li>
+<li>no HIGH or CRITICAL findings in Trivy (or each one is explained)</li>
+<li>a <code>HEALTHCHECK</code> isn't possible without a shell or curl, so the plan is to use Kubernetes probes in Week 18; note that down</li>
+<li>labels for source and version: <code>LABEL org.opencontainers.image.source=&quot;https://github.com/&lt;you&gt;/cloud-native-lab&quot;</code></li>
+</ul>
+<p><strong>Done when:</strong> the checklist is ticked, and <code>studyhub:5</code> meets every item.</p>
+<h3 id="day-7-review-and-catch-up-light-1">Day 7: Review and catch-up (light)<a class="anchor" href="#day-7-review-and-catch-up-light-1" aria-label="Link to this heading">#</a></h3>
+<ul>
+<li>Push the Dockerfile, csproj changes, and checklist to <code>cloud-native-lab/week-06</code>.</li>
+</ul>
+<hr>
+<h2 id="week-7-networks-volumes-docker-compose-and-registries">Week 7: Networks, volumes, Docker Compose, and registries<a class="anchor" href="#week-7-networks-volumes-docker-compose-and-registries" aria-label="Link to this heading">#</a></h2>
+<p><strong>By the end of the week:</strong> StudyHub, MongoDB, and Valkey running together in Docker Compose with health checks and persistent data, and the StudyHub image pushed to GitHub's registry for two CPU types.</p>
+<h3 id="day-1-container-networks">Day 1: Container networks<a class="anchor" href="#day-1-container-networks" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> on a user-defined network, containers find each other by name through Docker's built-in DNS. The default <code>bridge</code> network doesn't give you names.</p>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li><a href="https://docs.docker.com/engine/network/" target="_blank" rel="noopener">Networking overview</a> (Docker docs)</li>
+</ul>
+<p><strong>Do</strong></p>
+<pre><code class="lang-bash">docker network create labnet
+docker run -d --name api --network labnet studyhub:5
+docker run --rm --network labnet curlimages/curl -s http://api:8080/health
+docker run --rm curlimages/curl -s --max-time 3 http://api:8080/health   # fails: different network
+docker network inspect labnet | jq '.[0].Containers'
+docker rm -f api; docker network rm labnet</code></pre>
+<p><strong>Done when:</strong> you've reached a container by name, and seen it fail from another network.</p>
+<h3 id="day-2-volumes-and-bind-mounts">Day 2: Volumes and bind mounts<a class="anchor" href="#day-2-volumes-and-bind-mounts" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> a container's writable layer disappears when it's removed. <strong>Volumes</strong> (managed by Docker) keep data. <strong>Bind mounts</strong> map a host folder, which suits config and source code.</p>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li><a href="https://docs.docker.com/get-started/docker-concepts/running-containers/persisting-container-data/" target="_blank" rel="noopener">Persisting container data</a> (Docker docs)</li>
+</ul>
+<p><strong>Do</strong></p>
+<pre><code class="lang-bash">docker volume create mongo-data
+docker run -d --name mongo -v mongo-data:/data/db mongo:8
+docker exec mongo mongosh --quiet --eval 'db.test.insertOne({hello: &quot;volume&quot;})'
+docker rm -f mongo
+docker run -d --name mongo -v mongo-data:/data/db mongo:8
+docker exec mongo mongosh --quiet --eval 'db.test.find().toArray()'   # the data survived
+docker rm -f mongo
+docker run --rm -v &quot;$PWD&quot;:/work -w /work alpine ls                     # a bind mount</code></pre>
+<p><strong>Done when:</strong> data survives removing and recreating the container.</p>
+<h3 id="day-3-docker-compose-for-studyhub">Day 3: Docker Compose for StudyHub<a class="anchor" href="#day-3-docker-compose-for-studyhub" aria-label="Link to this heading">#</a></h3>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li><a href="https://docs.docker.com/compose/gettingstarted/" target="_blank" rel="noopener">Docker Compose quickstart</a> (Docker docs)</li>
+</ul>
+<p><strong>Do:</strong> create <code>~/code/studyhub/compose.yaml</code>:</p>
+<pre><code class="lang-yaml">services:
+  api:
+    build: ./StudyHub.Api
+    ports: [&quot;5080:8080&quot;]
+    environment:
+      ConnectionStrings__Mongo: mongodb://mongo:27017
+      ConnectionStrings__Valkey: valkey:6379
+    depends_on:
+      mongo: { condition: service_healthy }
+      valkey: { condition: service_healthy }
+  mongo:
+    image: mongo:8
+    volumes: [mongo-data:/data/db]
+    healthcheck:
+      test: [&quot;CMD&quot;, &quot;mongosh&quot;, &quot;--quiet&quot;, &quot;--eval&quot;, &quot;db.adminCommand('ping')&quot;]
+      interval: 5s
+      retries: 10
+  valkey:
+    image: valkey/valkey:8
+    volumes: [valkey-data:/data]
+    healthcheck:
+      test: [&quot;CMD&quot;, &quot;valkey-cli&quot;, &quot;ping&quot;]
+      interval: 5s
+      retries: 10
+volumes:
+  mongo-data:
+  valkey-data:</code></pre>
+<p>StudyHub doesn't use MongoDB or Valkey yet. That starts in Weeks 9 and 12.</p>
+<pre><code class="lang-bash">docker compose up -d --build
+docker compose ps
+docker compose logs -f api</code></pre>
+<p><strong>Done when:</strong> all three services are healthy, and the API answers on port 5080.</p>
+<h3 id="day-4-compose-for-daily-work">Day 4: Compose for daily work<a class="anchor" href="#day-4-compose-for-daily-work" aria-label="Link to this heading">#</a></h3>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li><a href="https://docs.docker.com/reference/compose-file/services/" target="_blank" rel="noopener">Compose file reference</a>: <code>profiles</code>, <code>env_file</code>, and <code>deploy.resources</code></li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li>Move settings into a <code>.env</code> file, and reference them as <code>${VALKEY_IMAGE:-valkey/valkey:8}</code>.</li>
+<li>Add a <code>tools</code> profile with Mongo Express or another admin UI that only starts with <code>docker compose --profile tools up -d</code>.</li>
+<li>Add memory limits to each service under <code>deploy.resources.limits</code>.</li>
+<li>Scale the API to two copies: <code>docker compose up -d --scale api=2</code>. It fails because of the fixed host port. Remove the <code>ports</code> line, add an <code>nginx</code> service in front, and note the problem for Week 9 (two copies need a shared cache).</li>
+</ol>
+<p><strong>Done when:</strong> you can start, scale, and profile your stack, and you understand why two copies can't share a fixed port.</p>
+<h3 id="day-5-pushing-to-a-registry">Day 5: Pushing to a registry<a class="anchor" href="#day-5-pushing-to-a-registry" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> a registry stores images so other machines can pull them. You'll use GitHub Container Registry (ghcr.io) now, and Amazon ECR in Week 21.</p>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li><a href="https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry" target="_blank" rel="noopener">Working with the Container registry</a> (GitHub Docs)</li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li>Create a GitHub personal access token (classic) with <code>write:packages</code> scope, then log in: <code>echo &quot;&lt;token&gt;&quot; | docker login ghcr.io -u &lt;your-github-user&gt; --password-stdin</code>.</li>
+<li>Tag and push: <code>docker tag studyhub:5 ghcr.io/&lt;you&gt;/studyhub:0.1.0 &amp;&amp; docker push ghcr.io/&lt;you&gt;/studyhub:0.1.0</code>.</li>
+<li>Remove the local copy and pull it back: <code>docker rmi ghcr.io/&lt;you&gt;/studyhub:0.1.0 &amp;&amp; docker pull ghcr.io/&lt;you&gt;/studyhub:0.1.0</code>.</li>
+</ol>
+<p><strong>Done when:</strong> the image appears under Packages on your GitHub profile, and you can pull it.</p>
+<p><strong>Keep the token secret.</strong> Don't put it in a file in your repository.</p>
+<h3 id="day-6-multi-architecture-images-with-buildx">Day 6: Multi-architecture images with buildx<a class="anchor" href="#day-6-multi-architecture-images-with-buildx" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> many cloud servers (AWS Graviton, for example) use ARM64 CPUs. <code>docker buildx</code> builds one image tag that works on both x64 and ARM64.</p>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li><a href="https://docs.docker.com/build/building/multi-platform/" target="_blank" rel="noopener">Multi-platform builds</a> (Docker docs)</li>
+</ul>
+<p><strong>Do</strong></p>
+<pre><code class="lang-bash">docker buildx create --name multi --use
+docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/&lt;you&gt;/studyhub:0.1.1 --push ./StudyHub.Api
+docker buildx imagetools inspect ghcr.io/&lt;you&gt;/studyhub:0.1.1</code></pre>
+<p><strong>Done when:</strong> <code>imagetools inspect</code> lists both <code>linux/amd64</code> and <code>linux/arm64</code>.</p>
+<h3 id="day-7-review-and-catch-up-light-2">Day 7: Review and catch-up (light)<a class="anchor" href="#day-7-review-and-catch-up-light-2" aria-label="Link to this heading">#</a></h3>
+<ul>
+<li>Push <code>compose.yaml</code> (not <code>.env</code> if it has secrets) to <code>cloud-native-lab/week-07</code>.</li>
+<li>Section B is complete. Mark the topics on <a href="https://roadmap.sh/docker" target="_blank" rel="noopener">roadmap.sh/docker</a>.</li>
+</ul>
+<nav class="pager" aria-label="Sections"><a class="prev" href="A-linux-weeks-02-04.html"><small>Previous</small>← A. Linux (Weeks 2–4)</a><a class="next" href="C-caching-weeks-08-10.html"><small>Next</small>C. Caching (Weeks 8–10) →</a></nav>
+  </main>
+</div>
+<script src="../assets/plan-data.js"></script>
+<script src="../assets/lessons.js"></script>
+</body>
+</html>

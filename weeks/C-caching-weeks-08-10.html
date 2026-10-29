@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Section C: Caching in .NET (Weeks 8–10) · Cloud-Native .NET Plan</title>
+<meta name="color-scheme" content="light dark">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/common.js"></script>
+</head>
+<body data-page="weeks/C-caching-weeks-08-10.html" data-root="../">
+<a class="skip" href="#content">Skip to the lesson</a>
+<div class="read-progress" aria-hidden="true"><span></span></div>
+<header class="topbar">
+  <button type="button" class="icon-btn toc-toggle" id="toc-btn" aria-controls="toc" aria-expanded="false" aria-label="Show contents">☰</button>
+  <a class="brand" href="../schedule.html"><span class="logo" aria-hidden="true">CN</span><span class="brand-text">Cloud-Native .NET Plan</span></a>
+  <nav class="top-links" aria-label="Plan">
+    <a href="../schedule.html">Schedule</a>
+    <a href="../plan.html">Plan</a>
+    <a href="../resources.html">Resources</a>
+  </nav>
+  <span class="grow"></span>
+  <button type="button" class="icon-btn" id="theme-btn"></button>
+</header>
+<div class="layout">
+  <nav class="toc" id="toc" aria-label="On this page"></nav>
+  <main class="prose" id="content">
+<h1 id="section-c-caching-in-net-weeks-810">Section C: Caching in .NET (Weeks 8–10)<a class="anchor" href="#section-c-caching-in-net-weeks-810" aria-label="Link to this heading">#</a></h1>
+<p>Caching is the cheapest way to make a service faster and to protect its database. These weeks cover every layer .NET offers: in-process (<code>IMemoryCache</code>), whole responses (output caching and HTTP caching), shared between instances (<code>IDistributedCache</code> with Valkey), and both together (<code>HybridCache</code>). You'll measure each change rather than guess.</p>
+<p><strong>Valkey or Redis?</strong> Valkey is the open-source fork of Redis, run by the Linux Foundation. It speaks the same protocol, so the .NET Redis libraries work with it unchanged. AWS ElastiCache, which you'll use in Week 22, offers Valkey at a lower price than Redis.</p>
+<p><strong>Courses for this section (optional, see <a href="../resources.html">resources.md</a>):</strong> Microsoft Learn's <a href="https://learn.microsoft.com/en-us/aspnet/core/performance/caching/overview" target="_blank" rel="noopener">caching overview</a>, and AlgoMaster's <a href="https://algomaster.io/learn/system-design" target="_blank" rel="noopener">System Design</a> caching lessons for the patterns. <strong>roadmap.sh:</strong> <a href="https://roadmap.sh/aspnet-core" target="_blank" rel="noopener">ASP.NET Core</a> (caching topics), <a href="https://roadmap.sh/redis" target="_blank" rel="noopener">Redis</a>, and <a href="https://roadmap.sh/system-design" target="_blank" rel="noopener">System Design</a> (caching).</p>
+<hr>
+<h2 id="week-8-in-process-caching">Week 8: In-process caching<a class="anchor" href="#week-8-in-process-caching" aria-label="Link to this heading">#</a></h2>
+<p><strong>By the end of the week:</strong> StudyHub with a slow data source, a load test that measures it, and three kinds of caching (IMemoryCache, output caching, and HTTP caching), each with before and after numbers.</p>
+<h3 id="day-1-a-slow-data-source-and-a-way-to-measure-it">Day 1: A slow data source, and a way to measure it<a class="anchor" href="#day-1-a-slow-data-source-and-a-way-to-measure-it" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> you can't improve what you don't measure. Before caching anything, give StudyHub a realistically slow data source and a simple load test.</p>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li><a href="https://learn.microsoft.com/en-us/aspnet/core/performance/caching/overview" target="_blank" rel="noopener">Caching overview</a> (Microsoft Learn)</li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li>In <code>StudyHub.Api</code>, add a repository that pretends to be a slow database:
+<pre><code class="lang-csharp">public interface ILessonRepository
+{
+    Task&lt;IReadOnlyList&lt;Lesson&gt;&gt; GetAllAsync(CancellationToken ct = default);
+    Task&lt;Lesson?&gt; GetAsync(int id, CancellationToken ct = default);
+}
+
+public sealed class SlowLessonRepository : ILessonRepository
+{
+    private static readonly Lesson[] Lessons = Enumerable.Range(1, 50)
+        .Select(i =&gt; new Lesson(i, $&quot;Lesson {i}&quot;, i % 2 == 0 ? &quot;linux&quot; : &quot;docker&quot;)).ToArray();
+    public static int Calls;   // counts &quot;database&quot; calls
+
+    public async Task&lt;IReadOnlyList&lt;Lesson&gt;&gt; GetAllAsync(CancellationToken ct = default)
+    { Interlocked.Increment(ref Calls); await Task.Delay(300, ct); return Lessons; }
+
+    public async Task&lt;Lesson?&gt; GetAsync(int id, CancellationToken ct = default)
+    { Interlocked.Increment(ref Calls); await Task.Delay(150, ct); return Lessons.FirstOrDefault(l =&gt; l.Id == id); }
+}</code></pre></li>
+<li>Register it with <code>builder.Services.AddSingleton&lt;ILessonRepository, SlowLessonRepository&gt;();</code>, make <code>/lessons</code> and <code>/lessons/{id}</code> use it, and add <code>app.MapGet(&quot;/stats&quot;, () =&gt; new { dbCalls = SlowLessonRepository.Calls });</code>.</li>
+<li>Install the k6 load tester from the <a href="https://grafana.com/docs/k6/latest/set-up/install-k6/" target="_blank" rel="noopener">k6 install page</a> (on Ubuntu, use the apt instructions there), and save this as <code>load.js</code>:
+<pre><code class="lang-javascript">import http from &quot;k6/http&quot;;
+export const options = { vus: 20, duration: &quot;30s&quot; };
+export default function () {
+  http.get(`http://localhost:5080/lessons/${Math.ceil(Math.random() * 50)}`);
+  http.get(&quot;http://localhost:5080/lessons&quot;);
+}</code></pre></li>
+<li>Run StudyHub, then <code>k6 run load.js</code>. Record requests per second, p95 latency, and <code>/stats</code>.</li>
+</ol>
+<p><strong>Done when:</strong> you have baseline numbers written down in <code>caching/RESULTS.md</code>.</p>
+<h3 id="day-2-imemorycache-and-cache-aside">Day 2: IMemoryCache and cache-aside<a class="anchor" href="#day-2-imemorycache-and-cache-aside" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> cache-aside means: look in the cache, and on a miss, load from the source and store it. <code>IMemoryCache</code> keeps objects in the app's own memory, so it's very fast but not shared between instances.</p>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://learn.microsoft.com/en-us/aspnet/core/performance/caching/memory" target="_blank" rel="noopener">Cache in-memory in ASP.NET Core</a> (Microsoft Learn)</li>
+</ul>
+<p><strong>Do:</strong> add a caching decorator around the repository:</p>
+<pre><code class="lang-csharp">using Microsoft.Extensions.Caching.Memory;
+
+public sealed class MemoryCachedLessonRepository(ILessonRepository inner, IMemoryCache cache) : ILessonRepository
+{
+    public Task&lt;IReadOnlyList&lt;Lesson&gt;&gt; GetAllAsync(CancellationToken ct = default) =&gt;
+        cache.GetOrCreateAsync(&quot;lessons:all&quot;, entry =&gt;
+        {
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(30);
+            return inner.GetAllAsync(ct);
+        })!;
+
+    public Task&lt;Lesson?&gt; GetAsync(int id, CancellationToken ct = default) =&gt;
+        cache.GetOrCreateAsync($&quot;lessons:{id}&quot;, entry =&gt;
+        {
+            entry.SlidingExpiration = TimeSpan.FromSeconds(20);
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(2);
+            return inner.GetAsync(id, ct);
+        });
+}</code></pre>
+<p>Register it:</p>
+<pre><code class="lang-csharp">builder.Services.AddMemoryCache();
+builder.Services.AddSingleton&lt;SlowLessonRepository&gt;();
+builder.Services.AddSingleton&lt;ILessonRepository&gt;(sp =&gt;
+    new MemoryCachedLessonRepository(sp.GetRequiredService&lt;SlowLessonRepository&gt;(), sp.GetRequiredService&lt;IMemoryCache&gt;()));</code></pre>
+<p>Run the load test again.</p>
+<p><strong>Done when:</strong> throughput is much higher, <code>/stats</code> shows far fewer database calls, and both results are in <code>RESULTS.md</code>.</p>
+<h3 id="day-3-expiration-size-limits-and-the-stampede-problem">Day 3: Expiration, size limits, and the stampede problem<a class="anchor" href="#day-3-expiration-size-limits-and-the-stampede-problem" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> an unbounded cache can use all your memory. And when a popular entry expires, many requests can miss at the same time and all hit the database. That's a <strong>cache stampede</strong>.</p>
+<p><strong>Do</strong></p>
+<ol>
+<li>Set a size limit: <code>builder.Services.AddMemoryCache(o =&gt; o.SizeLimit = 1000);</code>, then give every entry a size with <code>entry.Size = 1;</code> (it's required once a limit is set).</li>
+<li>Reproduce a stampede: set <code>lessons:all</code> to expire after 2 seconds, run k6 with 50 users, and watch <code>/stats</code> jump every time it expires.</li>
+<li>Note in <code>RESULTS.md</code> that <code>GetOrCreateAsync</code> on <code>IMemoryCache</code> <strong>doesn't</strong> stop concurrent misses. You'll fix this properly with HybridCache in Week 10.</li>
+</ol>
+<p><strong>Done when:</strong> you've seen the stampede in the numbers, and explained it in your notes.</p>
+<h3 id="day-4-output-caching">Day 4: Output caching<a class="anchor" href="#day-4-output-caching" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> output caching stores the whole HTTP response on the server, so the endpoint code doesn't even run. You can vary it by query string and clear it by tag.</p>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://learn.microsoft.com/en-us/aspnet/core/performance/caching/output" target="_blank" rel="noopener">Output caching middleware in ASP.NET Core</a> (Microsoft Learn)</li>
+</ul>
+<p><strong>Do</strong></p>
+<pre><code class="lang-csharp">builder.Services.AddOutputCache(o =&gt;
+{
+    o.AddBasePolicy(b =&gt; b.Expire(TimeSpan.FromSeconds(10)));
+    o.AddPolicy(&quot;lessons&quot;, b =&gt; b.Expire(TimeSpan.FromMinutes(1)).SetVaryByQuery(&quot;topic&quot;).Tag(&quot;lessons&quot;));
+});
+app.UseOutputCache();
+
+app.MapGet(&quot;/lessons&quot;, async (ILessonRepository repo, string? topic) =&gt;
+    (await repo.GetAllAsync()).Where(l =&gt; topic is null || l.Topic == topic))
+   .CacheOutput(&quot;lessons&quot;);
+
+app.MapPost(&quot;/admin/lessons/refresh&quot;, async (IOutputCacheStore store, CancellationToken ct) =&gt;
+{
+    await store.EvictByTagAsync(&quot;lessons&quot;, ct);
+    return Results.NoContent();
+});</code></pre>
+<p>Turn off your memory cache decorator for this test, so you see output caching alone. Run k6, then call the refresh endpoint and check the next request is slow again.</p>
+<p><strong>Done when:</strong> you've measured output caching, and evicted it by tag.</p>
+<h3 id="day-5-http-caching-with-etags-and-cache-control">Day 5: HTTP caching with ETags and Cache-Control<a class="anchor" href="#day-5-http-caching-with-etags-and-cache-control" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> HTTP caching lets browsers and proxies keep responses. <code>Cache-Control</code> says for how long. An <code>ETag</code> lets a client ask &quot;has it changed?&quot;, and get a tiny <code>304 Not Modified</code> if it hasn't.</p>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Caching" target="_blank" rel="noopener">HTTP caching</a> (MDN)</li>
+</ul>
+<p><strong>Do:</strong> add an ETag to the single-lesson endpoint:</p>
+<pre><code class="lang-csharp">app.MapGet(&quot;/lessons/{id:int}&quot;, async (int id, ILessonRepository repo, HttpContext http) =&gt;
+{
+    var lesson = await repo.GetAsync(id);
+    if (lesson is null) return Results.NotFound();
+    var etag = $&quot;\&quot;{lesson.GetHashCode():x}\&quot;&quot;;
+    http.Response.Headers.ETag = etag;
+    http.Response.Headers.CacheControl = &quot;public, max-age=60&quot;;
+    return http.Request.Headers.IfNoneMatch == etag ? Results.StatusCode(304) : Results.Ok(lesson);
+});</code></pre>
+<p>Test it:</p>
+<pre><code class="lang-bash">curl -si localhost:5080/lessons/3 | grep -i -E 'etag|cache-control'
+curl -si -H 'If-None-Match: &quot;&lt;the etag&gt;&quot;' localhost:5080/lessons/3 | head -1   # HTTP/1.1 304</code></pre>
+<p><strong>Done when:</strong> a repeat request with the ETag returns <code>304</code> and no body.</p>
+<h3 id="day-6-mini-project-the-caching-comparison">Day 6: Mini project, the caching comparison<a class="anchor" href="#day-6-mini-project-the-caching-comparison" aria-label="Link to this heading">#</a></h3>
+<p><strong>Do:</strong> fill in <code>caching/RESULTS.md</code> with one row per approach, all measured with the same k6 script:</p>
+<div class="table-wrap"><table><thead><tr><th scope="col">Approach</th><th scope="col">Requests/s</th><th scope="col">p95 latency</th><th scope="col">Database calls in 30s</th><th scope="col">Shared between instances?</th><th scope="col">Survives a restart?</th></tr></thead><tbody><tr><td>No cache</td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>IMemoryCache</td><td></td><td></td><td></td><td>No</td><td>No</td></tr><tr><td>Output cache</td><td></td><td></td><td></td><td>No</td><td>No</td></tr><tr><td>HTTP caching (client side)</td><td></td><td></td><td></td><td>n/a</td><td>n/a</td></tr></tbody></table></div>
+<p>Then write three sentences on when you'd use each one.</p>
+<p><strong>Done when:</strong> the table is filled in with your own numbers.</p>
+<h3 id="day-7-review-and-catch-up-light">Day 7: Review and catch-up (light)<a class="anchor" href="#day-7-review-and-catch-up-light" aria-label="Link to this heading">#</a></h3>
+<ul>
+<li>Push StudyHub and <code>RESULTS.md</code> to <code>cloud-native-lab/week-08</code>.</li>
+</ul>
+<hr>
+<h2 id="week-9-distributed-caching-with-valkey">Week 9: Distributed caching with Valkey<a class="anchor" href="#week-9-distributed-caching-with-valkey" aria-label="Link to this heading">#</a></h2>
+<p><strong>By the end of the week:</strong> two StudyHub instances sharing a Valkey cache through <code>IDistributedCache</code>, an output cache stored in Valkey, and the skills to inspect any Redis-compatible cache with <code>valkey-cli</code>.</p>
+<h3 id="day-1-why-distributed-caching">Day 1: Why distributed caching<a class="anchor" href="#day-1-why-distributed-caching" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> with two or more instances, each has its own memory cache. They disagree, each warms up separately, and an update on one doesn't reach the other. A distributed cache is one shared store for all instances.</p>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://learn.microsoft.com/en-us/aspnet/core/performance/caching/distributed" target="_blank" rel="noopener">Distributed caching in ASP.NET Core</a> (Microsoft Learn)</li>
+</ul>
+<p><strong>Do:</strong> prove the problem. Add <code>app.MapGet(&quot;/whoami&quot;, () =&gt; Environment.MachineName);</code>, run two API copies behind nginx in Compose (from Week 7 Day 4), and add a <code>POST /lessons/{id}/title</code> endpoint that changes a title and removes that key from the memory cache. Call it, then fetch the lesson several times through nginx.</p>
+<p><strong>Done when:</strong> you've seen different instances return different titles for the same lesson.</p>
+<h3 id="day-2-valkey-basics-with-valkey-cli">Day 2: Valkey basics with valkey-cli<a class="anchor" href="#day-2-valkey-basics-with-valkey-cli" aria-label="Link to this heading">#</a></h3>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://valkey.io/commands/" target="_blank" rel="noopener">Valkey command reference</a>: <code>SET</code>, <code>GET</code>, <code>EXPIRE</code>, <code>TTL</code>, <code>DEL</code>, <code>SCAN</code>, <code>INFO</code></li>
+</ul>
+<p><strong>Do:</strong> use the Valkey container from your Compose file:</p>
+<pre><code class="lang-bash">docker compose exec valkey valkey-cli
+SET greeting &quot;hello&quot; EX 30
+GET greeting
+TTL greeting
+SET lesson:1 '{&quot;id&quot;:1,&quot;title&quot;:&quot;Install WSL&quot;}'
+KEYS *                       # fine locally; never on a real server
+SCAN 0 MATCH lesson:* COUNT 100
+INFO memory
+INFO stats                   # keyspace_hits and keyspace_misses
+CONFIG GET maxmemory-policy
+MONITOR                      # watch every command live; Ctrl+C to stop</code></pre>
+<p><strong>Done when:</strong> you can set a value with an expiry, find keys safely with <code>SCAN</code>, and read the hit and miss counters.</p>
+<h3 id="day-3-idistributedcache-with-valkey">Day 3: IDistributedCache with Valkey<a class="anchor" href="#day-3-idistributedcache-with-valkey" aria-label="Link to this heading">#</a></h3>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li><a href="https://learn.microsoft.com/en-us/aspnet/core/performance/caching/distributed#distributed-redis-cache" target="_blank" rel="noopener">Distributed Redis cache</a> (Microsoft Learn)</li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li><code>dotnet add package Microsoft.Extensions.Caching.StackExchangeRedis</code></li>
+<li>Register it, using the connection string from Compose:
+<pre><code class="lang-csharp">builder.Services.AddStackExchangeRedisCache(o =&gt;
+{
+    o.Configuration = builder.Configuration.GetConnectionString(&quot;Valkey&quot;);
+    o.InstanceName = &quot;studyhub:&quot;;
+});</code></pre></li>
+<li>Write a <code>DistributedCachedLessonRepository</code> that serializes with <code>System.Text.Json</code>:
+<pre><code class="lang-csharp">public sealed class DistributedCachedLessonRepository(ILessonRepository inner, IDistributedCache cache) : ILessonRepository
+{
+    private static readonly DistributedCacheEntryOptions Options = new() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) };
+
+    public async Task&lt;Lesson?&gt; GetAsync(int id, CancellationToken ct = default)
+    {
+        string key = $&quot;lessons:{id}&quot;;
+        var cached = await cache.GetStringAsync(key, ct);
+        if (cached is not null) return JsonSerializer.Deserialize&lt;Lesson&gt;(cached);
+        var lesson = await inner.GetAsync(id, ct);
+        if (lesson is not null) await cache.SetStringAsync(key, JsonSerializer.Serialize(lesson), Options, ct);
+        return lesson;
+    }
+
+    public async Task&lt;IReadOnlyList&lt;Lesson&gt;&gt; GetAllAsync(CancellationToken ct = default)
+    {
+        var cached = await cache.GetStringAsync(&quot;lessons:all&quot;, ct);
+        if (cached is not null) return JsonSerializer.Deserialize&lt;List&lt;Lesson&gt;&gt;(cached)!;
+        var all = await inner.GetAllAsync(ct);
+        await cache.SetStringAsync(&quot;lessons:all&quot;, JsonSerializer.Serialize(all), Options, ct);
+        return all;
+    }
+
+    public Task RemoveAsync(int id, CancellationToken ct = default) =&gt;
+        Task.WhenAll(cache.RemoveAsync($&quot;lessons:{id}&quot;, ct), cache.RemoveAsync(&quot;lessons:all&quot;, ct));
+}</code></pre></li>
+<li>Make the title-change endpoint call <code>RemoveAsync</code>, and repeat Day 1's test.</li>
+</ol>
+<p><strong>Done when:</strong> both instances return the same, updated title. Look in <code>valkey-cli</code> with <code>SCAN 0 MATCH studyhub:*</code>, and note that the library stores values as hashes.</p>
+<h3 id="day-4-output-cache-and-sessions-in-valkey">Day 4: Output cache and sessions in Valkey<a class="anchor" href="#day-4-output-cache-and-sessions-in-valkey" aria-label="Link to this heading">#</a></h3>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li><a href="https://learn.microsoft.com/en-us/aspnet/core/performance/caching/output#redis-based-output-cache-store" target="_blank" rel="noopener">Output caching: Redis-based store</a> (Microsoft Learn)</li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li><code>dotnet add package Microsoft.AspNetCore.OutputCaching.StackExchangeRedis</code>, then:
+<pre><code class="lang-csharp">builder.Services.AddStackExchangeRedisOutputCache(o =&gt;
+{
+    o.Configuration = builder.Configuration.GetConnectionString(&quot;Valkey&quot;);
+    o.InstanceName = &quot;studyhub-oc:&quot;;
+});</code></pre></li>
+<li>With two instances, call the tag-eviction endpoint from Week 8 on one instance, and check both now miss.</li>
+<li>Add session state backed by the same distributed cache (<code>builder.Services.AddSession()</code> and <code>app.UseSession()</code>), store a &quot;last viewed lesson&quot; in the session, and check it follows you across instances.</li>
+</ol>
+<p><strong>Done when:</strong> eviction and sessions work across both instances.</p>
+<h3 id="day-5-keys-ttls-serialization-and-memory">Day 5: Keys, TTLs, serialization, and memory<a class="anchor" href="#day-5-keys-ttls-serialization-and-memory" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> good cache keys are predictable and versioned (<code>studyhub:v1:lessons:3</code>). Every entry needs a TTL. When memory fills, <code>maxmemory-policy</code> decides what's evicted.</p>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li><a href="https://valkey.io/topics/lru-cache/" target="_blank" rel="noopener">Key eviction</a> (Valkey docs)</li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li>Add a version segment to all keys, so a deploy that changes the <code>Lesson</code> shape can switch to <code>v2</code> without reading old data.</li>
+<li>Start Valkey with a 2 MB limit and LRU eviction: add <code>command: [&quot;valkey-server&quot;, &quot;--maxmemory&quot;, &quot;2mb&quot;, &quot;--maxmemory-policy&quot;, &quot;allkeys-lru&quot;]</code> to the service in Compose.</li>
+<li>Fill it with a script (<code>for i in $(seq 1 20000); do echo &quot;SET junk:$i $(head -c 200 /dev/urandom | base64 -w0)&quot;; done | docker compose exec -T valkey valkey-cli &gt; /dev/null</code>), then check <code>INFO stats</code> for <code>evicted_keys</code>.</li>
+<li>Compare the size of a lesson stored as JSON with one stored using <code>JsonSerializer</code> source generation (<code>[JsonSerializable(typeof(Lesson))]</code>), using <code>MEMORY USAGE &lt;key&gt;</code>.</li>
+</ol>
+<p><strong>Done when:</strong> you've seen evictions happen, and your keys are versioned.</p>
+<h3 id="day-6-when-the-cache-is-down">Day 6: When the cache is down<a class="anchor" href="#day-6-when-the-cache-is-down" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> a cache must never take your service down. If Valkey is unreachable, StudyHub should still answer from the database, just more slowly.</p>
+<p><strong>Do</strong></p>
+<ol>
+<li>Stop Valkey with <code>docker compose stop valkey</code>, and call the API. Note what happens (it waits for timeouts, then errors).</li>
+<li>Make the repository fall back: wrap cache calls in <code>try</code>/<code>catch (RedisConnectionException)</code> and <code>catch (RedisTimeoutException)</code>, log a warning, and go to the database.</li>
+<li>Shorten the connection timeouts in the configuration string, for example <code>valkey:6379,connectTimeout=1000,syncTimeout=500,abortConnect=false</code>.</li>
+<li>Run k6 while you stop and start Valkey, and record the error rate.</li>
+</ol>
+<p><strong>Done when:</strong> stopping Valkey makes StudyHub slower, but never return errors.</p>
+<h3 id="day-7-review-and-catch-up-light-1">Day 7: Review and catch-up (light)<a class="anchor" href="#day-7-review-and-catch-up-light-1" aria-label="Link to this heading">#</a></h3>
+<ul>
+<li>Push to <code>cloud-native-lab/week-09</code>, and add the distributed cache row to <code>RESULTS.md</code>.</li>
+</ul>
+<hr>
+<h2 id="week-10-hybridcache-invalidation-and-cache-design">Week 10: HybridCache, invalidation, and cache design<a class="anchor" href="#week-10-hybridcache-invalidation-and-cache-design" aria-label="Link to this heading">#</a></h2>
+<p><strong>By the end of the week:</strong> StudyHub using <code>HybridCache</code>, with in-memory and Valkey layers, stampede protection, and tag-based invalidation, plus a written caching design you could defend in a review.</p>
+<h3 id="day-1-what-hybridcache-adds">Day 1: What HybridCache adds<a class="anchor" href="#day-1-what-hybridcache-adds" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> <code>HybridCache</code> combines a fast in-memory layer (L1) with a distributed layer (L2). It protects against stampedes (only one caller loads a missing key), handles serialization, and supports tags. It replaces most hand-written cache-aside code.</p>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://learn.microsoft.com/en-us/aspnet/core/performance/caching/hybrid" target="_blank" rel="noopener">HybridCache library in ASP.NET Core</a> (Microsoft Learn)</li>
+</ul>
+<p><strong>Do:</strong> read the page, then list which of your Week 8–9 problems HybridCache solves: the stampede, the extra serialization code, the per-instance memory cache, and invalidation.</p>
+<p><strong>Done when:</strong> you can explain L1, L2, and stampede protection in your own words.</p>
+<h3 id="day-2-switch-studyhub-to-hybridcache">Day 2: Switch StudyHub to HybridCache<a class="anchor" href="#day-2-switch-studyhub-to-hybridcache" aria-label="Link to this heading">#</a></h3>
+<p><strong>Do</strong></p>
+<ol>
+<li><code>dotnet add package Microsoft.Extensions.Caching.Hybrid</code></li>
+<li>Register it. Keep the <code>AddStackExchangeRedisCache</code> call from Week 9, and HybridCache uses it as L2 automatically:
+<pre><code class="lang-csharp">builder.Services.AddHybridCache(o =&gt;
+{
+    o.DefaultEntryOptions = new HybridCacheEntryOptions
+    {
+        Expiration = TimeSpan.FromMinutes(5),       // L2 (Valkey)
+        LocalCacheExpiration = TimeSpan.FromMinutes(1)  // L1 (memory)
+    };
+});</code></pre></li>
+<li>Replace the decorator with a much shorter one:
+<pre><code class="lang-csharp">public sealed class HybridCachedLessonRepository(ILessonRepository inner, HybridCache cache) : ILessonRepository
+{
+    public async Task&lt;Lesson?&gt; GetAsync(int id, CancellationToken ct = default) =&gt;
+        await cache.GetOrCreateAsync($&quot;v1:lessons:{id}&quot;,
+            async token =&gt; await inner.GetAsync(id, token),
+            tags: [&quot;lessons&quot;, $&quot;lesson:{id}&quot;], cancellationToken: ct);
+
+    public async Task&lt;IReadOnlyList&lt;Lesson&gt;&gt; GetAllAsync(CancellationToken ct = default) =&gt;
+        await cache.GetOrCreateAsync(&quot;v1:lessons:all&quot;,
+            async token =&gt; await inner.GetAllAsync(token),
+            tags: [&quot;lessons&quot;], cancellationToken: ct);
+}</code></pre></li>
+</ol>
+<p><strong>Done when:</strong> StudyHub works on HybridCache, and the decorator is about half the size of the Week 9 one.</p>
+<h3 id="day-3-stampede-protection-measured">Day 3: Stampede protection, measured<a class="anchor" href="#day-3-stampede-protection-measured" aria-label="Link to this heading">#</a></h3>
+<p><strong>Do:</strong> repeat Week 8 Day 3's stampede test. Set a 2-second expiry, run k6 with 50 users, and compare <code>/stats</code> database calls with the IMemoryCache version.</p>
+<p><strong>Done when:</strong> each expiry causes one database call per instance, not dozens. Record both numbers in <code>RESULTS.md</code>.</p>
+<h3 id="day-4-invalidation-with-tags">Day 4: Invalidation with tags<a class="anchor" href="#day-4-invalidation-with-tags" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> &quot;There are only two hard things in computer science: cache invalidation and naming things.&quot; Tags let you invalidate groups of entries at once. In HybridCache this is a logical operation: old entries are ignored rather than deleted.</p>
+<p><strong>Do</strong></p>
+<ol>
+<li>On title change, call <code>await cache.RemoveByTagAsync($&quot;lesson:{id}&quot;)</code> and <code>await cache.RemoveByTagAsync(&quot;lessons&quot;)</code>.</li>
+<li>Add <code>POST /admin/cache/clear</code>, which calls <code>RemoveByTagAsync(&quot;*&quot;)</code>.</li>
+<li>With two instances, change a title on one and read it through the other. In current versions, L1 on the other instance can stay stale until <code>LocalCacheExpiration</code> runs out. Measure how long, and decide whether one minute is acceptable for StudyHub.</li>
+</ol>
+<p><strong>Done when:</strong> you've measured the staleness window across instances, and written down your decision.</p>
+<h3 id="day-5-cache-design-patterns">Day 5: Cache design patterns<a class="anchor" href="#day-5-cache-design-patterns" aria-label="Link to this heading">#</a></h3>
+<p><strong>Learn (~25 min)</strong></p>
+<ul>
+<li>AlgoMaster's <a href="https://algomaster.io/learn/system-design" target="_blank" rel="noopener">System Design</a> caching lessons: cache-aside, write-through, write-behind, and refresh-ahead</li>
+</ul>
+<p><strong>Do:</strong> for each StudyHub data type, pick a pattern and an expiry, and write the reason:</p>
+<div class="table-wrap"><table><thead><tr><th scope="col">Data</th><th scope="col">Changes how often</th><th scope="col">Pattern</th><th scope="col">L1 expiry</th><th scope="col">L2 expiry</th><th scope="col">Invalidation</th></tr></thead><tbody><tr><td>Lesson list</td><td>Rarely</td><td></td><td></td><td></td><td></td></tr><tr><td>One lesson</td><td>Rarely</td><td></td><td></td><td></td><td></td></tr><tr><td>A user's progress</td><td>Every study session</td><td></td><td></td><td></td><td></td></tr><tr><td>Leaderboard</td><td>Every minute</td><td></td><td></td><td></td><td></td></tr></tbody></table></div>
+<p><strong>Done when:</strong> the table is filled in, and at least one row says &quot;don't cache&quot;, with a reason.</p>
+<h3 id="day-6-mini-project-the-caching-design-document">Day 6: Mini project, the caching design document<a class="anchor" href="#day-6-mini-project-the-caching-design-document" aria-label="Link to this heading">#</a></h3>
+<p><strong>Do:</strong> write <code>caching/DESIGN.md</code> for StudyHub, covering:</p>
+<ul>
+<li>the layers you use (HTTP, output cache, HybridCache L1 and L2) and what each one is for</li>
+<li>key naming and versioning</li>
+<li>expiry and invalidation rules (from Day 5)</li>
+<li>what happens when Valkey is down (Week 9 Day 6)</li>
+<li>the numbers from <code>RESULTS.md</code></li>
+<li>what you'd monitor: hit ratio, evictions, memory, and latency. You'll add these as metrics in Week 15.</li>
+</ul>
+<p><strong>Done when:</strong> a teammate could read the document and know exactly how StudyHub caches.</p>
+<h3 id="day-7-review-and-catch-up-light-2">Day 7: Review and catch-up (light)<a class="anchor" href="#day-7-review-and-catch-up-light-2" aria-label="Link to this heading">#</a></h3>
+<ul>
+<li>Push to <code>cloud-native-lab/week-10</code>. Section C is complete. Mark the caching topics on <a href="https://roadmap.sh/aspnet-core" target="_blank" rel="noopener">roadmap.sh/aspnet-core</a> and <a href="https://roadmap.sh/redis" target="_blank" rel="noopener">roadmap.sh/redis</a>.</li>
+</ul>
+<nav class="pager" aria-label="Sections"><a class="prev" href="B-docker-weeks-05-07.html"><small>Previous</small>← B. Docker (Weeks 5–7)</a><a class="next" href="D-nosql-weeks-11-14.html"><small>Next</small>D. NoSQL (Weeks 11–14) →</a></nav>
+  </main>
+</div>
+<script src="../assets/plan-data.js"></script>
+<script src="../assets/lessons.js"></script>
+</body>
+</html>

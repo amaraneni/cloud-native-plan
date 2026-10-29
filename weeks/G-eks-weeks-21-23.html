@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Section G: Amazon EKS (Weeks 21–23) · Cloud-Native .NET Plan</title>
+<meta name="color-scheme" content="light dark">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/common.js"></script>
+</head>
+<body data-page="weeks/G-eks-weeks-21-23.html" data-root="../">
+<a class="skip" href="#content">Skip to the lesson</a>
+<div class="read-progress" aria-hidden="true"><span></span></div>
+<header class="topbar">
+  <button type="button" class="icon-btn toc-toggle" id="toc-btn" aria-controls="toc" aria-expanded="false" aria-label="Show contents">☰</button>
+  <a class="brand" href="../schedule.html"><span class="logo" aria-hidden="true">CN</span><span class="brand-text">Cloud-Native .NET Plan</span></a>
+  <nav class="top-links" aria-label="Plan">
+    <a href="../schedule.html">Schedule</a>
+    <a href="../plan.html">Plan</a>
+    <a href="../resources.html">Resources</a>
+  </nav>
+  <span class="grow"></span>
+  <button type="button" class="icon-btn" id="theme-btn"></button>
+</header>
+<div class="layout">
+  <nav class="toc" id="toc" aria-label="On this page"></nav>
+  <main class="prose" id="content">
+<h1 id="section-g-amazon-eks-weeks-2123">Section G: Amazon EKS (Weeks 21–23)<a class="anchor" href="#section-g-amazon-eks-weeks-2123" aria-label="Link to this heading">#</a></h1>
+<p>EKS is AWS's managed Kubernetes. With <strong>EKS Auto Mode</strong>, AWS also runs the nodes, load balancing, and storage for you, so you mostly just deploy workloads. Your Section F manifests and Helm chart work here with small changes. What's new is the AWS side: IAM, networking, load balancers, ECR, and managed services such as ElastiCache.</p>
+<p><strong>Cost rules for this section (read before Day 1):</strong></p>
+<ul>
+<li>An EKS cluster costs money every hour it exists, whether or not anything runs on it: about $0.10 an hour for the cluster, plus an Auto Mode management fee on each node, the EC2 nodes themselves, a NAT gateway, and any load balancers. Check today's prices on the <a href="https://aws.amazon.com/eks/pricing/" target="_blank" rel="noopener">EKS pricing page</a> and the <a href="https://aws.amazon.com/elasticache/pricing/" target="_blank" rel="noopener">ElastiCache pricing page</a>.</li>
+<li><strong>Create the cluster at the start of a session and delete it at the end.</strong> Each day below starts with &quot;create&quot; and ends with &quot;delete&quot; where a cluster is needed. A forgotten cluster costs roughly $5–10 a day.</li>
+<li>Before Day 1, set an AWS budget of $25 a month with email alerts at 50%, 80%, and 100%.</li>
+<li>Use one region, <code>us-east-1</code>, and tag everything with <code>project=cloud-native-lab</code>.</li>
+<li>If you've done the AI Engineering plan, reuse its AWS setup (IAM Identity Center, the <code>learn</code> CLI profile, and the budget). If not, Week 21 Day 1 covers the minimum.</li>
+</ul>
+<p><strong>Courses for this section (optional, see <a href="../resources.html">resources.md</a>):</strong> the free <a href="https://www.eksworkshop.com/" target="_blank" rel="noopener">EKS Workshop</a>, and Udemy's <a href="https://www.udemy.com/course/aws-eks-kubernetes-masterclass-devops-microservices/" target="_blank" rel="noopener">AWS EKS Kubernetes Masterclass</a>. <strong>roadmap.sh:</strong> <a href="https://roadmap.sh/aws" target="_blank" rel="noopener">AWS</a> and <a href="https://roadmap.sh/kubernetes" target="_blank" rel="noopener">Kubernetes</a> (managed providers).</p>
+<hr>
+<h2 id="week-21-your-first-eks-auto-mode-cluster-and-ecr">Week 21: Your first EKS Auto Mode cluster, and ECR<a class="anchor" href="#week-21-your-first-eks-auto-mode-cluster-and-ecr" aria-label="Link to this heading">#</a></h2>
+<p><strong>By the end of the week:</strong> StudyHub's images in Amazon ECR, and StudyHub running on an EKS Auto Mode cluster that you can create and delete with one command each.</p>
+<h3 id="day-1-account-safety-and-tools">Day 1: Account safety and tools<a class="anchor" href="#day-1-account-safety-and-tools" aria-label="Link to this heading">#</a></h3>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://docs.aws.amazon.com/eks/latest/userguide/setting-up.html" target="_blank" rel="noopener">Set up to use Amazon EKS</a> (AWS docs)</li>
+</ul>
+<p><strong>Do (Ubuntu)</strong></p>
+<ol>
+<li>If you don't have one yet, create an AWS budget of $25 with alerts, and a daily-use sign-in through IAM Identity Center (never use the root user for daily work). Configure the CLI with <code>aws configure sso</code> (profile <code>learn</code>, region <code>us-east-1</code>), then <code>export AWS_PROFILE=learn</code> and <code>aws sts get-caller-identity</code>.</li>
+<li>Install <code>eksctl</code> version 0.195.0 or later from the <a href="https://docs.aws.amazon.com/eks/latest/eksctl/installation.html" target="_blank" rel="noopener">eksctl install page</a>, then check <code>eksctl version</code>.</li>
+<li>Write <code>aws/cleanup-check.sh</code>, which lists anything that costs money while idle:
+<pre><code class="lang-bash">#!/usr/bin/env bash
+set -euo pipefail
+echo &quot;EKS clusters:&quot;;        aws eks list-clusters --query clusters --output text
+echo &quot;Load balancers:&quot;;      aws elbv2 describe-load-balancers --query 'LoadBalancers[].LoadBalancerName' --output text
+echo &quot;NAT gateways:&quot;;        aws ec2 describe-nat-gateways --filter Name=state,Values=available --query 'NatGateways[].NatGatewayId' --output text
+echo &quot;Running instances:&quot;;   aws ec2 describe-instances --filters Name=instance-state-name,Values=running --query 'Reservations[].Instances[].InstanceId' --output text
+echo &quot;ElastiCache caches:&quot;;  aws elasticache describe-serverless-caches --query 'ServerlessCaches[].ServerlessCacheName' --output text</code></pre>
+<p>Run it now, and at the end of every AWS day.</p></li>
+</ol>
+<p><strong>Done when:</strong> your budget alert is set, and the cleanup script runs and shows nothing.</p>
+<h3 id="day-2-push-studyhub-to-ecr">Day 2: Push StudyHub to ECR<a class="anchor" href="#day-2-push-studyhub-to-ecr" aria-label="Link to this heading">#</a></h3>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li><a href="https://docs.aws.amazon.com/AmazonECR/latest/userguide/docker-push-ecr-image.html" target="_blank" rel="noopener">Pushing a Docker image to ECR</a></li>
+</ul>
+<p><strong>Do</strong></p>
+<pre><code class="lang-bash">account=$(aws sts get-caller-identity --query Account --output text)
+registry=&quot;$account.dkr.ecr.us-east-1.amazonaws.com&quot;
+for repo in studyhub-api studyhub-worker; do
+  aws ecr create-repository --repository-name $repo --image-scanning-configuration scanOnPush=true \
+    --tags Key=project,Value=cloud-native-lab &gt;/dev/null
+done
+aws ecr get-login-password | docker login --username AWS --password-stdin &quot;$registry&quot;
+docker buildx build --platform linux/amd64,linux/arm64 -t &quot;$registry/studyhub-api:0.6.0&quot; --push ./StudyHub.Api
+docker buildx build --platform linux/amd64,linux/arm64 -t &quot;$registry/studyhub-worker:0.6.0&quot; --push ./StudyHub.Worker
+aws ecr describe-image-scan-findings --repository-name studyhub-api --image-id imageTag=0.6.0 --query 'imageScanFindings.findingSeverityCounts'</code></pre>
+<p>Also add a lifecycle policy that keeps only the 10 newest images, so storage doesn't grow forever.</p>
+<p><strong>Done when:</strong> both images are in ECR for both CPU types, with scan results.</p>
+<h3 id="day-3-create-an-eks-auto-mode-cluster">Day 3: Create an EKS Auto Mode cluster<a class="anchor" href="#day-3-create-an-eks-auto-mode-cluster" aria-label="Link to this heading">#</a></h3>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://docs.aws.amazon.com/eks/latest/userguide/automode.html" target="_blank" rel="noopener">Automate cluster infrastructure with EKS Auto Mode</a> and <a href="https://docs.aws.amazon.com/eks/latest/userguide/automode-get-started-eksctl.html" target="_blank" rel="noopener">Create an Auto Mode cluster with eksctl</a></li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li>Create <code>eks/cluster.yaml</code>, so the cluster is defined in Git:
+<pre><code class="lang-yaml">apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: lab
+  region: us-east-1
+  tags: { project: cloud-native-lab }
+autoModeConfig:
+  enabled: true</code></pre></li>
+<li>Create it. This takes about 15 minutes, and <strong>billing starts now</strong>:
+<pre><code class="lang-bash">eksctl create cluster -f eks/cluster.yaml
+kubectl get nodes          # often none at first: Auto Mode adds nodes when pods need them
+kubectl get nodepools      # the built-in general-purpose and system pools</code></pre></li>
+<li>Deploy a test pod, <code>kubectl create deployment hello --image=nginx --replicas=2</code>, and watch a node appear with <code>kubectl get nodes -w</code>.</li>
+<li><strong>Delete the cluster</strong> at the end of the session: <code>eksctl delete cluster -f eks/cluster.yaml</code>, then run <code>cleanup-check.sh</code>.</li>
+</ol>
+<p><strong>Done when:</strong> you've seen Auto Mode add a node for your pods, and the cluster is deleted.</p>
+<h3 id="day-4-how-auto-mode-differs-from-kind">Day 4: How Auto Mode differs from kind<a class="anchor" href="#day-4-how-auto-mode-differs-from-kind" aria-label="Link to this heading">#</a></h3>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://docs.aws.amazon.com/eks/latest/best-practices/automode.html" target="_blank" rel="noopener">EKS Auto Mode best practices</a></li>
+</ul>
+<p><strong>Do (create the cluster first)</strong></p>
+<ol>
+<li>Look at what AWS runs for you: <code>kubectl get nodes -o wide</code> (the instance types), <code>kubectl get pods -A</code> (very few system pods, because AWS runs them off the nodes), and <code>kubectl describe nodepool general-purpose</code>.</li>
+<li>Add a StorageClass for EBS volumes, which Auto Mode provides through its own driver:
+<pre><code class="lang-yaml">apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: auto-ebs
+  annotations: { storageclass.kubernetes.io/is-default-class: &quot;true&quot; }
+provisioner: ebs.csi.eks.amazonaws.com
+volumeBindingMode: WaitForFirstConsumer
+parameters: { type: gp3, encrypted: &quot;true&quot; }</code></pre></li>
+<li>Compare with kind in <code>eks/NOTES.md</code>: who manages nodes, storage, load balancers, upgrades, and costs.</li>
+<li><strong>Delete the cluster.</strong></li>
+</ol>
+<p><strong>Done when:</strong> your comparison notes are written and the cluster is deleted.</p>
+<h3 id="day-5-studyhub-on-eks">Day 5: StudyHub on EKS<a class="anchor" href="#day-5-studyhub-on-eks" aria-label="Link to this heading">#</a></h3>
+<p><strong>Do (create the cluster first)</strong></p>
+<ol>
+<li>Apply the StorageClass from Day 4, then install your Helm chart from Week 19 with ECR images. Keep MongoDB, Valkey, and DynamoDB Local in the cluster for now; Week 22 moves Valkey and DynamoDB to AWS services:
+<pre><code class="lang-bash">kubectl create namespace studyhub
+kubectl apply -k k8s/base                      # data services (MongoDB now uses an EBS volume)
+helm install studyhub charts/studyhub -n studyhub -f charts/studyhub/values-prod.yaml \
+  --set image.repository=$registry/studyhub-api --set image.tag=0.6.0
+kubectl get pods,pvc -n studyhub
+kubectl port-forward -n studyhub svc/studyhub 5080:80</code></pre></li>
+<li>Run your smoke test against <code>localhost:5080</code>.</li>
+<li><strong>Delete the cluster.</strong></li>
+</ol>
+<p><strong>Done when:</strong> the smoke test passes on EKS, and MongoDB's data lives on an EBS volume.</p>
+<h3 id="day-6-mini-project-one-command-up-and-down">Day 6: Mini project, one-command up and down<a class="anchor" href="#day-6-mini-project-one-command-up-and-down" aria-label="Link to this heading">#</a></h3>
+<p><strong>Do:</strong> write <code>eks/up.sh</code> and <code>eks/down.sh</code>:</p>
+<ul>
+<li><code>up.sh</code> creates the cluster from <code>cluster.yaml</code>, applies the StorageClass and <code>k8s/base</code>, installs the Helm chart, waits for pods to be ready, and runs the smoke test.</li>
+<li><code>down.sh</code> uninstalls Helm releases first (so their load balancers and volumes are removed), deletes the cluster, then runs <code>cleanup-check.sh</code> and fails if anything is left.</li>
+</ul>
+<p>Time both scripts.</p>
+<p><strong>Done when:</strong> you can bring the whole environment up and down with two commands, and <code>down.sh</code> proves nothing is left running.</p>
+<h3 id="day-7-review-and-catch-up-light">Day 7: Review and catch-up (light)<a class="anchor" href="#day-7-review-and-catch-up-light" aria-label="Link to this heading">#</a></h3>
+<ul>
+<li>Push <code>eks/</code> to <code>cloud-native-lab/week-21</code>. Check Cost Explorer: this week should have cost a few dollars.</li>
+</ul>
+<hr>
+<h2 id="week-22-aws-integrations">Week 22: AWS integrations<a class="anchor" href="#week-22-aws-integrations" aria-label="Link to this heading">#</a></h2>
+<p><strong>By the end of the week:</strong> StudyHub on EKS using real AWS services, with DynamoDB access through EKS Pod Identity (no keys), ElastiCache Serverless for Valkey, a public load balancer, and secrets from AWS Secrets Manager.</p>
+<h3 id="day-1-eks-pod-identity-and-a-real-dynamodb-table">Day 1: EKS Pod Identity and a real DynamoDB table<a class="anchor" href="#day-1-eks-pod-identity-and-a-real-dynamodb-table" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> pods should get AWS permissions from an IAM role, never from access keys. EKS Pod Identity links a Kubernetes ServiceAccount to an IAM role, and the AWS SDK picks up the credentials automatically.</p>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://docs.aws.amazon.com/eks/latest/userguide/pod-identities.html" target="_blank" rel="noopener">Learn how EKS Pod Identity grants pods access to AWS services</a></li>
+</ul>
+<p><strong>Do (create the cluster with <code>up.sh</code> first)</strong></p>
+<ol>
+<li>Create the real table, on demand, with the same keys as Week 14: run the Week 14 <code>create-table</code> command without <code>--endpoint-url</code>, and add <code>--tags Key=project,Value=cloud-native-lab</code>.</li>
+<li>Create an IAM policy that allows only <code>dynamodb:PutItem</code> and <code>dynamodb:Query</code> on that table and its index, then link it to StudyHub's ServiceAccount:
+<pre><code class="lang-bash">eksctl create podidentityassociation --cluster lab --namespace studyhub \
+  --service-account-name studyhub --permission-policy-arns arn:aws:iam::$account:policy/studyhub-dynamodb</code></pre></li>
+<li>Remove <code>DynamoDb__ServiceUrl</code> from the ConfigMap, so the SDK uses the real service, and restart the pods.</li>
+<li>Post a session, and check the item in the DynamoDB console.</li>
+</ol>
+<p><strong>Done when:</strong> StudyHub writes to real DynamoDB with no AWS keys anywhere in the cluster. <strong>Delete the cluster</strong> with <code>down.sh</code>.</p>
+<h3 id="day-2-a-public-load-balancer">Day 2: A public load balancer<a class="anchor" href="#day-2-a-public-load-balancer" aria-label="Link to this heading">#</a></h3>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://docs.aws.amazon.com/eks/latest/userguide/quickstart.html" target="_blank" rel="noopener">Quickstart: Deploy a web app and store data</a>, the load balancer part (AWS docs)</li>
+</ul>
+<p><strong>Do (create the cluster first)</strong></p>
+<ol>
+<li>Create an IngressClassParams and IngressClass for Auto Mode's built-in Application Load Balancer support:
+<pre><code class="lang-yaml">apiVersion: eks.amazonaws.com/v1
+kind: IngressClassParams
+metadata: { name: alb }
+spec: { scheme: internet-facing }
+---
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata: { name: alb }
+spec:
+  controller: eks.amazonaws.com/alb
+  parameters: { apiGroup: eks.amazonaws.com, kind: IngressClassParams, name: alb }</code></pre></li>
+<li>Add an Ingress to your chart, behind a <code>ingress.enabled</code> value, routing <code>/</code> to the StudyHub Service, with <code>ingressClassName: alb</code>.</li>
+<li>Wait for the address (a few minutes), then call it: <code>curl http://$(kubectl get ingress -n studyhub studyhub -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')/lessons</code>.</li>
+<li><strong>Delete the cluster.</strong> <code>down.sh</code> uninstalls the chart first, which removes the load balancer.</li>
+</ol>
+<p><strong>Done when:</strong> StudyHub answers on a public AWS URL, and <code>cleanup-check.sh</code> shows no load balancer left afterwards.</p>
+<h3 id="day-3-elasticache-serverless-for-valkey">Day 3: ElastiCache Serverless for Valkey<a class="anchor" href="#day-3-elasticache-serverless-for-valkey" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> ElastiCache runs Valkey for you, with patching, replication, and failover. The serverless option scales by itself and bills for data stored and requests. It's only reachable from inside its VPC, so it has to share the cluster's VPC.</p>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://docs.aws.amazon.com/AmazonElastiCache/latest/dg/GettingStarted.serverless-valkey.step1.html" target="_blank" rel="noopener">Getting started with ElastiCache Serverless</a> (AWS docs)</li>
+</ul>
+<p><strong>Do (create the cluster first)</strong></p>
+<ol>
+<li>Find the cluster's VPC, private subnets, and the cluster security group:
+<pre><code class="lang-bash">vpc=$(aws eks describe-cluster --name lab --query cluster.resourcesVpcConfig.vpcId --output text)
+sg=$(aws eks describe-cluster --name lab --query cluster.resourcesVpcConfig.clusterSecurityGroupId --output text)
+subnets=$(aws ec2 describe-subnets --filters Name=vpc-id,Values=$vpc Name=tag:kubernetes.io/role/internal-elb,Values=1 --query 'Subnets[].SubnetId' --output text)</code></pre></li>
+<li>Create the cache, allowing traffic from the cluster security group:
+<pre><code class="lang-bash">aws elasticache create-serverless-cache --serverless-cache-name studyhub --engine valkey \
+  --subnet-ids $subnets --security-group-ids $sg --tags Key=project,Value=cloud-native-lab
+aws elasticache describe-serverless-caches --serverless-cache-name studyhub --query 'ServerlessCaches[0].[Status,Endpoint.Address]'</code></pre></li>
+<li>ElastiCache Serverless requires TLS. Set the ConfigMap's <code>ConnectionStrings__Valkey</code> to <code>&lt;endpoint&gt;:6379,ssl=true,abortConnect=false</code>, remove the in-cluster Valkey, and restart StudyHub.</li>
+<li>Run your k6 test through the load balancer, and compare the cache hit ratio with the in-cluster Valkey from Week 18.</li>
+<li><strong>Delete the cache</strong> (<code>aws elasticache delete-serverless-cache --serverless-cache-name studyhub</code>) <strong>and the cluster.</strong> Add the cache deletion to <code>down.sh</code>.</li>
+</ol>
+<p><strong>Done when:</strong> StudyHub's HybridCache and leaderboard run on ElastiCache, and <code>cleanup-check.sh</code> shows no cache left afterwards.</p>
+<h3 id="day-4-secrets-from-aws-secrets-manager">Day 4: Secrets from AWS Secrets Manager<a class="anchor" href="#day-4-secrets-from-aws-secrets-manager" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> Kubernetes Secrets are only base64-encoded. With Secrets Manager, the secret is encrypted and managed in AWS, and StudyHub reads it at startup through its Pod Identity role.</p>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li><a href="https://docs.aws.amazon.com/secretsmanager/latest/userguide/retrieving-secrets_cache-net.html" target="_blank" rel="noopener">AWS Secrets Manager: retrieve secrets in .NET</a></li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li>Create a secret holding the MongoDB connection string: <code>aws secretsmanager create-secret --name studyhub/mongo --secret-string 'mongodb://...' --tags Key=project,Value=cloud-native-lab</code>.</li>
+<li>Add <code>secretsmanager:GetSecretValue</code> for that one secret to the Pod Identity role's policy.</li>
+<li>In StudyHub, when running in AWS, read it at startup with <code>AWSSDK.SecretsManager</code> and put it into configuration, before the MongoDB client is created.</li>
+<li>Remove the connection string from the Kubernetes Secret, and check StudyHub still connects (with the cluster running).</li>
+</ol>
+<p><strong>Done when:</strong> no database password is stored in Kubernetes, and StudyHub still works. <strong>Delete the cluster.</strong></p>
+<h3 id="day-5-private-networking-and-security-groups">Day 5: Private networking and security groups<a class="anchor" href="#day-5-private-networking-and-security-groups" aria-label="Link to this heading">#</a></h3>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://docs.aws.amazon.com/eks/latest/userguide/eks-networking.html" target="_blank" rel="noopener">Amazon EKS networking</a></li>
+</ul>
+<p><strong>Do:</strong> with the cluster running, answer these from the AWS console and CLI, and write them in <code>eks/NETWORK.md</code>:</p>
+<ul>
+<li>which subnets the nodes are in, and whether they're public or private</li>
+<li>how pods reach the internet (the NAT gateway) and how the internet reaches StudyHub (the load balancer)</li>
+<li>which security groups allow traffic from the load balancer to the nodes, and from the nodes to ElastiCache</li>
+<li>how much the NAT gateway costs per hour, and why it's there even when idle</li>
+</ul>
+<p><strong>Done when:</strong> you can trace a request from the internet to a pod and to ElastiCache on a diagram. <strong>Delete the cluster.</strong></p>
+<h3 id="day-6-mini-project-studyhub-fully-on-aws">Day 6: Mini project, StudyHub fully on AWS<a class="anchor" href="#day-6-mini-project-studyhub-fully-on-aws" aria-label="Link to this heading">#</a></h3>
+<p><strong>Do:</strong> update <code>up.sh</code> to create, and <code>down.sh</code> to delete, everything StudyHub needs: the cluster, the DynamoDB table (keep it between sessions if you like; it costs nothing idle), the ElastiCache cache, the Pod Identity association, the secret, and the load balancer. Run the whole thing once, run k6 for 5 minutes through the public URL, then tear it all down.</p>
+<p><strong>Done when:</strong> <code>up.sh</code> gives you a public, working StudyHub on AWS services, and <code>down.sh</code> leaves nothing that costs money while idle.</p>
+<h3 id="day-7-review-and-catch-up-light-1">Day 7: Review and catch-up (light)<a class="anchor" href="#day-7-review-and-catch-up-light-1" aria-label="Link to this heading">#</a></h3>
+<ul>
+<li>Push to <code>cloud-native-lab/week-22</code>. Check Cost Explorer, and note this week's spend.</li>
+</ul>
+<hr>
+<h2 id="week-23-operating-eks">Week 23: Operating EKS<a class="anchor" href="#week-23-operating-eks" aria-label="Link to this heading">#</a></h2>
+<p><strong>By the end of the week:</strong> you've watched EKS scale nodes and pods under load, upgraded a cluster version, read logs in CloudWatch, deployed from GitHub Actions without stored keys, and written an operations guide with real cost numbers.</p>
+<h3 id="day-1-node-and-pod-scaling-together">Day 1: Node and pod scaling together<a class="anchor" href="#day-1-node-and-pod-scaling-together" aria-label="Link to this heading">#</a></h3>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li><a href="https://docs.aws.amazon.com/eks/latest/userguide/create-node-pool.html" target="_blank" rel="noopener">Create a node pool for EKS Auto Mode</a></li>
+</ul>
+<p><strong>Do (create the environment with <code>up.sh</code>)</strong></p>
+<ol>
+<li>Run k6 with 200 users through the load balancer for 5 minutes.</li>
+<li>Watch the HPA add pods (<code>kubectl get hpa -n studyhub -w</code>) and Auto Mode add nodes when pods are <code>Pending</code> (<code>kubectl get nodes -w</code>).</li>
+<li>Stop the load, and watch both scale back down. Note how long the nodes take to go away.</li>
+<li><strong>Run <code>down.sh</code>.</strong></li>
+</ol>
+<p><strong>Done when:</strong> you've seen pods scale first, then nodes, and written down the timings.</p>
+<h3 id="day-2-a-spot-node-pool-for-the-worker">Day 2: A Spot node pool for the worker<a class="anchor" href="#day-2-a-spot-node-pool-for-the-worker" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> Spot instances are spare EC2 capacity at a large discount, but AWS can take them back at short notice. They suit work that can be retried, like StudyHub's stream worker.</p>
+<p><strong>Do (create the environment first)</strong></p>
+<ol>
+<li>Create a NodePool that allows only Spot capacity, with a taint <code>workload=batch:NoSchedule</code>.</li>
+<li>Give the worker Deployment a matching toleration and a node selector for that pool.</li>
+<li>Check the worker's node with <code>kubectl get pods -n studyhub -o wide</code>, and its capacity type in <code>kubectl get nodes -L karpenter.sh/capacity-type</code>.</li>
+<li><strong>Run <code>down.sh</code>.</strong></li>
+</ol>
+<p><strong>Done when:</strong> the worker runs on a Spot node, and the API stays on on-demand nodes.</p>
+<h3 id="day-3-logs-and-metrics-in-cloudwatch">Day 3: Logs and metrics in CloudWatch<a class="anchor" href="#day-3-logs-and-metrics-in-cloudwatch" aria-label="Link to this heading">#</a></h3>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li><a href="https://docs.aws.amazon.com/eks/latest/userguide/control-plane-logs.html" target="_blank" rel="noopener">Send control plane logs to CloudWatch Logs</a></li>
+</ul>
+<p><strong>Do (create the environment first)</strong></p>
+<ol>
+<li>Turn on the <code>api</code> and <code>audit</code> control plane logs in <code>cluster.yaml</code> under <code>cloudWatch.clusterLogging</code>, and recreate or update the cluster.</li>
+<li>In CloudWatch Logs Insights, find who deleted a pod: <code>fields @timestamp, user.username, objectRef.name | filter verb = &quot;delete&quot; and objectRef.resource = &quot;pods&quot;</code>.</li>
+<li>Point your in-cluster OpenTelemetry Collector (Week 20) at your Grafana stack, or keep using Jaeger by port-forwarding, so you still have traces on EKS.</li>
+<li>Set the control plane log retention to 1 day, so logs don't cost you later. <strong>Run <code>down.sh</code>.</strong></li>
+</ol>
+<p><strong>Done when:</strong> you've found a specific pod deletion in the audit logs.</p>
+<h3 id="day-4-upgrading-the-cluster">Day 4: Upgrading the cluster<a class="anchor" href="#day-4-upgrading-the-cluster" aria-label="Link to this heading">#</a></h3>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://docs.aws.amazon.com/eks/latest/userguide/update-cluster.html" target="_blank" rel="noopener">Update an existing cluster to a new Kubernetes version</a></li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li>Set <code>metadata.version</code> in <code>cluster.yaml</code> to one version below the newest, and create the environment.</li>
+<li>Check for removed APIs before upgrading, using the cluster insights: <code>aws eks list-insights --cluster-name lab</code>.</li>
+<li>Upgrade one version: <code>eksctl upgrade cluster -f eks/cluster.yaml --approve</code>, with your curl loop running. Auto Mode replaces the nodes after the control plane upgrade.</li>
+<li>Record how long it took and whether any requests failed. <strong>Run <code>down.sh</code>.</strong></li>
+</ol>
+<p><strong>Done when:</strong> you've upgraded a cluster with StudyHub serving traffic, and written down what happened.</p>
+<h3 id="day-5-deploy-from-github-actions">Day 5: Deploy from GitHub Actions<a class="anchor" href="#day-5-deploy-from-github-actions" aria-label="Link to this heading">#</a></h3>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-in-aws" target="_blank" rel="noopener">Configuring OpenID Connect in Amazon Web Services</a> (GitHub Docs)</li>
+<li><a href="https://docs.aws.amazon.com/eks/latest/userguide/access-entries.html" target="_blank" rel="noopener">Grant IAM users access to Kubernetes with EKS access entries</a></li>
+</ul>
+<p><strong>Do (create the environment first)</strong></p>
+<ol>
+<li>Create an IAM OIDC provider for GitHub and a <code>github-deploy</code> role that only your repository's <code>main</code> branch can assume, with permission to push to your ECR repositories and call <code>eks:DescribeCluster</code>.</li>
+<li>Give that role access inside the cluster with an access entry: <code>aws eks create-access-entry --cluster-name lab --principal-arn &lt;role ARN&gt;</code>, then associate the <code>AmazonEKSEditPolicy</code> access policy with the scope set to the <code>studyhub</code> namespace only (<code>aws eks associate-access-policy ... --access-scope type=namespace,namespaces=studyhub</code>).</li>
+<li>Add a workflow that, on a push to <code>main</code>, builds and pushes the image to ECR with the commit SHA as the tag, then runs <code>helm upgrade studyhub ... --set image.tag=&lt;sha&gt;</code>.</li>
+<li>Push a change, watch the rollout, then <strong>run <code>down.sh</code></strong>. Add the access entry to <code>up.sh</code>.</li>
+</ol>
+<p><strong>Done when:</strong> a push to <code>main</code> deploys to EKS with no AWS keys stored in GitHub.</p>
+<h3 id="day-6-mini-project-the-eks-operations-guide">Day 6: Mini project, the EKS operations guide<a class="anchor" href="#day-6-mini-project-the-eks-operations-guide" aria-label="Link to this heading">#</a></h3>
+<p><strong>Do:</strong> write <code>eks/OPERATIONS.md</code>, covering:</p>
+<ul>
+<li>how to bring the environment up and down, and how long each takes</li>
+<li>the cost of one hour of the full environment, broken down from Cost Explorer (use the <code>project</code> tag)</li>
+<li>scaling behavior and timings (Day 1), and when Spot is used (Day 2)</li>
+<li>the upgrade steps (Day 4)</li>
+<li>how deploys work (Day 5)</li>
+<li>what's different from kind, and which Section F runbook steps change on EKS</li>
+</ul>
+<p><strong>Done when:</strong> someone could run StudyHub on EKS from this guide alone.</p>
+<h3 id="day-7-review-and-catch-up-light-2">Day 7: Review and catch-up (light)<a class="anchor" href="#day-7-review-and-catch-up-light-2" aria-label="Link to this heading">#</a></h3>
+<ul>
+<li>Push to <code>cloud-native-lab/week-23</code>. Run <code>cleanup-check.sh</code> one more time. Section G is complete. Mark the topics on <a href="https://roadmap.sh/aws" target="_blank" rel="noopener">roadmap.sh/aws</a> and <a href="https://roadmap.sh/kubernetes" target="_blank" rel="noopener">roadmap.sh/kubernetes</a>.</li>
+</ul>
+<nav class="pager" aria-label="Sections"><a class="prev" href="F-kubernetes-weeks-17-20.html"><small>Previous</small>← F. Kubernetes (Weeks 17–20)</a><a class="next" href="H-datadog-weeks-24-25.html"><small>Next</small>H. Datadog (Weeks 24–25) →</a></nav>
+  </main>
+</div>
+<script src="../assets/plan-data.js"></script>
+<script src="../assets/lessons.js"></script>
+</body>
+</html>

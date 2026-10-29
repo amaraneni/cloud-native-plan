@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Section D: NoSQL databases (Weeks 11–14) · Cloud-Native .NET Plan</title>
+<meta name="color-scheme" content="light dark">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/common.js"></script>
+</head>
+<body data-page="weeks/D-nosql-weeks-11-14.html" data-root="../">
+<a class="skip" href="#content">Skip to the lesson</a>
+<div class="read-progress" aria-hidden="true"><span></span></div>
+<header class="topbar">
+  <button type="button" class="icon-btn toc-toggle" id="toc-btn" aria-controls="toc" aria-expanded="false" aria-label="Show contents">☰</button>
+  <a class="brand" href="../schedule.html"><span class="logo" aria-hidden="true">CN</span><span class="brand-text">Cloud-Native .NET Plan</span></a>
+  <nav class="top-links" aria-label="Plan">
+    <a href="../schedule.html">Schedule</a>
+    <a href="../plan.html">Plan</a>
+    <a href="../resources.html">Resources</a>
+  </nav>
+  <span class="grow"></span>
+  <button type="button" class="icon-btn" id="theme-btn"></button>
+</header>
+<div class="layout">
+  <nav class="toc" id="toc" aria-label="On this page"></nav>
+  <main class="prose" id="content">
+<h1 id="section-d-nosql-databases-weeks-1114">Section D: NoSQL databases (Weeks 11–14)<a class="anchor" href="#section-d-nosql-databases-weeks-1114" aria-label="Link to this heading">#</a></h1>
+<p>NoSQL isn't one thing. Valkey is an in-memory data-structure store, MongoDB is a document database, and DynamoDB is a key-value and wide-column database with predictable performance at any scale. You'll use each one from C# for a real part of StudyHub, then write down when to choose which.</p>
+<p>Everything runs locally in Docker, including DynamoDB Local, so this section costs nothing.</p>
+<p><strong>Courses for this section (optional, see <a href="../resources.html">resources.md</a>):</strong> MongoDB University's free <a href="https://learn.mongodb.com/learning-paths/using-mongodb-with-c-sharp" target="_blank" rel="noopener">MongoDB C# Developer Path</a>, Redis University's free <a href="https://university.redis.io/" target="_blank" rel="noopener">courses</a>, and the <a href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Introduction.html" target="_blank" rel="noopener">DynamoDB developer guide</a>. <strong>roadmap.sh:</strong> <a href="https://roadmap.sh/redis" target="_blank" rel="noopener">Redis</a>, <a href="https://roadmap.sh/mongodb" target="_blank" rel="noopener">MongoDB</a>, and <a href="https://roadmap.sh/backend" target="_blank" rel="noopener">Backend</a> (NoSQL databases).</p>
+<hr>
+<h2 id="week-11-valkey-as-a-data-store">Week 11: Valkey as a data store<a class="anchor" href="#week-11-valkey-as-a-data-store" aria-label="Link to this heading">#</a></h2>
+<p><strong>By the end of the week:</strong> a StudyHub leaderboard and streak counters in Valkey, a stream of study events, and an understanding of how Valkey keeps data safe on disk.</p>
+<h3 id="day-1-data-types-beyond-strings">Day 1: Data types beyond strings<a class="anchor" href="#day-1-data-types-beyond-strings" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> Valkey has strings, hashes, lists, sets, sorted sets, streams, and more. Picking the right type often replaces a database query with a single fast command.</p>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://valkey.io/topics/data-types/" target="_blank" rel="noopener">Valkey data types</a></li>
+</ul>
+<p><strong>Do (<code>docker compose exec valkey valkey-cli</code>)</strong></p>
+<pre><code class="lang-text">HSET user:1 name &quot;Kamal&quot; streak 0 lessonsDone 0
+HINCRBY user:1 lessonsDone 1
+HGETALL user:1
+LPUSH user:1:recent &quot;lesson:3&quot; &quot;lesson:7&quot;
+LRANGE user:1:recent 0 -1
+SADD user:1:topics linux docker linux
+SMEMBERS user:1:topics
+ZADD leaderboard 12 user:1 30 user:2 7 user:3
+ZREVRANGE leaderboard 0 2 WITHSCORES
+ZINCRBY leaderboard 5 user:3
+ZREVRANK leaderboard user:1</code></pre>
+<p><strong>Done when:</strong> you've used hashes, lists, sets, and sorted sets, and can say which one fits a leaderboard and why.</p>
+<h3 id="day-2-stackexchangeredis-from-c">Day 2: StackExchange.Redis from C#<a class="anchor" href="#day-2-stackexchangeredis-from-c" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> <code>IDistributedCache</code> only does get and set. For data structures, use StackExchange.Redis directly, which works with Valkey unchanged. Create one <code>ConnectionMultiplexer</code> and share it for the app's whole life.</p>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li><a href="https://stackexchange.github.io/StackExchange.Redis/Basics" target="_blank" rel="noopener">StackExchange.Redis basic usage</a></li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li><code>dotnet add package StackExchange.Redis</code>, then register the connection once:
+<pre><code class="lang-csharp">builder.Services.AddSingleton&lt;IConnectionMultiplexer&gt;(_ =&gt;
+    ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString(&quot;Valkey&quot;)!));</code></pre></li>
+<li>Add a <code>LeaderboardService</code>:
+<pre><code class="lang-csharp">public sealed class LeaderboardService(IConnectionMultiplexer redis)
+{
+    private readonly IDatabase _db = redis.GetDatabase();
+    private const string Key = &quot;studyhub:leaderboard&quot;;
+
+    public Task AddPointsAsync(string user, int points) =&gt; _db.SortedSetIncrementAsync(Key, user, points);
+
+    public async Task&lt;IEnumerable&lt;object&gt;&gt; TopAsync(int n) =&gt;
+        (await _db.SortedSetRangeByRankWithScoresAsync(Key, 0, n - 1, Order.Descending))
+            .Select((e, i) =&gt; new { rank = i + 1, user = e.Element.ToString(), points = e.Score });
+}</code></pre></li>
+<li>Add <code>POST /sessions</code> (body: user and minutes) that awards points, and <code>GET /leaderboard?top=10</code>.</li>
+</ol>
+<p><strong>Done when:</strong> posting study sessions changes the leaderboard order.</p>
+<h3 id="day-3-streaks-with-expiry-and-atomic-operations">Day 3: Streaks with expiry, and atomic operations<a class="anchor" href="#day-3-streaks-with-expiry-and-atomic-operations" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> a streak is &quot;studied on consecutive days&quot;. Valkey can do this with one key per day that expires automatically. Single commands are atomic, and <code>MULTI</code>/<code>EXEC</code> or a Lua script makes several commands atomic together.</p>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li><a href="https://valkey.io/topics/transactions/" target="_blank" rel="noopener">Transactions</a> and <a href="https://valkey.io/topics/eval-intro/" target="_blank" rel="noopener">Scripting with Lua</a> (Valkey docs)</li>
+</ul>
+<p><strong>Do:</strong> when a session is posted, record the day and update the streak in one Lua script, so two requests at once can't double-count:</p>
+<pre><code class="lang-csharp">const string script = &quot;&quot;&quot;
+    local today = KEYS[1]; local yesterday = KEYS[2]; local streak = KEYS[3]
+    if redis.call('EXISTS', today) == 1 then return tonumber(redis.call('GET', streak) or '0') end
+    redis.call('SET', today, 1, 'EX', 172800)
+    if redis.call('EXISTS', yesterday) == 1 then return redis.call('INCR', streak) end
+    redis.call('SET', streak, 1)
+    return 1
+    &quot;&quot;&quot;;
+var d = DateOnly.FromDateTime(DateTime.UtcNow);
+var streak = (long)await _db.ScriptEvaluateAsync(script,
+    [$&quot;studyhub:studied:{user}:{d:yyyyMMdd}&quot;, $&quot;studyhub:studied:{user}:{d.AddDays(-1):yyyyMMdd}&quot;, $&quot;studyhub:streak:{user}&quot;]);</code></pre>
+<p>Test it by posting two sessions at once (<code>curl ... &amp; curl ...</code>) and checking the streak goes up by one.</p>
+<p><strong>Done when:</strong> the streak is correct, even with simultaneous requests.</p>
+<h3 id="day-4-streams-for-study-events">Day 4: Streams for study events<a class="anchor" href="#day-4-streams-for-study-events" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> a stream is an append-only log. Producers add entries, and consumer groups read them, each entry handled once per group, with acknowledgements. It's a lightweight message queue.</p>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://valkey.io/topics/streams-intro/" target="_blank" rel="noopener">Valkey streams</a></li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li>On each session, add an event: <code>await _db.StreamAddAsync(&quot;studyhub:events&quot;, [new(&quot;user&quot;, user), new(&quot;minutes&quot;, minutes), new(&quot;at&quot;, DateTime.UtcNow.ToString(&quot;O&quot;))]);</code></li>
+<li>Create a second project, <code>StudyHub.Worker</code> (<code>dotnet new worker</code>), that reads with a consumer group and prints each event:
+<pre><code class="lang-csharp">await db.StreamCreateConsumerGroupAsync(&quot;studyhub:events&quot;, &quot;stats&quot;, StreamPosition.NewMessages, createStream: true)
+    .ContinueWith(_ =&gt; { });   // ignore &quot;group already exists&quot;
+while (!stoppingToken.IsCancellationRequested)
+{
+    var entries = await db.StreamReadGroupAsync(&quot;studyhub:events&quot;, &quot;stats&quot;, &quot;worker-1&quot;, &quot;&gt;&quot;, count: 10);
+    foreach (var e in entries)
+    {
+        logger.LogInformation(&quot;Event {Id}: {User} studied {Minutes} min&quot;, e.Id, e[&quot;user&quot;], e[&quot;minutes&quot;]);
+        await db.StreamAcknowledgeAsync(&quot;studyhub:events&quot;, &quot;stats&quot;, e.Id);
+    }
+    if (entries.Length == 0) await Task.Delay(1000, stoppingToken);
+}</code></pre></li>
+<li>Add the worker to <code>compose.yaml</code>, post a few sessions, and watch the worker's logs. Check <code>XPENDING studyhub:events stats</code> in <code>valkey-cli</code>.</li>
+</ol>
+<p><strong>Done when:</strong> the worker processes every event once, and <code>XPENDING</code> shows nothing left after it acknowledges them.</p>
+<h3 id="day-5-persistence-rdb-and-aof">Day 5: Persistence, RDB and AOF<a class="anchor" href="#day-5-persistence-rdb-and-aof" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> Valkey lives in memory, but it can save to disk. RDB takes snapshots now and then (fast restarts, may lose recent writes). AOF logs every write (safer, bigger files). Many setups use both.</p>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://valkey.io/topics/persistence/" target="_blank" rel="noopener">Persistence</a> (Valkey docs)</li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li>Check the current settings: <code>CONFIG GET save</code> and <code>CONFIG GET appendonly</code>.</li>
+<li>Add data, run <code>docker compose kill valkey</code> (a crash, not a clean stop), start it, and check what survived.</li>
+<li>Turn on AOF with <code>command: [&quot;valkey-server&quot;, &quot;--appendonly&quot;, &quot;yes&quot;]</code> in Compose, and repeat the crash test.</li>
+<li>Look at the files: <code>docker compose exec valkey ls -la /data</code>.</li>
+</ol>
+<p><strong>Done when:</strong> you've seen data lost without AOF and kept with it, and you've decided what StudyHub needs: the leaderboard can be rebuilt, but streaks are harder to rebuild.</p>
+<h3 id="day-6-mini-project-the-studyhub-stats-service">Day 6: Mini project, the StudyHub stats service<a class="anchor" href="#day-6-mini-project-the-studyhub-stats-service" aria-label="Link to this heading">#</a></h3>
+<p><strong>Do:</strong> extend <code>StudyHub.Worker</code> so that, from the event stream, it keeps:</p>
+<ul>
+<li>total minutes per topic, in a hash <code>studyhub:minutes-by-topic</code></li>
+<li>the number of distinct users each day, using a HyperLogLog (<code>PFADD studyhub:dau:&lt;date&gt; &lt;user&gt;</code> and <code>PFCOUNT</code>)</li>
+</ul>
+<p>Add <code>GET /stats/topics</code> and <code>GET /stats/daily-users</code> to the API, reading those keys.</p>
+<p><strong>Done when:</strong> posting sessions updates both statistics, and you can explain why HyperLogLog uses only about 12 KB however many users there are.</p>
+<h3 id="day-7-review-and-catch-up-light">Day 7: Review and catch-up (light)<a class="anchor" href="#day-7-review-and-catch-up-light" aria-label="Link to this heading">#</a></h3>
+<ul>
+<li>Push the API and worker to <code>cloud-native-lab/week-11</code>.</li>
+</ul>
+<hr>
+<h2 id="week-12-mongodb-with-c">Week 12: MongoDB with C#<a class="anchor" href="#week-12-mongodb-with-c" aria-label="Link to this heading">#</a></h2>
+<p><strong>By the end of the week:</strong> StudyHub storing lessons and progress in MongoDB with the official C# driver, with CRUD, LINQ queries, and indexes you've proven with <code>explain</code>.</p>
+<h3 id="day-1-documents-and-mongosh">Day 1: Documents and mongosh<a class="anchor" href="#day-1-documents-and-mongosh" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> MongoDB stores JSON-like documents (BSON) in collections. Documents in one collection can have different shapes, and a document can hold nested objects and arrays, so related data often lives together.</p>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://www.mongodb.com/docs/manual/" target="_blank" rel="noopener">Introduction to MongoDB</a> (MongoDB docs)</li>
+</ul>
+<p><strong>Do (<code>docker compose exec mongo mongosh studyhub</code>)</strong></p>
+<pre><code class="lang-javascript">db.lessons.insertMany([
+  { _id: 1, title: &quot;Install WSL&quot;, topic: &quot;linux&quot;, minutes: 60, tags: [&quot;wsl&quot;, &quot;ubuntu&quot;] },
+  { _id: 2, title: &quot;Permissions&quot;, topic: &quot;linux&quot;, minutes: 75, tags: [&quot;chmod&quot;] },
+  { _id: 3, title: &quot;Dockerfiles&quot;, topic: &quot;docker&quot;, minutes: 70, tags: [&quot;build&quot;], links: [{ name: &quot;docs&quot;, url: &quot;https://docs.docker.com&quot; }] }
+])
+db.lessons.find({ topic: &quot;linux&quot; })
+db.lessons.find({ tags: &quot;build&quot; }, { title: 1, _id: 0 })
+db.lessons.updateOne({ _id: 2 }, { $set: { minutes: 80 }, $push: { tags: &quot;umask&quot; } })
+db.lessons.countDocuments({ minutes: { $gte: 70 } })
+db.lessons.deleteOne({ _id: 3 })</code></pre>
+<p><strong>Done when:</strong> you've inserted, queried, updated, and deleted documents, including a query on an array field.</p>
+<h3 id="day-2-the-c-driver">Day 2: The C# driver<a class="anchor" href="#day-2-the-c-driver" aria-label="Link to this heading">#</a></h3>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://www.mongodb.com/docs/drivers/csharp/current/get-started/" target="_blank" rel="noopener">MongoDB C# driver quick start</a> (MongoDB docs)</li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li><code>dotnet add package MongoDB.Driver</code></li>
+<li>Map the lesson as a class, and register the client once:
+<pre><code class="lang-csharp">public sealed class LessonDoc
+{
+    [BsonId] public int Id { get; set; }
+    public string Title { get; set; } = &quot;&quot;;
+    public string Topic { get; set; } = &quot;&quot;;
+    public int Minutes { get; set; }
+    public List&lt;string&gt; Tags { get; set; } = [];
+}
+
+builder.Services.AddSingleton&lt;IMongoClient&gt;(_ =&gt; new MongoClient(builder.Configuration.GetConnectionString(&quot;Mongo&quot;)));
+builder.Services.AddSingleton(sp =&gt; sp.GetRequiredService&lt;IMongoClient&gt;().GetDatabase(&quot;studyhub&quot;).GetCollection&lt;LessonDoc&gt;(&quot;lessons&quot;));</code></pre></li>
+<li>Write <code>MongoLessonRepository : ILessonRepository</code>, using <code>Find(l =&gt; l.Id == id).FirstOrDefaultAsync()</code>, and seed 50 lessons at startup if the collection is empty.</li>
+<li>Swap it in place of <code>SlowLessonRepository</code>. Keep the HybridCache decorator from Week 10 in front of it.</li>
+</ol>
+<p><strong>Done when:</strong> StudyHub reads lessons from MongoDB, still through the cache.</p>
+<h3 id="day-3-crud-and-linq">Day 3: CRUD and LINQ<a class="anchor" href="#day-3-crud-and-linq" aria-label="Link to this heading">#</a></h3>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li><a href="https://www.mongodb.com/docs/drivers/csharp/current/aggregation/linq/" target="_blank" rel="noopener">LINQ</a> (MongoDB C# driver docs)</li>
+</ul>
+<p><strong>Do:</strong> add endpoints and write each query two ways, with filters and with LINQ:</p>
+<pre><code class="lang-csharp">// Filter builders
+var filter = Builders&lt;LessonDoc&gt;.Filter.Eq(l =&gt; l.Topic, topic) &amp; Builders&lt;LessonDoc&gt;.Filter.Gte(l =&gt; l.Minutes, 60);
+var a = await lessons.Find(filter).SortBy(l =&gt; l.Minutes).Limit(10).ToListAsync();
+
+// LINQ
+var b = await lessons.AsQueryable().Where(l =&gt; l.Topic == topic &amp;&amp; l.Minutes &gt;= 60).OrderBy(l =&gt; l.Minutes).Take(10).ToListAsync();</code></pre>
+<p>Add <code>POST /lessons</code>, <code>PUT /lessons/{id}</code> (using <code>ReplaceOneAsync</code>), <code>PATCH /lessons/{id}/tags</code> (using <code>Builders&lt;LessonDoc&gt;.Update.AddToSet</code>), and <code>DELETE /lessons/{id}</code>. Each change must also call <code>RemoveByTagAsync</code> on HybridCache.</p>
+<p><strong>Done when:</strong> all endpoints work, and the cache never serves a deleted or outdated lesson.</p>
+<h3 id="day-4-indexes-and-explain">Day 4: Indexes and explain<a class="anchor" href="#day-4-indexes-and-explain" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> without an index, MongoDB scans every document (<code>COLLSCAN</code>). With one, it uses <code>IXSCAN</code> and reads only what matches. Compound index order matters: equality first, then sort, then range.</p>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://www.mongodb.com/docs/manual/indexes/" target="_blank" rel="noopener">Indexes</a> (MongoDB docs)</li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li>In mongosh, insert 100,000 progress documents with a loop: <code>for (let i = 0; i &lt; 100000; i++) db.progress.insertOne({ user: &quot;u&quot; + (i % 500), lessonId: i % 50, minutes: i % 90, at: new Date(Date.now() - i * 60000) })</code>.</li>
+<li>Run <code>db.progress.find({ user: &quot;u42&quot; }).sort({ at: -1 }).explain(&quot;executionStats&quot;)</code>, and note <code>totalDocsExamined</code>.</li>
+<li>Create an index with <code>db.progress.createIndex({ user: 1, at: -1 })</code>, and run the same explain again.</li>
+<li>Create the same index from C# at startup with <code>CreateOneAsync(new CreateIndexModel&lt;ProgressDoc&gt;(Builders&lt;ProgressDoc&gt;.IndexKeys.Ascending(p =&gt; p.User).Descending(p =&gt; p.At)))</code>.</li>
+</ol>
+<p><strong>Done when:</strong> documents examined drops from 100,000 to roughly the number of results, and the winning plan shows <code>IXSCAN</code>.</p>
+<h3 id="day-5-user-progress-in-mongodb">Day 5: User progress in MongoDB<a class="anchor" href="#day-5-user-progress-in-mongodb" aria-label="Link to this heading">#</a></h3>
+<p><strong>Do:</strong> add a <code>progress</code> collection and endpoints:</p>
+<ul>
+<li><code>POST /progress</code> saves <code>{ user, lessonId, minutes, at }</code></li>
+<li><code>GET /users/{user}/progress?limit=20</code> returns that user's latest entries (using your Day 4 index)</li>
+<li><code>GET /users/{user}/summary</code> returns lessons done and total minutes, using <code>CountDocumentsAsync</code> and a simple sum</li>
+</ul>
+<p>Make <code>POST /sessions</code> (from Week 11) write to MongoDB as well as updating the Valkey leaderboard.</p>
+<p><strong>Done when:</strong> progress is stored in MongoDB, and the leaderboard still updates in Valkey.</p>
+<h3 id="day-6-mini-project-a-seeded-demo">Day 6: Mini project, a seeded demo<a class="anchor" href="#day-6-mini-project-a-seeded-demo" aria-label="Link to this heading">#</a></h3>
+<p><strong>Do:</strong> add <code>StudyHub.Seed</code>, a console app that creates 50 lessons, 500 users, and 200,000 progress entries with the <code>InsertManyAsync</code> bulk API, in batches of 5,000. Time it, then time <code>GET /users/u42/summary</code> before and after adding the indexes it needs.</p>
+<p><strong>Done when:</strong> you have a realistic data set, and every API query uses an index (check each with <code>explain</code>).</p>
+<h3 id="day-7-review-and-catch-up-light-1">Day 7: Review and catch-up (light)<a class="anchor" href="#day-7-review-and-catch-up-light-1" aria-label="Link to this heading">#</a></h3>
+<ul>
+<li>Push to <code>cloud-native-lab/week-12</code>.</li>
+</ul>
+<hr>
+<h2 id="week-13-mongodb-modeling-aggregation-and-replica-sets">Week 13: MongoDB modeling, aggregation, and replica sets<a class="anchor" href="#week-13-mongodb-modeling-aggregation-and-replica-sets" aria-label="Link to this heading">#</a></h2>
+<p><strong>By the end of the week:</strong> well-reasoned document models, aggregation pipelines for StudyHub's reports, a three-node replica set, transactions, change streams, and TTL indexes.</p>
+<h3 id="day-1-embed-or-reference">Day 1: Embed or reference?<a class="anchor" href="#day-1-embed-or-reference" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> in MongoDB you design for how data is read. Embed data that's always read together and bounded in size. Reference data that's shared, large, or grows without limit.</p>
+<p><strong>Learn (~25 min)</strong></p>
+<ul>
+<li><a href="https://www.mongodb.com/docs/manual/data-modeling/" target="_blank" rel="noopener">Data modeling</a> (MongoDB docs)</li>
+</ul>
+<p><strong>Do:</strong> decide and write down the model for each, with a reason:</p>
+<ul>
+<li>a lesson's links (few, always shown with the lesson)</li>
+<li>a user's progress entries (thousands, growing)</li>
+<li>a lesson's comments (could be many)</li>
+<li>a user's profile and settings</li>
+</ul>
+<p><strong>Done when:</strong> you've written a decision and reason for each, including the 16 MB document limit where it matters.</p>
+<h3 id="day-2-the-aggregation-pipeline">Day 2: The aggregation pipeline<a class="anchor" href="#day-2-the-aggregation-pipeline" aria-label="Link to this heading">#</a></h3>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://www.mongodb.com/docs/manual/core/aggregation-pipeline/" target="_blank" rel="noopener">Aggregation pipeline</a> (MongoDB docs)</li>
+</ul>
+<p><strong>Do:</strong> in mongosh, then in C#, write a report of total minutes per topic in the last 7 days:</p>
+<pre><code class="lang-javascript">db.progress.aggregate([
+  { $match: { at: { $gte: new Date(Date.now() - 7 * 864e5) } } },
+  { $lookup: { from: &quot;lessons&quot;, localField: &quot;lessonId&quot;, foreignField: &quot;_id&quot;, as: &quot;lesson&quot; } },
+  { $unwind: &quot;$lesson&quot; },
+  { $group: { _id: &quot;$lesson.topic&quot;, minutes: { $sum: &quot;$minutes&quot; }, users: { $addToSet: &quot;$user&quot; } } },
+  { $project: { topic: &quot;$_id&quot;, minutes: 1, users: { $size: &quot;$users&quot; }, _id: 0 } },
+  { $sort: { minutes: -1 } }
+])</code></pre>
+<p>In C#, use <code>lessons.Aggregate().Match(...).Lookup(...)</code> or pass the stages as <code>BsonDocument</code>s, and expose it as <code>GET /reports/topics</code>.</p>
+<p><strong>Done when:</strong> the endpoint returns minutes and distinct users per topic, and its result is cached in HybridCache for one minute.</p>
+<h3 id="day-3-a-replica-set-and-why-it-matters">Day 3: A replica set, and why it matters<a class="anchor" href="#day-3-a-replica-set-and-why-it-matters" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> a replica set is three or more MongoDB servers holding the same data. One is primary, and if it fails, another takes over in seconds. Transactions and change streams need a replica set.</p>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://www.mongodb.com/docs/manual/replication/" target="_blank" rel="noopener">Replication</a> (MongoDB docs)</li>
+</ul>
+<p><strong>Do:</strong> create <code>compose.replica.yaml</code> with three nodes:</p>
+<pre><code class="lang-yaml">services:
+  mongo1: { image: mongo:8, command: [&quot;--replSet&quot;, &quot;rs0&quot;, &quot;--bind_ip_all&quot;], ports: [&quot;27017:27017&quot;] }
+  mongo2: { image: mongo:8, command: [&quot;--replSet&quot;, &quot;rs0&quot;, &quot;--bind_ip_all&quot;] }
+  mongo3: { image: mongo:8, command: [&quot;--replSet&quot;, &quot;rs0&quot;, &quot;--bind_ip_all&quot;] }</code></pre>
+<pre><code class="lang-bash">docker compose -f compose.replica.yaml up -d
+docker compose -f compose.replica.yaml exec mongo1 mongosh --eval 'rs.initiate({_id:&quot;rs0&quot;,members:[{_id:0,host:&quot;mongo1&quot;},{_id:1,host:&quot;mongo2&quot;},{_id:2,host:&quot;mongo3&quot;}]})'
+docker compose -f compose.replica.yaml exec mongo1 mongosh --eval 'rs.status().members.map(m =&gt; m.name + &quot; &quot; + m.stateStr)'
+docker compose -f compose.replica.yaml stop mongo1     # watch another node become PRIMARY</code></pre>
+<p>Point StudyHub at <code>mongodb://mongo1,mongo2,mongo3/?replicaSet=rs0</code>, running in the same Compose network, and check it keeps working while you stop the primary.</p>
+<p><strong>Done when:</strong> StudyHub survives the primary going down.</p>
+<h3 id="day-4-transactions-and-write-concerns">Day 4: Transactions and write concerns<a class="anchor" href="#day-4-transactions-and-write-concerns" aria-label="Link to this heading">#</a></h3>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://www.mongodb.com/docs/manual/core/transactions/" target="_blank" rel="noopener">Transactions</a> and <a href="https://www.mongodb.com/docs/manual/reference/write-concern/" target="_blank" rel="noopener">Write concern</a> (MongoDB docs)</li>
+</ul>
+<p><strong>Do:</strong> saving a session now updates two collections: insert into <code>progress</code>, and increment counters in a <code>user_stats</code> document. Do both in a transaction:</p>
+<pre><code class="lang-csharp">using var session = await client.StartSessionAsync();
+await session.WithTransactionAsync(async (s, ct) =&gt;
+{
+    await progress.InsertOneAsync(s, entry, cancellationToken: ct);
+    await stats.UpdateOneAsync(s, x =&gt; x.User == entry.User,
+        Builders&lt;UserStats&gt;.Update.Inc(x =&gt; x.Minutes, entry.Minutes).Inc(x =&gt; x.Sessions, 1),
+        new UpdateOptions { IsUpsert = true }, ct);
+    return true;
+});</code></pre>
+<p>Then throw an exception between the two writes, and check that neither was saved.</p>
+<p><strong>Done when:</strong> a failure in the middle leaves no half-saved data.</p>
+<h3 id="day-5-change-streams-and-ttl-indexes">Day 5: Change streams and TTL indexes<a class="anchor" href="#day-5-change-streams-and-ttl-indexes" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> change streams let your app react to inserts and updates as they happen. TTL indexes delete documents automatically after a time.</p>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li><a href="https://www.mongodb.com/docs/manual/changestreams/" target="_blank" rel="noopener">Change streams</a> and <a href="https://www.mongodb.com/docs/manual/core/index-ttl/" target="_blank" rel="noopener">TTL indexes</a> (MongoDB docs)</li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li>In <code>StudyHub.Worker</code>, watch the <code>lessons</code> collection with <code>await lessons.WatchAsync()</code>, and on each change call <code>RemoveByTagAsync</code> on HybridCache. Now even edits made directly in mongosh clear the cache.</li>
+<li>Add a <code>sessions_log</code> collection for raw request logs, with a TTL index that deletes entries after 1 day: <code>createIndex({ at: 1 }, { expireAfterSeconds: 86400 })</code>. Insert a document with an old date, and wait about a minute for it to disappear (the TTL monitor runs every 60 seconds).</li>
+</ol>
+<p><strong>Done when:</strong> an edit in mongosh clears StudyHub's cache within a second, and old log documents delete themselves.</p>
+<h3 id="day-6-mini-project-schema-validation-and-a-data-guide">Day 6: Mini project, schema validation and a data guide<a class="anchor" href="#day-6-mini-project-schema-validation-and-a-data-guide" aria-label="Link to this heading">#</a></h3>
+<p><strong>Do</strong></p>
+<ol>
+<li>Add a <code>$jsonSchema</code> validator to <code>lessons</code> that requires <code>title</code> (a string of 3–120 characters), <code>topic</code> (one of your topics), and <code>minutes</code> (an integer between 5 and 180). Check that a bad insert is rejected.</li>
+<li>Write <code>nosql/MONGODB.md</code>: your collections, their shapes, their indexes and the query each one serves, the transaction you use, the change stream, and the TTL index.</li>
+</ol>
+<p><strong>Done when:</strong> invalid lessons are rejected, and the guide matches the code.</p>
+<h3 id="day-7-review-and-catch-up-light-2">Day 7: Review and catch-up (light)<a class="anchor" href="#day-7-review-and-catch-up-light-2" aria-label="Link to this heading">#</a></h3>
+<ul>
+<li>Push to <code>cloud-native-lab/week-13</code>. Go back to the single MongoDB node in your main <code>compose.yaml</code> to save memory, but keep the replica set file.</li>
+</ul>
+<hr>
+<h2 id="week-14-dynamodb-from-net-and-choosing-a-nosql-database">Week 14: DynamoDB from .NET, and choosing a NoSQL database<a class="anchor" href="#week-14-dynamodb-from-net-and-choosing-a-nosql-database" aria-label="Link to this heading">#</a></h2>
+<p><strong>By the end of the week:</strong> StudyHub's session events in DynamoDB (locally), designed around access patterns, plus a written guide to choosing between SQL, Valkey, MongoDB, and DynamoDB.</p>
+<h3 id="day-1-how-dynamodb-thinks">Day 1: How DynamoDB thinks<a class="anchor" href="#day-1-how-dynamodb-thinks" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> in DynamoDB you list your queries first, then design keys to answer each one with a single <code>Query</code>. There are no joins, and <code>Scan</code> reads the whole table, so it's avoided.</p>
+<p><strong>Learn (~25 min)</strong></p>
+<ul>
+<li><a href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.CoreComponents.html" target="_blank" rel="noopener">Core components of DynamoDB</a> and <a href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/bp-partition-key-design.html" target="_blank" rel="noopener">Best practices for designing partition keys</a></li>
+</ul>
+<p><strong>Do:</strong> list StudyHub's event queries, and design keys:</p>
+<div class="table-wrap"><table><thead><tr><th scope="col">Access pattern</th><th scope="col">Key condition</th></tr></thead><tbody><tr><td>A user's sessions, newest first</td><td><code>PK = USER#&lt;id&gt;</code>, <code>SK</code> begins with <code>SESSION#</code>, descending</td></tr><tr><td>A user's sessions in a date range</td><td><code>SK BETWEEN SESSION#&lt;from&gt; AND SESSION#&lt;to&gt;</code></td></tr><tr><td>All sessions for a lesson on a day</td><td>a GSI with <code>GSI1PK = LESSON#&lt;id&gt;#&lt;date&gt;</code></td></tr></tbody></table></div>
+<p><strong>Done when:</strong> every access pattern is answered by one <code>Query</code>.</p>
+<h3 id="day-2-dynamodb-local-and-the-aws-cli">Day 2: DynamoDB Local and the AWS CLI<a class="anchor" href="#day-2-dynamodb-local-and-the-aws-cli" aria-label="Link to this heading">#</a></h3>
+<p><strong>Learn (~10 min)</strong></p>
+<ul>
+<li><a href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.DownloadingAndRunning.html" target="_blank" rel="noopener">Deploying DynamoDB locally</a></li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li>Add DynamoDB Local to Compose: <code>dynamodb: { image: amazon/dynamodb-local, ports: [&quot;8000:8000&quot;] }</code>.</li>
+<li>Install the AWS CLI in Ubuntu (see the <a href="https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html" target="_blank" rel="noopener">install guide</a>), and create the table locally. Any fake credentials work with DynamoDB Local:
+<pre><code class="lang-bash">export AWS_ACCESS_KEY_ID=local AWS_SECRET_ACCESS_KEY=local AWS_REGION=us-east-1
+aws dynamodb create-table --endpoint-url http://localhost:8000 --table-name studyhub-events \
+  --attribute-definitions AttributeName=PK,AttributeType=S AttributeName=SK,AttributeType=S \
+                          AttributeName=GSI1PK,AttributeType=S AttributeName=GSI1SK,AttributeType=S \
+  --key-schema AttributeName=PK,KeyType=HASH AttributeName=SK,KeyType=RANGE \
+  --global-secondary-indexes 'IndexName=GSI1,KeySchema=[{AttributeName=GSI1PK,KeyType=HASH},{AttributeName=GSI1SK,KeyType=RANGE}],Projection={ProjectionType=ALL}' \
+  --billing-mode PAY_PER_REQUEST
+aws dynamodb list-tables --endpoint-url http://localhost:8000</code></pre></li>
+</ol>
+<p><strong>Done when:</strong> the table and its index exist in DynamoDB Local.</p>
+<h3 id="day-3-writing-and-querying-from-c">Day 3: Writing and querying from C#<a class="anchor" href="#day-3-writing-and-querying-from-c" aria-label="Link to this heading">#</a></h3>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li><a href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DotNetSDKMidLevel.html" target="_blank" rel="noopener">Working with items using the .NET SDK</a></li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li><code>dotnet add package AWSSDK.DynamoDBv2</code>, and point the client at DynamoDB Local in development:
+<pre><code class="lang-csharp">builder.Services.AddSingleton&lt;IAmazonDynamoDB&gt;(_ =&gt; new AmazonDynamoDBClient(
+    new AmazonDynamoDBConfig { ServiceURL = builder.Configuration[&quot;DynamoDb:ServiceUrl&quot;] ?? &quot;http://dynamodb:8000&quot; }));</code></pre></li>
+<li>In <code>POST /sessions</code>, also write an event item:
+<pre><code class="lang-csharp">await ddb.PutItemAsync(new PutItemRequest
+{
+    TableName = &quot;studyhub-events&quot;,
+    Item = new()
+    {
+        [&quot;PK&quot;] = new($&quot;USER#{user}&quot;), [&quot;SK&quot;] = new($&quot;SESSION#{at:O}&quot;),
+        [&quot;GSI1PK&quot;] = new($&quot;LESSON#{lessonId}#{at:yyyy-MM-dd}&quot;), [&quot;GSI1SK&quot;] = new($&quot;{at:O}&quot;),
+        [&quot;minutes&quot;] = new() { N = minutes.ToString() },
+        [&quot;expiresAt&quot;] = new() { N = at.AddDays(90).ToUnixTimeSeconds().ToString() }
+    }
+});</code></pre></li>
+<li>Add <code>GET /users/{user}/events?from=&amp;to=</code> using a <code>QueryRequest</code> with <code>KeyConditionExpression = &quot;PK = :pk AND SK BETWEEN :from AND :to&quot;</code> and <code>ScanIndexForward = false</code>.</li>
+</ol>
+<p><strong>Done when:</strong> events are written and read back with a <code>Query</code>, newest first.</p>
+<h3 id="day-4-conditional-writes-gsis-and-ttl">Day 4: Conditional writes, GSIs, and TTL<a class="anchor" href="#day-4-conditional-writes-gsis-and-ttl" aria-label="Link to this heading">#</a></h3>
+<p><strong>Do</strong></p>
+<ol>
+<li>Stop duplicate events: add <code>ConditionExpression = &quot;attribute_not_exists(PK)&quot;</code> to the put, and handle <code>ConditionalCheckFailedException</code> by returning <code>409</code>.</li>
+<li>Query the GSI: <code>IndexName = &quot;GSI1&quot;</code>, for &quot;all sessions for lesson 3 today&quot;.</li>
+<li>Turn on TTL for <code>expiresAt</code> with <code>aws dynamodb update-time-to-live --endpoint-url http://localhost:8000 --table-name studyhub-events --time-to-live-specification Enabled=true,AttributeName=expiresAt</code>. DynamoDB Local accepts the setting, but deleting expired items only happens on the real service.</li>
+</ol>
+<p><strong>Done when:</strong> duplicates return <code>409</code>, and the GSI query works.</p>
+<h3 id="day-5-choosing-the-right-database">Day 5: Choosing the right database<a class="anchor" href="#day-5-choosing-the-right-database" aria-label="Link to this heading">#</a></h3>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://roadmap.sh/backend" target="_blank" rel="noopener">roadmap.sh Backend</a>: the &quot;More about databases&quot; and NoSQL topics</li>
+</ul>
+<p><strong>Do:</strong> write <code>nosql/CHOOSING.md</code> with a comparison you'd use at work:</p>
+<div class="table-wrap"><table><thead><tr><th scope="col"></th><th scope="col">PostgreSQL / SQL Server</th><th scope="col">Valkey</th><th scope="col">MongoDB</th><th scope="col">DynamoDB</th></tr></thead><tbody><tr><td>Data shape</td><td></td><td></td><td></td><td></td></tr><tr><td>Query flexibility</td><td></td><td></td><td></td><td></td></tr><tr><td>Scaling model</td><td></td><td></td><td></td><td></td></tr><tr><td>Consistency</td><td></td><td></td><td></td><td></td></tr><tr><td>Where StudyHub uses it</td><td>(not used)</td><td>cache, leaderboard, streaks, stream</td><td>lessons, progress, reports</td><td>session events</td></tr><tr><td>When you'd pick it</td><td></td><td></td><td></td><td></td></tr></tbody></table></div>
+<p><strong>Done when:</strong> every cell is filled in, and you can defend each StudyHub choice.</p>
+<h3 id="day-6-mini-project-the-whole-data-layer-in-compose">Day 6: Mini project, the whole data layer in Compose<a class="anchor" href="#day-6-mini-project-the-whole-data-layer-in-compose" aria-label="Link to this heading">#</a></h3>
+<p><strong>Do:</strong> run StudyHub, the worker, Valkey, MongoDB, and DynamoDB Local with <code>docker compose up -d</code>. Write a script, <code>smoke-test.sh</code>, that posts five sessions and checks:</p>
+<ul>
+<li>the leaderboard changed (Valkey)</li>
+<li>the progress summary changed (MongoDB)</li>
+<li>the events query returns five items (DynamoDB)</li>
+<li>the worker logged five events (the stream)</li>
+</ul>
+<p><strong>Done when:</strong> <code>./smoke-test.sh</code> passes on a fresh <code>docker compose down -v &amp;&amp; docker compose up -d</code>.</p>
+<h3 id="day-7-review-and-catch-up-light-3">Day 7: Review and catch-up (light)<a class="anchor" href="#day-7-review-and-catch-up-light-3" aria-label="Link to this heading">#</a></h3>
+<ul>
+<li>Push to <code>cloud-native-lab/week-14</code>. Section D is complete. Mark the topics on <a href="https://roadmap.sh/mongodb" target="_blank" rel="noopener">roadmap.sh/mongodb</a>, <a href="https://roadmap.sh/redis" target="_blank" rel="noopener">roadmap.sh/redis</a>, and <a href="https://roadmap.sh/backend" target="_blank" rel="noopener">roadmap.sh/backend</a>.</li>
+</ul>
+<nav class="pager" aria-label="Sections"><a class="prev" href="C-caching-weeks-08-10.html"><small>Previous</small>← C. Caching (Weeks 8–10)</a><a class="next" href="E-telemetry-weeks-15-16.html"><small>Next</small>E. Telemetry (Weeks 15–16) →</a></nav>
+  </main>
+</div>
+<script src="../assets/plan-data.js"></script>
+<script src="../assets/lessons.js"></script>
+</body>
+</html>

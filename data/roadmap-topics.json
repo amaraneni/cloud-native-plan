@@ -1,0 +1,859 @@
+{
+ "checkedAt": "2026-10-29",
+ "roadmaps": {
+  "linux": {
+   "name": "Linux",
+   "url": "https://roadmap.sh/linux"
+  },
+  "docker": {
+   "name": "Docker",
+   "url": "https://roadmap.sh/docker"
+  },
+  "kubernetes": {
+   "name": "Kubernetes",
+   "url": "https://roadmap.sh/kubernetes"
+  },
+  "aws": {
+   "name": "AWS",
+   "url": "https://roadmap.sh/aws"
+  },
+  "mongodb": {
+   "name": "MongoDB",
+   "url": "https://roadmap.sh/mongodb"
+  },
+  "redis": {
+   "name": "Redis",
+   "url": "https://roadmap.sh/redis"
+  },
+  "aspnet-core": {
+   "name": "ASP.NET Core",
+   "url": "https://roadmap.sh/aspnet-core"
+  },
+  "backend": {
+   "name": "Backend",
+   "url": "https://roadmap.sh/backend"
+  },
+  "devops": {
+   "name": "DevOps",
+   "url": "https://roadmap.sh/devops"
+  },
+  "system-design": {
+   "name": "System Design",
+   "url": "https://roadmap.sh/system-design"
+  }
+ },
+ "weeks": {
+  "1": [
+   {
+    "id": "linux/shell-and-other-basics",
+    "roadmap": "linux",
+    "title": "Shell and Other Basics"
+   },
+   {
+    "id": "linux/navigation-basics",
+    "roadmap": "linux",
+    "title": "Navigation Basics"
+   },
+   {
+    "id": "linux/directory-hierarchy-overview",
+    "roadmap": "linux",
+    "title": "Directory Hierarchy Overview"
+   },
+   {
+    "id": "linux/basic-commands",
+    "roadmap": "linux",
+    "title": "Basic Commands"
+   },
+   {
+    "id": "linux/command-help",
+    "roadmap": "linux",
+    "title": "Command Help"
+   }
+  ],
+  "2": [
+   {
+    "id": "linux/editing-files",
+    "roadmap": "linux",
+    "title": "Editing Files"
+   },
+   {
+    "id": "linux/file-permissions",
+    "roadmap": "linux",
+    "title": "File Permissions"
+   },
+   {
+    "id": "linux/users-and-groups",
+    "roadmap": "linux",
+    "title": "Users and Groups"
+   },
+   {
+    "id": "linux/super-user",
+    "roadmap": "linux",
+    "title": "Super User"
+   },
+   {
+    "id": "linux/listing--finding-processes",
+    "roadmap": "linux",
+    "title": "Listing / Finding Processes"
+   },
+   {
+    "id": "linux/process-signals",
+    "roadmap": "linux",
+    "title": "Process Signals"
+   },
+   {
+    "id": "linux/text-processing",
+    "roadmap": "linux",
+    "title": "Text Processing"
+   }
+  ],
+  "3": [
+   {
+    "id": "linux/package-management",
+    "roadmap": "linux",
+    "title": "Package Management"
+   },
+   {
+    "id": "linux/install--remove--upgrade-packages",
+    "roadmap": "linux",
+    "title": "Install / Remove / Upgrade Packages"
+   },
+   {
+    "id": "linux/service-management-systemd",
+    "roadmap": "linux",
+    "title": "Service Management (systemd)"
+   },
+   {
+    "id": "linux/creating-new-services",
+    "roadmap": "linux",
+    "title": "Creating New Services"
+   },
+   {
+    "id": "linux/checking-service-logs",
+    "roadmap": "linux",
+    "title": "Checking Service Logs"
+   },
+   {
+    "id": "linux/ssh",
+    "roadmap": "linux",
+    "title": "SSH"
+   }
+  ],
+  "4": [
+   {
+    "id": "linux/networking",
+    "roadmap": "linux",
+    "title": "Networking"
+   },
+   {
+    "id": "linux/dns-resolution",
+    "roadmap": "linux",
+    "title": "DNS Resolution"
+   },
+   {
+    "id": "linux/shell-programming",
+    "roadmap": "linux",
+    "title": "Shell Programming"
+   },
+   {
+    "id": "linux/conditionals",
+    "roadmap": "linux",
+    "title": "Conditionals"
+   },
+   {
+    "id": "linux/loops",
+    "roadmap": "linux",
+    "title": "Loops"
+   },
+   {
+    "id": "linux/available-memory--disk",
+    "roadmap": "linux",
+    "title": "Available Memory / Disk"
+   },
+   {
+    "id": "linux/troubleshooting",
+    "roadmap": "linux",
+    "title": "Troubleshooting"
+   }
+  ],
+  "5": [
+   {
+    "id": "docker/what-are-containers",
+    "roadmap": "docker",
+    "title": "What are Containers?"
+   },
+   {
+    "id": "docker/namespaces",
+    "roadmap": "docker",
+    "title": "Namespaces"
+   },
+   {
+    "id": "docker/cgroups",
+    "roadmap": "docker",
+    "title": "cgroups"
+   },
+   {
+    "id": "docker/images",
+    "roadmap": "docker",
+    "title": "Images"
+   },
+   {
+    "id": "docker/running-containers",
+    "roadmap": "docker",
+    "title": "Running Containers"
+   },
+   {
+    "id": "docker/dockerfiles",
+    "roadmap": "docker",
+    "title": "Dockerfiles"
+   }
+  ],
+  "6": [
+   {
+    "id": "docker/building-container-images",
+    "roadmap": "docker",
+    "title": "Building Container Images"
+   },
+   {
+    "id": "docker/efficient-layer-caching",
+    "roadmap": "docker",
+    "title": "Efficient Layer Caching"
+   },
+   {
+    "id": "docker/image-size-and-security",
+    "roadmap": "docker",
+    "title": "Image Size and Security"
+   },
+   {
+    "id": "docker/image-security",
+    "roadmap": "docker",
+    "title": "Image Security"
+   },
+   {
+    "id": "docker/users--groups-permissions",
+    "roadmap": "docker",
+    "title": "Users / Groups Permissions"
+   }
+  ],
+  "7": [
+   {
+    "id": "docker/networks",
+    "roadmap": "docker",
+    "title": "Networks"
+   },
+   {
+    "id": "docker/volumes",
+    "roadmap": "docker",
+    "title": "Volumes"
+   },
+   {
+    "id": "docker/bind-mounts",
+    "roadmap": "docker",
+    "title": "Bind Mounts"
+   },
+   {
+    "id": "docker/docker-compose",
+    "roadmap": "docker",
+    "title": "docker compose"
+   },
+   {
+    "id": "docker/container-registries",
+    "roadmap": "docker",
+    "title": "Container Registries"
+   },
+   {
+    "id": "docker/image-tagging-best-practices",
+    "roadmap": "docker",
+    "title": "Image Tagging Best Practices"
+   }
+  ],
+  "8": [
+   {
+    "id": "aspnet-core/memory-cache",
+    "roadmap": "aspnet-core",
+    "title": "Memory Cache"
+   },
+   {
+    "id": "aspnet-core/caching",
+    "roadmap": "aspnet-core",
+    "title": "Caching"
+   },
+   {
+    "id": "backend/http-caching",
+    "roadmap": "backend",
+    "title": "HTTP Caching"
+   },
+   {
+    "id": "backend/caching",
+    "roadmap": "backend",
+    "title": "Caching"
+   },
+   {
+    "id": "system-design/application-caching",
+    "roadmap": "system-design",
+    "title": "Application Caching"
+   },
+   {
+    "id": "system-design/client-caching",
+    "roadmap": "system-design",
+    "title": "Client Caching"
+   }
+  ],
+  "9": [
+   {
+    "id": "aspnet-core/distributed-cache",
+    "roadmap": "aspnet-core",
+    "title": "Distributed Cache"
+   },
+   {
+    "id": "aspnet-core/redis",
+    "roadmap": "aspnet-core",
+    "title": "Redis"
+   },
+   {
+    "id": "redis/caching",
+    "roadmap": "redis",
+    "title": "Caching"
+   },
+   {
+    "id": "redis/expiration",
+    "roadmap": "redis",
+    "title": "Expiration"
+   },
+   {
+    "id": "redis/max-memory-policy",
+    "roadmap": "redis",
+    "title": "Max Memory Policy"
+   },
+   {
+    "id": "redis/basic-commands--set-get",
+    "roadmap": "redis",
+    "title": "Basic Commands / SET, GET"
+   },
+   {
+    "id": "redis/session-management",
+    "roadmap": "redis",
+    "title": "Session Management"
+   }
+  ],
+  "10": [
+   {
+    "id": "system-design/cache-aside",
+    "roadmap": "system-design",
+    "title": "Cache-Aside"
+   },
+   {
+    "id": "system-design/write-through",
+    "roadmap": "system-design",
+    "title": "Write-through"
+   },
+   {
+    "id": "system-design/write-behind",
+    "roadmap": "system-design",
+    "title": "Write-behind"
+   },
+   {
+    "id": "system-design/refresh-ahead",
+    "roadmap": "system-design",
+    "title": "Refresh Ahead"
+   },
+   {
+    "id": "redis/naming-conventions",
+    "roadmap": "redis",
+    "title": "Naming Conventions"
+   }
+  ],
+  "11": [
+   {
+    "id": "redis/hashes",
+    "roadmap": "redis",
+    "title": "Hashes"
+   },
+   {
+    "id": "redis/sorted-sets",
+    "roadmap": "redis",
+    "title": "Sorted Sets"
+   },
+   {
+    "id": "redis/streams",
+    "roadmap": "redis",
+    "title": "Streams"
+   },
+   {
+    "id": "redis/lua-scripting",
+    "roadmap": "redis",
+    "title": "Lua Scripting"
+   },
+   {
+    "id": "redis/transactions",
+    "roadmap": "redis",
+    "title": "Transactions"
+   },
+   {
+    "id": "redis/persistence-options",
+    "roadmap": "redis",
+    "title": "Persistence Options"
+   },
+   {
+    "id": "redis/hyperloglog",
+    "roadmap": "redis",
+    "title": "HyperLogLog"
+   }
+  ],
+  "12": [
+   {
+    "id": "mongodb/what-is-mongodb",
+    "roadmap": "mongodb",
+    "title": "What is MongoDB?"
+   },
+   {
+    "id": "mongodb/bson-vs-json",
+    "roadmap": "mongodb",
+    "title": "BSON vs JSON"
+   },
+   {
+    "id": "mongodb/language-drivers",
+    "roadmap": "mongodb",
+    "title": "Language Drivers"
+   },
+   {
+    "id": "mongodb/find-and-relevant",
+    "roadmap": "mongodb",
+    "title": "find() and relevant"
+   },
+   {
+    "id": "mongodb/insert-and-relevant",
+    "roadmap": "mongodb",
+    "title": "insert() and relevant"
+   },
+   {
+    "id": "mongodb/update-and-relevant",
+    "roadmap": "mongodb",
+    "title": "update() and relevant"
+   },
+   {
+    "id": "mongodb/indexing",
+    "roadmap": "mongodb",
+    "title": "Indexing"
+   }
+  ],
+  "13": [
+   {
+    "id": "mongodb/embedded-objects--arrays",
+    "roadmap": "mongodb",
+    "title": "Embedded Objects & Arrays"
+   },
+   {
+    "id": "mongodb/aggregation",
+    "roadmap": "mongodb",
+    "title": "Aggregation"
+   },
+   {
+    "id": "mongodb/lookup",
+    "roadmap": "mongodb",
+    "title": "$lookup"
+   },
+   {
+    "id": "mongodb/replicasets",
+    "roadmap": "mongodb",
+    "title": "Replicasets"
+   },
+   {
+    "id": "mongodb/transactions",
+    "roadmap": "mongodb",
+    "title": "Transactions"
+   },
+   {
+    "id": "mongodb/expiring",
+    "roadmap": "mongodb",
+    "title": "Expiring"
+   }
+  ],
+  "14": [
+   {
+    "id": "aws/dynamodb",
+    "roadmap": "aws",
+    "title": "DynamoDB"
+   },
+   {
+    "id": "aws/tables--items--attributes",
+    "roadmap": "aws",
+    "title": "Tables / Items / Attributes"
+   },
+   {
+    "id": "aws/primary-keys--secondary-indexes",
+    "roadmap": "aws",
+    "title": "Primary Keys / Secondary Indexes"
+   },
+   {
+    "id": "aws/data-modeling",
+    "roadmap": "aws",
+    "title": "Data Modeling"
+   },
+   {
+    "id": "aws/dynamodb-local",
+    "roadmap": "aws",
+    "title": "DynamoDB Local"
+   },
+   {
+    "id": "backend/nosql-databases",
+    "roadmap": "backend",
+    "title": "NoSQL Databases"
+   },
+   {
+    "id": "mongodb/sql-vs-nosql",
+    "roadmap": "mongodb",
+    "title": "SQL vs NoSQL"
+   }
+  ],
+  "15": [
+   {
+    "id": "backend/telemetry",
+    "roadmap": "backend",
+    "title": "Telemetry"
+   },
+   {
+    "id": "backend/instrumentation",
+    "roadmap": "backend",
+    "title": "Instrumentation"
+   },
+   {
+    "id": "backend/observability",
+    "roadmap": "backend",
+    "title": "Observability"
+   },
+   {
+    "id": "devops/opentelemetry",
+    "roadmap": "devops",
+    "title": "OpenTelemetry"
+   },
+   {
+    "id": "devops/observability",
+    "roadmap": "devops",
+    "title": "Observability"
+   }
+  ],
+  "16": [
+   {
+    "id": "devops/prometheus",
+    "roadmap": "devops",
+    "title": "Prometheus"
+   },
+   {
+    "id": "devops/grafana",
+    "roadmap": "devops",
+    "title": "Grafana"
+   },
+   {
+    "id": "devops/jaeger",
+    "roadmap": "devops",
+    "title": "Jaeger"
+   },
+   {
+    "id": "devops/loki",
+    "roadmap": "devops",
+    "title": "Loki"
+   },
+   {
+    "id": "devops/logs-management",
+    "roadmap": "devops",
+    "title": "Logs Management"
+   }
+  ],
+  "17": [
+   {
+    "id": "kubernetes/overview-of-kubernetes",
+    "roadmap": "kubernetes",
+    "title": "Overview of Kubernetes"
+   },
+   {
+    "id": "kubernetes/key-concepts-and-terminologies",
+    "roadmap": "kubernetes",
+    "title": "Key Concepts and Terminologies"
+   },
+   {
+    "id": "kubernetes/installing-a-local-cluster",
+    "roadmap": "kubernetes",
+    "title": "Installing a Local Cluster"
+   },
+   {
+    "id": "kubernetes/pods",
+    "roadmap": "kubernetes",
+    "title": "Pods"
+   },
+   {
+    "id": "kubernetes/deployments",
+    "roadmap": "kubernetes",
+    "title": "Deployments"
+   },
+   {
+    "id": "kubernetes/replicasets",
+    "roadmap": "kubernetes",
+    "title": "ReplicaSets"
+   },
+   {
+    "id": "kubernetes/rolling-updates--rollbacks",
+    "roadmap": "kubernetes",
+    "title": "Rolling Updates / Rollbacks"
+   },
+   {
+    "id": "kubernetes/services-and-networking",
+    "roadmap": "kubernetes",
+    "title": "Services and Networking"
+   }
+  ],
+  "18": [
+   {
+    "id": "kubernetes/injecting-pod-config-with-configmaps",
+    "roadmap": "kubernetes",
+    "title": "Injecting Pod Config with ConfigMaps"
+   },
+   {
+    "id": "kubernetes/using-secrets-for-sensitive-data",
+    "roadmap": "kubernetes",
+    "title": "Using Secrets for Sensitive Data"
+   },
+   {
+    "id": "kubernetes/setting-resource-requests-and-limits",
+    "roadmap": "kubernetes",
+    "title": "Setting Resource Requests and Limits"
+   },
+   {
+    "id": "kubernetes/storage-and-volumes",
+    "roadmap": "kubernetes",
+    "title": "Storage and Volumes"
+   },
+   {
+    "id": "kubernetes/statefulsets",
+    "roadmap": "kubernetes",
+    "title": "StatefulSets"
+   },
+   {
+    "id": "kubernetes/jobs",
+    "roadmap": "kubernetes",
+    "title": "Jobs"
+   },
+   {
+    "id": "kubernetes/resource-health",
+    "roadmap": "kubernetes",
+    "title": "Resource Health"
+   }
+  ],
+  "19": [
+   {
+    "id": "kubernetes/external-access-to-services",
+    "roadmap": "kubernetes",
+    "title": "External Access to Services"
+   },
+   {
+    "id": "kubernetes/helm-charts",
+    "roadmap": "kubernetes",
+    "title": "Helm Charts"
+   },
+   {
+    "id": "kubernetes/horizontal-pod-autoscaler-hpa",
+    "roadmap": "kubernetes",
+    "title": "Horizontal Pod Autoscaler (HPA)"
+   },
+   {
+    "id": "kubernetes/canary-deployments",
+    "roadmap": "kubernetes",
+    "title": "Canary Deployments"
+   },
+   {
+    "id": "kubernetes/load-balancing",
+    "roadmap": "kubernetes",
+    "title": "Load Balancing"
+   }
+  ],
+  "20": [
+   {
+    "id": "kubernetes/role-based-access-control-rbac",
+    "roadmap": "kubernetes",
+    "title": "Role Based Access Control (RBAC)"
+   },
+   {
+    "id": "kubernetes/network-security",
+    "roadmap": "kubernetes",
+    "title": "Network Security"
+   },
+   {
+    "id": "kubernetes/container-and-pod-security",
+    "roadmap": "kubernetes",
+    "title": "Container and Pod Security"
+   },
+   {
+    "id": "kubernetes/monitoring-and-logging",
+    "roadmap": "kubernetes",
+    "title": "Monitoring and Logging"
+   },
+   {
+    "id": "kubernetes/logs",
+    "roadmap": "kubernetes",
+    "title": "Logs"
+   }
+  ],
+  "21": [
+   {
+    "id": "kubernetes/choosing-a-managed-provider",
+    "roadmap": "kubernetes",
+    "title": "Choosing a Managed Provider"
+   },
+   {
+    "id": "kubernetes/should-you-manage-your-own-cluster",
+    "roadmap": "kubernetes",
+    "title": "Should you manage your own Cluster?"
+   },
+   {
+    "id": "aws/eks",
+    "roadmap": "aws",
+    "title": "EKS"
+   },
+   {
+    "id": "aws/ecr",
+    "roadmap": "aws",
+    "title": "ECR"
+   },
+   {
+    "id": "devops/gke--eks--aks",
+    "roadmap": "devops",
+    "title": "GKE / EKS / AKS"
+   }
+  ],
+  "22": [
+   {
+    "id": "aws/roles",
+    "roadmap": "aws",
+    "title": "Roles"
+   },
+   {
+    "id": "aws/elasticache",
+    "roadmap": "aws",
+    "title": "ElastiCache"
+   },
+   {
+    "id": "aws/elastic-load-balancers",
+    "roadmap": "aws",
+    "title": "Elastic Load Balancers"
+   },
+   {
+    "id": "aws/security-groups",
+    "roadmap": "aws",
+    "title": "Security Groups"
+   },
+   {
+    "id": "aws/private-subnet",
+    "roadmap": "aws",
+    "title": "Private Subnet"
+   },
+   {
+    "id": "aws/nat-gateway",
+    "roadmap": "aws",
+    "title": "NAT Gateway"
+   },
+   {
+    "id": "devops/secret-management",
+    "roadmap": "devops",
+    "title": "Secret Management"
+   }
+  ],
+  "23": [
+   {
+    "id": "kubernetes/cluster-autoscaling",
+    "roadmap": "kubernetes",
+    "title": "Cluster Autoscaling"
+   },
+   {
+    "id": "kubernetes/autoscaling",
+    "roadmap": "kubernetes",
+    "title": "Autoscaling"
+   },
+   {
+    "id": "kubernetes/ci--cd-integration",
+    "roadmap": "kubernetes",
+    "title": "CI / CD Integration"
+   },
+   {
+    "id": "aws/cloudwatch",
+    "roadmap": "aws",
+    "title": "Cloudwatch"
+   },
+   {
+    "id": "devops/github-actions",
+    "roadmap": "devops",
+    "title": "GitHub Actions"
+   }
+  ],
+  "24": [
+   {
+    "id": "devops/datadog",
+    "roadmap": "devops",
+    "title": "Datadog"
+   },
+   {
+    "id": "devops/infrastructure-monitoring",
+    "roadmap": "devops",
+    "title": "Infrastructure Monitoring"
+   },
+   {
+    "id": "redis/monitoring",
+    "roadmap": "redis",
+    "title": "Monitoring"
+   },
+   {
+    "id": "kubernetes/metrics",
+    "roadmap": "kubernetes",
+    "title": "Metrics"
+   }
+  ],
+  "25": [
+   {
+    "id": "devops/performance-monitoring",
+    "roadmap": "devops",
+    "title": "Performance Monitoring"
+   },
+   {
+    "id": "kubernetes/traces",
+    "roadmap": "kubernetes",
+    "title": "Traces"
+   },
+   {
+    "id": "kubernetes/observability-engines",
+    "roadmap": "kubernetes",
+    "title": "Observability Engines"
+   },
+   {
+    "id": "system-design/monitoring",
+    "roadmap": "system-design",
+    "title": "Monitoring"
+   },
+   {
+    "id": "kubernetes/monitoring--optimizing-resource-usage",
+    "roadmap": "kubernetes",
+    "title": "Monitoring & Optimizing Resource Usage"
+   }
+  ],
+  "26": [
+   {
+    "id": "system-design/high-availability",
+    "roadmap": "system-design",
+    "title": "High Availability"
+   },
+   {
+    "id": "system-design/horizontal-scaling",
+    "roadmap": "system-design",
+    "title": "Horizontal Scaling"
+   },
+   {
+    "id": "kubernetes/deployment-patterns",
+    "roadmap": "kubernetes",
+    "title": "Deployment Patterns"
+   },
+   {
+    "id": "backend/building-for-scale",
+    "roadmap": "backend",
+    "title": "Building For Scale"
+   }
+  ]
+ }
+}

@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cloud-Native .NET Plan: schedule</title>
+<meta name="color-scheme" content="light dark">
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/common.js"></script>
+</head>
+<body>
+<a class="skip" href="#weeks">Skip to the checklist</a>
+<header class="topbar">
+  <a class="brand" href="schedule.html"><span class="logo" aria-hidden="true">CN</span><span class="brand-text">Cloud-Native .NET Plan</span></a>
+  <nav class="top-links" aria-label="Plan">
+    <a href="schedule.html" aria-current="page">Schedule</a>
+    <a href="plan.html">Plan</a>
+    <a href="resources.html">Resources</a>
+  </nav>
+  <span class="grow"></span>
+  <button type="button" class="btn sm" id="today-btn" title="Shortcut: T">Today <kbd>T</kbd></button>
+  <button type="button" class="icon-btn" id="theme-btn"></button>
+</header>
+
+<main class="container">
+  <div class="page-head">
+    <h1>Your cloud-native .NET half-year</h1>
+    <p class="muted" id="plan-dates"></p>
+  </div>
+
+  <section id="dashboard" aria-label="Dashboard">
+    <div class="dash-grid">
+      <article class="card hero" id="hero" aria-live="polite"></article>
+      <article class="card progress-card" aria-label="Overall progress">
+        <div class="ring-wrap" id="ring" role="progressbar" aria-label="Days completed" aria-valuemin="0" aria-valuemax="182" aria-valuenow="0">
+          <svg class="ring" viewBox="0 0 120 120" aria-hidden="true">
+            <defs><linearGradient id="ring-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4f46e5"/><stop offset="1" stop-color="#9333ea"/></linearGradient></defs>
+            <circle class="ring-bg" cx="60" cy="60" r="52"/>
+            <circle class="ring-fg" id="ring-fg" cx="60" cy="60" r="52" stroke="url(#ring-grad)" style="stroke:url(#ring-grad)"/>
+          </svg>
+          <div class="ring-label"><strong id="ring-pct">0%</strong><span id="ring-count">0 of 182 days</span></div>
+        </div>
+        <p class="muted small" id="ring-week"></p>
+      </article>
+      <article class="card stats" id="stats" aria-label="Stats"></article>
+    </div>
+
+    <section class="card sections" aria-labelledby="sec-title">
+      <div class="card-head"><h2 id="sec-title">Sections</h2><span class="muted small">Click one to show only its weeks.</span></div>
+      <div class="sec-grid" id="sec-grid"></div>
+    </section>
+
+    <div class="dash-grid two">
+      <section class="card heat-card" aria-labelledby="heat-title">
+        <div class="card-head">
+          <h2 id="heat-title">Your plan, day by day</h2>
+          <div class="legend" aria-hidden="true">
+            <span><i class="s-done"></i>Done</span><span><i class="s-today"></i>Today</span><span><i class="s-overdue"></i>Behind</span><span><i class="s-future"></i>Coming up</span>
+          </div>
+        </div>
+        <div class="heat-scroll">
+          <div class="heat-months" id="heat-months" aria-hidden="true"></div>
+          <div class="heat-grid" id="heat-grid" aria-label="Every day of the plan. Each column is a week."></div>
+        </div>
+        <p class="muted small">Each column is a week and each square is a day. Click a square to jump to it.</p>
+      </section>
+      <section class="card roadmap-card heat-card" aria-labelledby="rm-title">
+        <div class="card-head"><h2 id="rm-title">roadmap.sh progress</h2></div>
+        <div class="rm-progress" id="rm-progress"></div>
+        <p class="muted small" style="margin-top:12px">Topics you've ticked after each week. Click a roadmap to open it.</p>
+      </section>
+    </div>
+  </section>
+
+  <div class="toolbar" role="search">
+    <div class="search">
+      <label class="sr-only" for="search">Search lessons, notes, and roadmap topics</label>
+      <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="search" type="search" placeholder="Search lessons, notes, and roadmap topics" autocomplete="off">
+      <kbd class="search-kbd" aria-hidden="true">/</kbd>
+    </div>
+    <div class="chips" role="group" aria-label="Show">
+      <button type="button" class="chip-btn" data-filter="all" aria-pressed="true">All</button>
+      <button type="button" class="chip-btn" data-filter="week" aria-pressed="false">This week</button>
+      <button type="button" class="chip-btn" data-filter="todo" aria-pressed="false">To do</button>
+      <button type="button" class="chip-btn" data-filter="overdue" aria-pressed="false">Behind <span class="count" id="overdue-count" hidden>0</span></button>
+      <button type="button" class="chip-btn" data-filter="done" aria-pressed="false">Done</button>
+    </div>
+    <label class="sr-only" for="section-select">Section</label>
+    <select class="sel" id="section-select"><option value="">All sections</option></select>
+    <button type="button" class="btn sm" id="expand-btn">Expand all</button>
+  </div>
+  <p class="muted small" id="result-count" role="status" aria-live="polite"></p>
+
+  <div id="weeks"></div>
+
+  <footer class="foot">
+    <p>Your ticks, notes, and roadmap.sh topics are saved in this browser only.
+      <button type="button" class="btn sm" id="export-btn">Export progress</button>
+      <button type="button" class="btn sm" id="import-btn">Import progress</button>
+      <input type="file" id="import-file" accept="application/json" hidden>
+    </p>
+    <p>Shortcuts: <kbd>/</kbd> search · <kbd>T</kbd> today · <kbd>Esc</kbd> clear search</p>
+  </footer>
+</main>
+<script src="assets/plan-data.js"></script>
+<script src="assets/schedule.js"></script>
+</body>
+</html>

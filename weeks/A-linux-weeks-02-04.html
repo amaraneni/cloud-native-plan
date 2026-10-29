@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Section A: Linux and Ubuntu (Weeks 2–4) · Cloud-Native .NET Plan</title>
+<meta name="color-scheme" content="light dark">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/common.js"></script>
+</head>
+<body data-page="weeks/A-linux-weeks-02-04.html" data-root="../">
+<a class="skip" href="#content">Skip to the lesson</a>
+<div class="read-progress" aria-hidden="true"><span></span></div>
+<header class="topbar">
+  <button type="button" class="icon-btn toc-toggle" id="toc-btn" aria-controls="toc" aria-expanded="false" aria-label="Show contents">☰</button>
+  <a class="brand" href="../schedule.html"><span class="logo" aria-hidden="true">CN</span><span class="brand-text">Cloud-Native .NET Plan</span></a>
+  <nav class="top-links" aria-label="Plan">
+    <a href="../schedule.html">Schedule</a>
+    <a href="../plan.html">Plan</a>
+    <a href="../resources.html">Resources</a>
+  </nav>
+  <span class="grow"></span>
+  <button type="button" class="icon-btn" id="theme-btn"></button>
+</header>
+<div class="layout">
+  <nav class="toc" id="toc" aria-label="On this page"></nav>
+  <main class="prose" id="content">
+<h1 id="section-a-linux-and-ubuntu-weeks-24">Section A: Linux and Ubuntu (Weeks 2–4)<a class="anchor" href="#section-a-linux-and-ubuntu-weeks-24" aria-label="Link to this heading">#</a></h1>
+<p>Week 1 is in <a href="../plan.html">plan.md</a>. These weeks build the Linux skills every later section relies on: containers are Linux processes, Kubernetes nodes are Linux servers, and the Datadog Agent runs on Linux. By Week 4, StudyHub runs as a proper service on an Ubuntu Server VM.</p>
+<p><strong>Courses for this section (optional, see <a href="../resources.html">resources.md</a>):</strong> LinkedIn Learning's <a href="https://www.linkedin.com/learning/search?keywords=Linux%20command%20line" target="_blank" rel="noopener">Linux courses</a>, Udemy's <a href="https://www.udemy.com/course/linux-mastery/" target="_blank" rel="noopener">Linux Mastery</a>, and the free <a href="https://labex.io/linuxjourney" target="_blank" rel="noopener">Linux Journey</a>. <strong>roadmap.sh:</strong> <a href="https://roadmap.sh/linux" target="_blank" rel="noopener">Linux</a>.</p>
+<hr>
+<h2 id="week-2-files-permissions-users-and-processes">Week 2: Files, permissions, users, and processes<a class="anchor" href="#week-2-files-permissions-users-and-processes" aria-label="Link to this heading">#</a></h2>
+<p><strong>By the end of the week:</strong> you can edit files in the terminal, read and set permissions, manage users and groups, control processes, and chain text tools together with pipes.</p>
+<h3 id="day-1-editing-files-in-the-terminal">Day 1: Editing files in the terminal<a class="anchor" href="#day-1-editing-files-in-the-terminal" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> on servers there's no VS Code. You'll use <code>nano</code> for quick edits, and should know enough <code>vim</code> to change a file and get out.</p>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://ubuntu.com/tutorials/command-line-for-beginners" target="_blank" rel="noopener">The Linux command line for beginners</a> (Ubuntu), sections 6–8</li>
+<li>Run <code>vimtutor</code> in Ubuntu for 15 minutes</li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li>Create <code>~/code/linux-lab/notes.txt</code> with <code>nano</code>. Type three lines, save with Ctrl+O, and exit with Ctrl+X.</li>
+<li>Open the same file with <code>vim notes.txt</code>. Press <code>i</code> to insert, add a line, press Esc, then type <code>:wq</code> and Enter to save and quit. Open it again and quit without saving using <code>:q!</code>.</li>
+<li>Set nano as your default editor: <code>echo 'export EDITOR=nano' &gt;&gt; ~/.bashrc &amp;&amp; source ~/.bashrc</code>.</li>
+</ol>
+<p><strong>Done when:</strong> you can edit, save, and quit in both nano and vim without searching how.</p>
+<h3 id="day-2-permissions-and-ownership">Day 2: Permissions and ownership<a class="anchor" href="#day-2-permissions-and-ownership" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> every file has an owner, a group, and read/write/execute permissions for the owner, the group, and everyone else. <code>rwxr-x---</code> is 750 in numbers.</p>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://ubuntu.com/tutorials/command-line-for-beginners" target="_blank" rel="noopener">Understanding Linux file permissions</a> (Ubuntu), and run <code>man chmod</code></li>
+</ul>
+<p><strong>Do</strong></p>
+<pre><code class="lang-bash">cd ~/code/linux-lab
+touch secret.txt script.sh
+ls -l secret.txt script.sh           # read the permission columns
+chmod 600 secret.txt                 # only you can read and write
+chmod u+x script.sh                  # add execute for the owner
+ls -l
+umask                                # the default that new files start from
+stat secret.txt                      # full details, including numeric permissions
+sudo chown root:root secret.txt &amp;&amp; cat secret.txt   # &quot;Permission denied&quot;
+sudo chown &quot;$USER&quot;:&quot;$USER&quot; secret.txt</code></pre>
+<p><strong>Done when:</strong> you can read any <code>ls -l</code> line out loud (owner, group, and permissions), and you've seen &quot;Permission denied&quot; and fixed it.</p>
+<h3 id="day-3-users-groups-and-sudo">Day 3: Users, groups, and sudo<a class="anchor" href="#day-3-users-groups-and-sudo" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> servers run each app as its own user, so a bug in one can't touch the others. <code>sudo</code> runs a single command as root, and is logged.</p>
+<p><strong>Do</strong></p>
+<pre><code class="lang-bash">sudo adduser --disabled-password --gecos &quot;&quot; studyhub   # a user for the app, with no password login
+id studyhub
+sudo groupadd devs &amp;&amp; sudo usermod -aG devs &quot;$USER&quot;
+groups &quot;$USER&quot;                 # devs appears after you log in again
+sudo -u studyhub whoami        # run one command as another user
+sudo mkdir -p /opt/studyhub &amp;&amp; sudo chown studyhub:studyhub /opt/studyhub
+ls -ld /opt/studyhub
+sudo tail -n 5 /var/log/auth.log 2&gt;/dev/null || sudo journalctl _COMM=sudo -n 5</code></pre>
+<p>Then look at <code>/etc/passwd</code> and <code>/etc/group</code> with <code>less</code>, and find your user and <code>studyhub</code>.</p>
+<p><strong>Done when:</strong> a <code>studyhub</code> user owns <code>/opt/studyhub</code>, and you can see your own sudo commands in the logs.</p>
+<h3 id="day-4-processes-and-signals">Day 4: Processes and signals<a class="anchor" href="#day-4-processes-and-signals" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> every running program is a process with an ID (PID), a parent, and an owner. Signals ask a process to stop: <code>SIGTERM</code> politely, and <code>SIGKILL</code> forcefully.</p>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li>Run <code>man ps</code> and <code>man kill</code>, and read the signals list with <code>kill -l</code></li>
+</ul>
+<p><strong>Do</strong></p>
+<pre><code class="lang-bash">sleep 600 &amp;                    # start a background process
+jobs; ps -ef --forest | head -20
+pgrep -a sleep                 # find it by name
+kill -TERM $(pgrep sleep)      # stop it politely
+sleep 600 &amp; disown             # keep running even if the terminal closes
+top                            # press P to sort by CPU, M by memory, q to quit
+htop                           # a friendlier top (install it with apt if needed)
+cat /proc/$$/status | head     # your shell's own process details, from the /proc file system</code></pre>
+<p><strong>Done when:</strong> you can find any process, see who owns it and how much memory it uses, and stop it.</p>
+<h3 id="day-5-pipes-and-text-tools">Day 5: Pipes and text tools<a class="anchor" href="#day-5-pipes-and-text-tools" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> Linux tools each do one thing, and pipes (<code>|</code>) connect them. Most log digging is <code>grep</code>, <code>sort</code>, <code>uniq</code>, <code>awk</code>, and <code>sed</code> put together.</p>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://ubuntu.com/tutorials/command-line-for-beginners" target="_blank" rel="noopener">The Linux command line for beginners</a> (Ubuntu), section on pipes</li>
+</ul>
+<p><strong>Do:</strong> create a fake web log and answer questions about it:</p>
+<pre><code class="lang-bash">cd ~/code/linux-lab
+for i in $(seq 1 500); do
+  printf '%s GET /api/%s %s %dms\n' &quot;$(date -d &quot;-$i min&quot; +%H:%M)&quot; \
+    &quot;$(shuf -n1 -e lessons progress streaks leaderboard)&quot; \
+    &quot;$(shuf -n1 -e 200 200 200 404 500)&quot; &quot;$(shuf -i 5-900 -n1)&quot;
+done &gt; access.log
+
+grep ' 500 ' access.log | wc -l                                  # how many errors?
+awk '{print $3}' access.log | sort | uniq -c | sort -rn           # requests per endpoint
+awk '$4 == 500 {print $3}' access.log | sort | uniq -c            # errors per endpoint
+awk '{gsub(&quot;ms&quot;,&quot;&quot;,$5); s+=$5} END {print s/NR &quot; ms average&quot;}' access.log
+sed 's#/api/#/v2/api/#' access.log | head -3                      # rewrite text
+tail -f access.log                                                # follow a file; Ctrl+C to stop</code></pre>
+<p><strong>Done when:</strong> you've answered all four questions with one-line commands.</p>
+<h3 id="day-6-mini-project-a-log-report-script">Day 6: Mini project, a log report script<a class="anchor" href="#day-6-mini-project-a-log-report-script" aria-label="Link to this heading">#</a></h3>
+<p><strong>Do:</strong> write <code>log-report.sh</code> that takes a log file as its argument and prints:</p>
+<ul>
+<li>total requests and the error rate (status 500) as a percentage</li>
+<li>the top 3 endpoints by request count</li>
+<li>the slowest 5 requests</li>
+<li>a non-zero exit code if the error rate is over 15%, so other scripts can react</li>
+</ul>
+<p>Use <code>&quot;$1&quot;</code> for the argument, and print a usage line if it's missing (<code>[[ $# -eq 1 ]] || { echo &quot;usage: $0 file&quot;; exit 2; }</code>).</p>
+<p><strong>Done when:</strong> <code>./log-report.sh access.log; echo &quot;exit code $?&quot;</code> prints the report and the right exit code.</p>
+<h3 id="day-7-review-and-catch-up-light">Day 7: Review and catch-up (light)<a class="anchor" href="#day-7-review-and-catch-up-light" aria-label="Link to this heading">#</a></h3>
+<ul>
+<li>Push <code>linux-lab</code> to <code>cloud-native-lab/week-02</code>.</li>
+<li>Write a one-page cheat sheet of the 25 commands you used most this week.</li>
+</ul>
+<hr>
+<h2 id="week-3-packages-services-and-an-ubuntu-server-vm">Week 3: Packages, services, and an Ubuntu Server VM<a class="anchor" href="#week-3-packages-services-and-an-ubuntu-server-vm" aria-label="Link to this heading">#</a></h2>
+<p><strong>By the end of the week:</strong> an Ubuntu Server VM you reach over SSH, with a firewall, and the first version of StudyHub running on it as a systemd service, started on boot and logged with journald.</p>
+<p><strong>Why a VM as well as WSL:</strong> WSL distros share one kernel and skip some normal server parts. A VM is a full, separate server, which is closer to what you'll run in the cloud.</p>
+<h3 id="day-1-packages-with-apt-and-snap">Day 1: Packages with apt and snap<a class="anchor" href="#day-1-packages-with-apt-and-snap" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> <code>apt</code> installs packages from repositories. <code>snap</code> installs self-contained packages from Canonical's store. You'll meet both on Ubuntu.</p>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://ubuntu.com/server/docs/how-to/software/package-management/" target="_blank" rel="noopener">Package management</a> (Ubuntu Server docs)</li>
+</ul>
+<p><strong>Do (Ubuntu in WSL)</strong></p>
+<pre><code class="lang-bash">apt search ripgrep | head          # find a package
+apt show ripgrep                   # its version, size, and dependencies
+sudo apt install -y ripgrep jq tree
+apt list --installed | wc -l
+dpkg -L jq | head                  # which files a package installed
+apt-cache policy jq                # which repository it came from
+sudo apt remove -y tree &amp;&amp; sudo apt autoremove -y
+cat /etc/apt/sources.list.d/*.sources 2&gt;/dev/null | head -20</code></pre>
+<p><strong>Done when:</strong> you can find, inspect, install, and remove a package, and say which repository it came from.</p>
+<h3 id="day-2-an-ubuntu-server-vm-with-multipass">Day 2: An Ubuntu Server VM with Multipass<a class="anchor" href="#day-2-an-ubuntu-server-vm-with-multipass" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> Multipass, from Canonical, creates Ubuntu VMs with one command, using Hyper-V on Windows. It configures them with cloud-init, the same tool cloud servers use.</p>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li><a href="https://canonical.com/multipass/docs/latest/tutorial/getting-started/" target="_blank" rel="noopener">Getting started with Multipass</a></li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li>Install Multipass from <a href="https://canonical.com/multipass/install" target="_blank" rel="noopener">canonical.com/multipass/install</a>. On Windows Home, choose VirtualBox when it asks, since Hyper-V needs Windows Pro.</li>
+<li><strong>(PowerShell)</strong> create a server and connect to it:
+<pre><code class="lang-powershell">multipass launch 24.04 --name lab1 --cpus 2 --memory 2G --disk 10G
+multipass list
+multipass shell lab1</code></pre></li>
+<li>Inside <code>lab1</code>, run your Week 1 <code>sysinfo.sh</code> checks by hand: <code>cat /etc/os-release</code>, <code>ps -p 1 -o comm=</code>, <code>free -h</code>.</li>
+<li>Stop and start it: <code>multipass stop lab1</code>, then <code>multipass start lab1</code>.</li>
+</ol>
+<p><strong>Done when:</strong> <code>lab1</code> runs Ubuntu Server 24.04, and you've noticed that its kernel is different from your WSL distros.</p>
+<h3 id="day-3-ssh-keys-and-a-firewall">Day 3: SSH keys and a firewall<a class="anchor" href="#day-3-ssh-keys-and-a-firewall" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> you reach real servers with SSH using a key pair, never a password. <code>ufw</code> is Ubuntu's simple front end for the Linux firewall.</p>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://ubuntu.com/server/docs/how-to/security/openssh-server/" target="_blank" rel="noopener">OpenSSH server</a> (Ubuntu Server docs)</li>
+<li><a href="https://ubuntu.com/server/docs/how-to/security/firewalls/" target="_blank" rel="noopener">Firewalls</a> (Ubuntu Server docs)</li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li><strong>(Ubuntu in WSL)</strong> create a key: <code>ssh-keygen -t ed25519 -C &quot;cloud-native-lab&quot;</code>, and press Enter for the defaults.</li>
+<li>Copy your public key into the VM:
+<pre><code class="lang-bash">cat ~/.ssh/id_ed25519.pub | multipass.exe exec lab1 -- bash -c &quot;cat &gt;&gt; ~/.ssh/authorized_keys&quot;
+ip=$(multipass.exe info lab1 | awk '/IPv4/ {print $2}' | tr -d '\r')
+ssh ubuntu@&quot;$ip&quot;</code></pre></li>
+<li>Inside <code>lab1</code>, turn on the firewall, allowing only SSH and the port StudyHub will use:
+<pre><code class="lang-bash">sudo ufw allow OpenSSH
+sudo ufw allow 5080/tcp
+sudo ufw enable
+sudo ufw status verbose</code></pre>
+<p><strong>If <code>ssh</code> from WSL times out:</strong> WSL and the Multipass VM are on different virtual networks. Switch WSL to mirrored networking. <strong>(PowerShell)</strong> run <code>notepad $env:USERPROFILE\.wslconfig</code>, add these two lines, save, then run <code>wsl --shutdown</code> and reopen Ubuntu:</p>
+<pre><code class="lang-text">[wsl2]
+networkingMode=mirrored</code></pre></li>
+<li>Add a host entry to <code>~/.ssh/config</code> in WSL so you can type <code>ssh lab1</code>:
+<pre><code class="lang-text">Host lab1
+  HostName &lt;the VM's IP&gt;
+  User ubuntu</code></pre></li>
+</ol>
+<p><strong>Done when:</strong> <code>ssh lab1</code> logs you in with your key, and <code>ufw status</code> shows only ports 22 and 5080 open.</p>
+<h3 id="day-4-systemd-services-and-journald">Day 4: systemd services and journald<a class="anchor" href="#day-4-systemd-services-and-journald" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> systemd starts services at boot, restarts them if they crash, and collects their logs in the journal. A unit file describes how to run one service.</p>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html" target="_blank" rel="noopener">Understanding systemd units</a>: the overview and the <code>Restart=</code> option</li>
+<li>Run <code>man journalctl</code></li>
+</ul>
+<p><strong>Do (in lab1)</strong></p>
+<pre><code class="lang-bash">systemctl list-units --type=service --state=running | head -20
+systemctl status ssh
+journalctl -u ssh -n 20 --no-pager
+journalctl -p err -b --no-pager | tail       # errors since boot
+systemctl list-timers --all | head           # scheduled jobs
+systemd-analyze blame | head                 # what slowed down boot</code></pre>
+<p>Then create a tiny service that writes a heartbeat every 10 seconds:</p>
+<pre><code class="lang-bash">sudo tee /usr/local/bin/heartbeat.sh &gt;/dev/null &lt;&lt;'EOF'
+#!/usr/bin/env bash
+while true; do echo &quot;heartbeat $(date -Is)&quot;; sleep 10; done
+EOF
+sudo chmod +x /usr/local/bin/heartbeat.sh
+sudo tee /etc/systemd/system/heartbeat.service &gt;/dev/null &lt;&lt;'EOF'
+[Unit]
+Description=Heartbeat demo
+
+[Service]
+ExecStart=/usr/local/bin/heartbeat.sh
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOF
+sudo systemctl daemon-reload &amp;&amp; sudo systemctl enable --now heartbeat
+journalctl -u heartbeat -f      # Ctrl+C to stop following</code></pre>
+<p>Kill it with <code>sudo pkill -f heartbeat.sh</code>, and watch systemd restart it.</p>
+<p><strong>Done when:</strong> your heartbeat service restarts by itself after being killed, and you can read its logs with <code>journalctl</code>.</p>
+<h3 id="day-5-studyhub-version-01">Day 5: StudyHub, version 0.1<a class="anchor" href="#day-5-studyhub-version-01" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> the first version of your project: a minimal ASP.NET Core API. You'll build it in WSL and publish it as a self-contained Linux app.</p>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li><a href="https://learn.microsoft.com/en-us/dotnet/core/install/linux-ubuntu-install" target="_blank" rel="noopener">Install .NET on Ubuntu</a> (Microsoft Learn)</li>
+</ul>
+<p><strong>Do (Ubuntu in WSL)</strong></p>
+<ol>
+<li>Install the .NET 10 SDK using the instructions on that page for your Ubuntu version, then run <code>dotnet --version</code>.</li>
+<li>Create the app:
+<pre><code class="lang-bash">mkdir -p ~/code/studyhub &amp;&amp; cd ~/code/studyhub
+dotnet new web -n StudyHub.Api
+cd StudyHub.Api</code></pre></li>
+<li>Replace <code>Program.cs</code>:
+<pre><code class="lang-csharp">var builder = WebApplication.CreateBuilder(args);
+var app = builder.Build();
+
+var lessons = new List&lt;Lesson&gt;
+{
+    new(1, &quot;Install WSL and Ubuntu&quot;, &quot;linux&quot;),
+    new(2, &quot;Files and permissions&quot;, &quot;linux&quot;),
+    new(3, &quot;Services with systemd&quot;, &quot;linux&quot;)
+};
+
+app.MapGet(&quot;/&quot;, () =&gt; &quot;StudyHub is running&quot;);
+app.MapGet(&quot;/health&quot;, () =&gt; Results.Ok(new { status = &quot;ok&quot;, host = Environment.MachineName }));
+app.MapGet(&quot;/lessons&quot;, () =&gt; lessons);
+app.MapGet(&quot;/lessons/{id:int}&quot;, (int id) =&gt;
+    lessons.FirstOrDefault(l =&gt; l.Id == id) is { } l ? Results.Ok(l) : Results.NotFound());
+
+app.Run();
+
+record Lesson(int Id, string Title, string Topic);</code></pre></li>
+<li>Run it with <code>dotnet run --urls http://0.0.0.0:5080</code>, and open <code>http://localhost:5080/lessons</code> in your Windows browser. WSL forwards the port for you.</li>
+<li>Publish a self-contained build for Linux: <code>dotnet publish -c Release -r linux-x64 --self-contained -o ./publish</code>.</li>
+</ol>
+<p><strong>Done when:</strong> the API returns three lessons, and <code>./publish/StudyHub.Api</code> exists.</p>
+<h3 id="day-6-run-studyhub-as-a-service-on-the-vm">Day 6: Run StudyHub as a service on the VM<a class="anchor" href="#day-6-run-studyhub-as-a-service-on-the-vm" aria-label="Link to this heading">#</a></h3>
+<p><strong>Do</strong></p>
+<ol>
+<li>Copy the build to <code>lab1</code>: <code>scp -r ./publish lab1:/tmp/studyhub</code>.</li>
+<li>In <code>lab1</code>, install it as the <code>studyhub</code> user, as you did in Week 2:
+<pre><code class="lang-bash">sudo adduser --system --group --no-create-home studyhub
+sudo mkdir -p /opt/studyhub &amp;&amp; sudo cp -r /tmp/studyhub/* /opt/studyhub/
+sudo chown -R studyhub:studyhub /opt/studyhub
+sudo tee /etc/systemd/system/studyhub.service &gt;/dev/null &lt;&lt;'EOF'
+[Unit]
+Description=StudyHub API
+After=network.target
+
+[Service]
+User=studyhub
+WorkingDirectory=/opt/studyhub
+ExecStart=/opt/studyhub/StudyHub.Api --urls http://0.0.0.0:5080
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+sudo systemctl daemon-reload &amp;&amp; sudo systemctl enable --now studyhub
+systemctl status studyhub --no-pager</code></pre></li>
+<li>From WSL, run <code>curl http://&lt;lab1 IP&gt;:5080/health</code>.</li>
+<li>Restart the VM (<code>sudo reboot</code>), and check that StudyHub comes back on its own.</li>
+</ol>
+<p><strong>Done when:</strong> StudyHub answers from the VM, runs as <code>studyhub</code> (not root), and starts again after a reboot.</p>
+<h3 id="day-7-review-and-catch-up-light-1">Day 7: Review and catch-up (light)<a class="anchor" href="#day-7-review-and-catch-up-light-1" aria-label="Link to this heading">#</a></h3>
+<ul>
+<li>Push <code>studyhub</code> and your unit file to <code>cloud-native-lab/week-03</code>.</li>
+<li>Write down every step of today's deployment. You'll automate them next week.</li>
+</ul>
+<hr>
+<h2 id="week-4-networking-bash-scripting-and-troubleshooting">Week 4: Networking, Bash scripting, and troubleshooting<a class="anchor" href="#week-4-networking-bash-scripting-and-troubleshooting" aria-label="Link to this heading">#</a></h2>
+<p><strong>By the end of the week:</strong> you can find out why a service isn't reachable, write robust scripts, schedule jobs, and deploy StudyHub to the VM with one script.</p>
+<h3 id="day-1-networking-basics">Day 1: Networking basics<a class="anchor" href="#day-1-networking-basics" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> most server problems are &quot;it can't connect&quot;. <code>ip</code> shows addresses and routes, <code>ss</code> shows which ports are listening, and <code>curl</code>, <code>dig</code>, and <code>nc</code> test connections.</p>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://ubuntu.com/server/docs/explanation/networking/configuring-networks/" target="_blank" rel="noopener">Configuring networks</a> (Ubuntu Server docs)</li>
+</ul>
+<p><strong>Do (in lab1)</strong></p>
+<pre><code class="lang-bash">ip -br addr                 # interfaces and IP addresses
+ip route                    # the default gateway
+resolvectl status | head    # which DNS servers are used
+ss -tlnp                    # TCP ports listening, and which process owns each
+curl -sv http://localhost:5080/health 2&gt;&amp;1 | head -20
+dig +short learn.microsoft.com
+nc -zv localhost 5080; nc -zv localhost 6000
+cat /etc/hosts</code></pre>
+<p><strong>Done when:</strong> you can say which IP lab1 has, which DNS server it uses, and which process is listening on port 5080.</p>
+<h3 id="day-2-breaking-the-network-on-purpose">Day 2: Breaking the network on purpose<a class="anchor" href="#day-2-breaking-the-network-on-purpose" aria-label="Link to this heading">#</a></h3>
+<p><strong>Do:</strong> in lab1, cause three failures one at a time, and record each error message:</p>
+<ol>
+<li><strong>Service down:</strong> <code>sudo systemctl stop studyhub</code>, then <code>curl localhost:5080</code> gives &quot;Connection refused&quot;.</li>
+<li><strong>Firewall:</strong> start StudyHub again, run <code>sudo ufw delete allow 5080/tcp</code>, then curl it from WSL. The request <strong>times out</strong>, but works from inside the VM.</li>
+<li><strong>DNS:</strong> add <code>127.0.0.1 learn.microsoft.com</code> to <code>/etc/hosts</code>, then <code>curl -I https://learn.microsoft.com</code> fails or gets the wrong answer. Remove the line afterwards.</li>
+</ol>
+<p>Undo each change.</p>
+<p><strong>Done when:</strong> you have a table telling refused, timeout, and DNS failures apart, with the command that confirms each one.</p>
+<h3 id="day-3-bash-scripting-that-doesnt-break">Day 3: Bash scripting that doesn't break<a class="anchor" href="#day-3-bash-scripting-that-doesnt-break" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> good scripts stop on errors, quote their variables, check their inputs, and clean up after themselves.</p>
+<p><strong>Learn (~25 min)</strong></p>
+<ul>
+<li><a href="https://tldp.org/LDP/Bash-Beginners-Guide/html/" target="_blank" rel="noopener">Bash Guide for Beginners</a>, chapters 7–9 (conditionals, loops, and functions)</li>
+</ul>
+<p><strong>Do:</strong> write <code>~/code/linux-lab/wait-for.sh</code>, a script that waits until a URL returns HTTP 200, or fails after a timeout:</p>
+<pre><code class="lang-bash">#!/usr/bin/env bash
+set -euo pipefail
+
+usage() { echo &quot;usage: $0 &lt;url&gt; [timeout-seconds]&quot; &gt;&amp;2; exit 2; }
+[[ $# -ge 1 ]] || usage
+url=$1
+timeout=${2:-30}
+
+deadline=$((SECONDS + timeout))
+until curl -fsS -o /dev/null &quot;$url&quot;; do
+  if (( SECONDS &gt;= deadline )); then
+    echo &quot;Timed out after ${timeout}s waiting for $url&quot; &gt;&amp;2
+    exit 1
+  fi
+  sleep 1
+done
+echo &quot;$url is up&quot;</code></pre>
+<p>Test it against StudyHub while it's running, and while it's stopped.</p>
+<p><strong>Done when:</strong> it prints &quot;is up&quot; when StudyHub runs, and exits with code 1 after the timeout when it doesn't.</p>
+<h3 id="day-4-scheduled-jobs-with-cron-and-systemd-timers">Day 4: Scheduled jobs with cron and systemd timers<a class="anchor" href="#day-4-scheduled-jobs-with-cron-and-systemd-timers" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> cron is the classic scheduler. systemd timers do the same job with logging and dependencies. You'll meet both.</p>
+<p><strong>Do (in lab1)</strong></p>
+<ol>
+<li>A cron job that records StudyHub's health every 5 minutes. Run <code>crontab -e</code> and add:
+<pre><code class="lang-text">*/5 * * * * curl -fsS http://localhost:5080/health &gt;&gt; /tmp/health.log 2&gt;&amp;1</code></pre></li>
+<li>The same thing as a systemd timer:
+<pre><code class="lang-bash">sudo tee /etc/systemd/system/healthcheck.service &gt;/dev/null &lt;&lt;'EOF'
+[Unit]
+Description=Check StudyHub health
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/curl -fsS http://localhost:5080/health
+EOF
+sudo tee /etc/systemd/system/healthcheck.timer &gt;/dev/null &lt;&lt;'EOF'
+[Unit]
+Description=Run the StudyHub health check every 5 minutes
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=5min
+[Install]
+WantedBy=timers.target
+EOF
+sudo systemctl daemon-reload &amp;&amp; sudo systemctl enable --now healthcheck.timer
+systemctl list-timers healthcheck.timer</code></pre></li>
+<li>After 10 minutes, compare <code>cat /tmp/health.log</code> with <code>journalctl -u healthcheck</code>.</li>
+</ol>
+<p><strong>Done when:</strong> both schedules ran at least twice, and you can say why the timer is easier to debug.</p>
+<h3 id="day-5-disks-memory-and-logs-filling-up">Day 5: Disks, memory, and logs filling up<a class="anchor" href="#day-5-disks-memory-and-logs-filling-up" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> a full disk or memory shortage takes services down without warning. Knowing <code>df</code>, <code>du</code>, <code>free</code>, and log rotation prevents a lot of outages.</p>
+<p><strong>Do (in lab1)</strong></p>
+<pre><code class="lang-bash">df -h                                  # free space per file system
+sudo du -xh / --max-depth=2 2&gt;/dev/null | sort -h | tail -10   # the biggest folders
+free -h; cat /proc/meminfo | head -5   # memory
+sudo journalctl --disk-usage           # how much space logs use
+sudo journalctl --vacuum-size=100M     # shrink the journal
+cat /etc/logrotate.d/rsyslog           # how text logs are rotated
+dmesg | tail                           # kernel messages, including out-of-memory kills</code></pre>
+<p>Then create a 1 GB file with <code>fallocate -l 1G /tmp/big.file</code>, watch <code>df -h</code> change, and delete it.</p>
+<p><strong>Done when:</strong> you can find what's filling a disk, and you know where out-of-memory kills are logged.</p>
+<h3 id="day-6-mini-project-a-one-command-deploy">Day 6: Mini project, a one-command deploy<a class="anchor" href="#day-6-mini-project-a-one-command-deploy" aria-label="Link to this heading">#</a></h3>
+<p><strong>Do:</strong> write <code>deploy.sh</code> in <code>~/code/studyhub</code> that:</p>
+<ol>
+<li>publishes StudyHub with <code>dotnet publish</code> (self-contained, linux-x64)</li>
+<li>copies it to the VM with <code>rsync -az --delete ./publish/ lab1:/tmp/studyhub/</code> (install rsync on both sides first)</li>
+<li>over SSH, stops the service, copies the files into <code>/opt/studyhub</code>, fixes ownership, and starts it again</li>
+<li>uses your <code>wait-for.sh</code> to check <code>/health</code> responds, and exits non-zero if it doesn't</li>
+</ol>
+<p>Change the <code>/</code> message in <code>Program.cs</code>, run <code>./deploy.sh</code>, and check the new message.</p>
+<p><strong>Done when:</strong> one command deploys a new version and confirms it's healthy.</p>
+<h3 id="day-7-review-and-catch-up-light-2">Day 7: Review and catch-up (light)<a class="anchor" href="#day-7-review-and-catch-up-light-2" aria-label="Link to this heading">#</a></h3>
+<ul>
+<li>Push <code>deploy.sh</code>, <code>wait-for.sh</code>, and your notes to <code>cloud-native-lab/week-04</code>.</li>
+<li><strong>Keep the lab1 VM.</strong> You'll install the Datadog Agent on it in Week 24. Run <code>multipass stop lab1</code> to save resources until then.</li>
+<li>Section A is complete. Mark the topics on <a href="https://roadmap.sh/linux" target="_blank" rel="noopener">roadmap.sh/linux</a>.</li>
+</ul>
+<nav class="pager" aria-label="Sections"><a class="prev" href="../plan.html"><small>Previous</small>← Plan and Week 1</a><a class="next" href="B-docker-weeks-05-07.html"><small>Next</small>B. Docker (Weeks 5–7) →</a></nav>
+  </main>
+</div>
+<script src="../assets/plan-data.js"></script>
+<script src="../assets/lessons.js"></script>
+</body>
+</html>

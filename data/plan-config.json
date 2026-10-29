@@ -1,0 +1,45 @@
+{
+  "_about": "Settings shared by the build tools: the plan's name, length, sections, lesson pages, and roadmap.sh roadmaps.",
+  "name": "Cloud-Native .NET Plan",
+  "logo": "CN",
+  "heading": "Your cloud-native .NET half-year",
+  "storagePrefix": "cn-plan",
+  "weeks": 26,
+  "defaultStart": "2026-10-28",
+  "sections": [
+    [1, 4, "A. Linux and Ubuntu (Weeks 1–4)"],
+    [5, 7, "B. Docker in depth (Weeks 5–7)"],
+    [8, 10, "C. Caching in .NET (Weeks 8–10)"],
+    [11, 14, "D. NoSQL databases (Weeks 11–14)"],
+    [15, 16, "E. Telemetry with OpenTelemetry (Weeks 15–16)"],
+    [17, 20, "F. Kubernetes (Weeks 17–20)"],
+    [21, 23, "G. Amazon EKS (Weeks 21–23)"],
+    [24, 25, "H. Datadog (Weeks 24–25)"],
+    [26, 26, "I. Capstone (Week 26)"]
+  ],
+  "pages": [
+    ["plan.md", "Plan and Week 1"],
+    ["weeks/A-linux-weeks-02-04.md", "A. Linux (Weeks 2–4)"],
+    ["weeks/B-docker-weeks-05-07.md", "B. Docker (Weeks 5–7)"],
+    ["weeks/C-caching-weeks-08-10.md", "C. Caching (Weeks 8–10)"],
+    ["weeks/D-nosql-weeks-11-14.md", "D. NoSQL (Weeks 11–14)"],
+    ["weeks/E-telemetry-weeks-15-16.md", "E. Telemetry (Weeks 15–16)"],
+    ["weeks/F-kubernetes-weeks-17-20.md", "F. Kubernetes (Weeks 17–20)"],
+    ["weeks/G-eks-weeks-21-23.md", "G. EKS (Weeks 21–23)"],
+    ["weeks/H-datadog-weeks-24-25.md", "H. Datadog (Weeks 24–25)"],
+    ["weeks/I-capstone-week-26.md", "I. Capstone (Week 26)"],
+    ["resources.md", "Resources"]
+  ],
+  "roadmaps": {
+    "linux": "Linux",
+    "docker": "Docker",
+    "kubernetes": "Kubernetes",
+    "aws": "AWS",
+    "mongodb": "MongoDB",
+    "redis": "Redis",
+    "aspnet-core": "ASP.NET Core",
+    "backend": "Backend",
+    "devops": "DevOps",
+    "system-design": "System Design"
+  }
+}

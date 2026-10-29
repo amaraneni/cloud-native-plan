@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cloud-Native .NET Plan: Week by Week · Cloud-Native .NET Plan</title>
+<meta name="color-scheme" content="light dark">
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/common.js"></script>
+</head>
+<body data-page="plan.html" data-root="">
+<a class="skip" href="#content">Skip to the lesson</a>
+<div class="read-progress" aria-hidden="true"><span></span></div>
+<header class="topbar">
+  <button type="button" class="icon-btn toc-toggle" id="toc-btn" aria-controls="toc" aria-expanded="false" aria-label="Show contents">☰</button>
+  <a class="brand" href="schedule.html"><span class="logo" aria-hidden="true">CN</span><span class="brand-text">Cloud-Native .NET Plan</span></a>
+  <nav class="top-links" aria-label="Plan">
+    <a href="schedule.html">Schedule</a>
+    <a href="plan.html" aria-current="page">Plan</a>
+    <a href="resources.html">Resources</a>
+  </nav>
+  <span class="grow"></span>
+  <button type="button" class="icon-btn" id="theme-btn"></button>
+</header>
+<div class="layout">
+  <nav class="toc" id="toc" aria-label="On this page"></nav>
+  <main class="prose" id="content">
+<h1 id="cloud-native-net-plan-week-by-week">Cloud-Native .NET Plan: Week by Week<a class="anchor" href="#cloud-native-net-plan-week-by-week" aria-label="Link to this heading">#</a></h1>
+<p><strong>Goal:</strong> in 26 weeks you can run and debug Linux servers, build small and secure .NET containers, cache well in .NET (in memory, distributed, and HybridCache), choose and use NoSQL databases (Valkey/Redis, MongoDB, DynamoDB), add OpenTelemetry to any service, run apps on Kubernetes and Amazon EKS, and monitor all of it in Datadog.</p>
+<p><strong>Language:</strong> C# and .NET 10 for all the code. Bash for Linux work, and YAML for Docker Compose, Kubernetes, and Helm.</p>
+<p><strong>Cost:</strong> almost everything runs on your laptop: WSL, a Multipass VM, Docker, and a kind Kubernetes cluster. Money is spent in only two places:</p>
+<ul>
+<li><strong>EKS (Weeks 21–23 and 26):</strong> about $0.10 an hour for the cluster, plus nodes, a NAT gateway, and a load balancer. Create the cluster at the start of a session and delete it at the end. Set an AWS budget alert first.</li>
+<li><strong>Datadog (Weeks 24–25):</strong> the 14-day free trial covers both weeks if you start it on Week 24, Day 1.</li>
+</ul>
+<p><strong>Files in this plan:</strong></p>
+<ul>
+<li><a href="schedule.html">schedule.html</a>: <strong>start here each day.</strong> The dated checklist, with a dashboard, notes, and a roadmap.sh checklist for every week</li>
+<li><a href="schedule.html">schedule.md</a>: the same checklist as a printable Markdown file</li>
+<li><code>plan.md</code> (this file): the goal, the outline, and Week 1 in full</li>
+<li><code>weeks/</code>: one file per section, with every day of Weeks 2–26</li>
+<li><a href="resources.html">resources.md</a>: courses, docs, and roadmap.sh roadmaps, mapped to the weeks that use them</li>
+<li><code>data/plan-config.json</code>: the plan's name, length, and sections, used by the build tools</li>
+<li><code>data/roadmap-map.json</code>: which roadmap.sh topics to mark done after each week</li>
+<li><code>tools/</code>: <code>build-html.mjs</code> rebuilds the HTML pages, <code>build-schedule.mjs</code> rebuilds the schedule (pass a start date to move it), <code>check-links.mjs</code> checks every link, and <code>fetch-roadmap-titles.mjs</code> refreshes roadmap.sh topic names</li>
+</ul>
+<p><strong>Running it alongside the AI Engineering plan:</strong> this plan saves its progress separately, so the two never mix. Doing both at once means two lessons a day. If that's too much, rebuild this one to start later, for example <code>node tools/build-schedule.mjs 2027-01-04</code>.</p>
+<hr>
+<h2 id="your-main-project-studyhub">Your main project: StudyHub<a class="anchor" href="#your-main-project-studyhub" aria-label="Link to this heading">#</a></h2>
+<p>You build one .NET 10 app all the way through, and each section adds to it. StudyHub tracks learning progress: lessons, study sessions, streaks, and a leaderboard.</p>
+<div class="table-wrap"><table><thead><tr><th scope="col">Weeks</th><th scope="col">What StudyHub gets</th></tr></thead><tbody><tr><td>3–4</td><td>Runs as a systemd service on an Ubuntu Server VM</td></tr><tr><td>5–7</td><td>A small, non-root container image, run with Docker Compose next to its databases</td></tr><tr><td>8–10</td><td>Output caching, a Valkey distributed cache, and HybridCache with tag-based invalidation</td></tr><tr><td>11–14</td><td>A Valkey leaderboard, MongoDB for lessons and progress, and DynamoDB for study-session events</td></tr><tr><td>15–16</td><td>OpenTelemetry traces, metrics, and logs, viewed in the Aspire dashboard, then in Grafana and Jaeger</td></tr><tr><td>17–20</td><td>Runs on Kubernetes (kind), with probes, scaling, a Helm chart, and network policies</td></tr><tr><td>21–23</td><td>Runs on Amazon EKS Auto Mode, with ECR, Pod Identity, a load balancer, and ElastiCache</td></tr><tr><td>24–25</td><td>Monitored in Datadog: hosts, containers, Kubernetes, APM traces, logs, and monitors</td></tr><tr><td>26</td><td>Version 1.0, documented and demoed</td></tr></tbody></table></div>
+<hr>
+<h2 id="how-each-day-works-about-6090-minutes">How each day works (about 60–90 minutes)<a class="anchor" href="#how-each-day-works-about-6090-minutes" aria-label="Link to this heading">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th scope="col">Part</th><th scope="col">Time</th><th scope="col">What you do</th></tr></thead><tbody><tr><td><strong>Topic</strong></td><td></td><td>One thing you learn today</td></tr><tr><td><strong>Learn</strong></td><td>~20 min</td><td>One or two docs pages or videos</td></tr><tr><td><strong>Do</strong></td><td>~45–60 min</td><td>Build or run something real</td></tr><tr><td><strong>Done when</strong></td><td></td><td>What you should see working</td></tr></tbody></table></div>
+<p><strong>Day 7 each week is light:</strong> catch up on anything you missed, tidy up, push your work to GitHub, and mark the week's roadmap.sh topics.</p>
+<p><strong>Where to type commands:</strong> this plan says <strong>(PowerShell)</strong> for Windows commands and <strong>(Ubuntu)</strong> for commands in a Linux terminal. Everything else runs inside Linux.</p>
+<hr>
+<h2 id="outline-26-weeks">Outline (26 weeks)<a class="anchor" href="#outline-26-weeks" aria-label="Link to this heading">#</a></h2>
+<h3 id="a-linux-and-ubuntu-weeks-14">A. Linux and Ubuntu (Weeks 1–4)<a class="anchor" href="#a-linux-and-ubuntu-weeks-14" aria-label="Link to this heading">#</a></h3>
+<ol>
+<li>WSL and your first Linux distributions: Ubuntu, Debian, and Fedora side by side</li>
+<li>Files, permissions, users, and processes</li>
+<li>Packages, services, and an Ubuntu Server VM with Multipass</li>
+<li>Networking, Bash scripting, and troubleshooting</li>
+</ol>
+<h3 id="b-docker-in-depth-weeks-57">B. Docker in depth (Weeks 5–7)<a class="anchor" href="#b-docker-in-depth-weeks-57" aria-label="Link to this heading">#</a></h3>
+<ol start="5">
+<li>Images and containers, and how they really work on Linux</li>
+<li>Building small, secure .NET images</li>
+<li>Networks, volumes, Docker Compose, and registries</li>
+</ol>
+<h3 id="c-caching-in-net-weeks-810">C. Caching in .NET (Weeks 8–10)<a class="anchor" href="#c-caching-in-net-weeks-810" aria-label="Link to this heading">#</a></h3>
+<ol start="8">
+<li>In-process caching: IMemoryCache, output caching, and HTTP caching</li>
+<li>Distributed caching with Valkey and IDistributedCache</li>
+<li>HybridCache, invalidation, and cache design</li>
+</ol>
+<h3 id="d-nosql-databases-weeks-1114">D. NoSQL databases (Weeks 11–14)<a class="anchor" href="#d-nosql-databases-weeks-1114" aria-label="Link to this heading">#</a></h3>
+<ol start="11">
+<li>Valkey (Redis) as a data store: data structures, streams, and persistence</li>
+<li>MongoDB with C#: documents, CRUD, and indexes</li>
+<li>MongoDB data modeling, aggregation, and replica sets</li>
+<li>DynamoDB from .NET, and choosing the right NoSQL database</li>
+</ol>
+<h3 id="e-telemetry-with-opentelemetry-weeks-1516">E. Telemetry with OpenTelemetry (Weeks 15–16)<a class="anchor" href="#e-telemetry-with-opentelemetry-weeks-1516" aria-label="Link to this heading">#</a></h3>
+<ol start="15">
+<li>OpenTelemetry in .NET: traces, metrics, and logs</li>
+<li>An open-source observability stack: Collector, Prometheus, Grafana, and Jaeger</li>
+</ol>
+<h3 id="f-kubernetes-weeks-1720">F. Kubernetes (Weeks 17–20)<a class="anchor" href="#f-kubernetes-weeks-1720" aria-label="Link to this heading">#</a></h3>
+<ol start="17">
+<li>Kubernetes basics with kind: pods, deployments, and services</li>
+<li>Configuration, health probes, storage, and stateful apps</li>
+<li>Gateway API, Helm, and autoscaling</li>
+<li>Security and troubleshooting</li>
+</ol>
+<h3 id="g-amazon-eks-weeks-2123">G. Amazon EKS (Weeks 21–23)<a class="anchor" href="#g-amazon-eks-weeks-2123" aria-label="Link to this heading">#</a></h3>
+<ol start="21">
+<li>Your first EKS Auto Mode cluster, and ECR</li>
+<li>AWS integrations: Pod Identity, load balancers, ElastiCache, and DynamoDB</li>
+<li>Operating EKS: scaling, upgrades, logs, cost, and CI/CD</li>
+</ol>
+<h3 id="h-datadog-weeks-2425">H. Datadog (Weeks 24–25)<a class="anchor" href="#h-datadog-weeks-2425" aria-label="Link to this heading">#</a></h3>
+<ol start="24">
+<li>Datadog on Linux and Docker: Agent, integrations, logs, and dashboards</li>
+<li>Datadog for .NET and Kubernetes: APM, monitors, and SLOs</li>
+</ol>
+<h3 id="i-capstone-week-26">I. Capstone (Week 26)<a class="anchor" href="#i-capstone-week-26" aria-label="Link to this heading">#</a></h3>
+<ol start="26">
+<li>StudyHub 1.0: everything together, documented and demoed</li>
+</ol>
+<hr>
+<h2 id="week-1-wsl-and-your-first-linux-distributions">Week 1: WSL and your first Linux distributions<a class="anchor" href="#week-1-wsl-and-your-first-linux-distributions" aria-label="Link to this heading">#</a></h2>
+<p><strong>By the end of the week:</strong> Ubuntu, Debian, and Fedora all running side by side in WSL, a working knowledge of how they differ, a backup of your main distribution, and your first Bash script running on all three.</p>
+<p><strong>Setup you need once:</strong> Windows 10 version 2004 or later, or Windows 11, and Windows Terminal (it's installed on Windows 11 by default).</p>
+<hr>
+<h3 id="day-1-install-wsl-and-ubuntu">Day 1: Install WSL and Ubuntu<a class="anchor" href="#day-1-install-wsl-and-ubuntu" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> WSL (Windows Subsystem for Linux) runs real Linux distributions inside a lightweight virtual machine on Windows. A distribution, or &quot;distro&quot;, is a Linux kernel plus a set of tools and a package manager, packaged by a vendor such as Canonical (Ubuntu) or Debian.</p>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://learn.microsoft.com/en-us/windows/wsl/install" target="_blank" rel="noopener">Install WSL</a> (Microsoft Learn)</li>
+<li><a href="https://learn.microsoft.com/en-us/windows/wsl/basic-commands" target="_blank" rel="noopener">Basic commands for WSL</a> (Microsoft Learn)</li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li><strong>(PowerShell, as administrator)</strong> install WSL and Ubuntu, then restart if Windows asks:
+<pre><code class="lang-powershell">wsl --install -d Ubuntu</code></pre></li>
+<li>When Ubuntu opens, create a Linux username and password. This user is separate from your Windows account.</li>
+<li><strong>(PowerShell)</strong> check that it runs under WSL version 2:
+<pre><code class="lang-powershell">wsl --list --verbose</code></pre>
+<p>You should see <code>Ubuntu</code> with <code>VERSION 2</code>. If you also see <code>docker-desktop</code>, that belongs to Docker. Leave it alone.</p></li>
+<li><strong>(Ubuntu)</strong> update the system and look around:
+<pre><code class="lang-bash">sudo apt update &amp;&amp; sudo apt upgrade -y
+cat /etc/os-release
+uname -r
+whoami; pwd; ls -la ~</code></pre></li>
+</ol>
+<p><strong>Done when:</strong> <code>wsl --list --verbose</code> shows Ubuntu on version 2, and <code>cat /etc/os-release</code> prints the Ubuntu version.</p>
+<h3 id="day-2-move-around-the-file-system">Day 2: Move around the file system<a class="anchor" href="#day-2-move-around-the-file-system" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> Linux has one tree of folders that starts at <code>/</code>. Your files live in <code>/home/&lt;you&gt;</code> (written <code>~</code>). Your Windows drives appear under <code>/mnt/c</code>, but Linux tools run much faster on files inside the Linux file system.</p>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://ubuntu.com/tutorials/command-line-for-beginners" target="_blank" rel="noopener">The Linux command line for beginners</a> (Ubuntu), sections 1–5</li>
+<li><a href="https://learn.microsoft.com/en-us/windows/wsl/filesystems" target="_blank" rel="noopener">Working across Windows and Linux file systems</a> (Microsoft Learn)</li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li><strong>(Ubuntu)</strong> explore the main folders:
+<pre><code class="lang-bash">ls /            # the top-level folders
+ls /etc | head  # system settings
+ls /var/log     # log files
+ls /mnt/c/Users # your Windows user folders</code></pre></li>
+<li>Create a workspace and practice the basics:
+<pre><code class="lang-bash">mkdir -p ~/code/linux-lab &amp;&amp; cd ~/code/linux-lab
+echo &quot;hello from Linux&quot; &gt; hello.txt
+cp hello.txt copy.txt; mv copy.txt renamed.txt
+ls -l; cat renamed.txt; rm renamed.txt</code></pre></li>
+<li>Open the folder in Windows Explorer with <code>explorer.exe .</code>, and in VS Code with <code>code .</code>. The first run of <code>code .</code> installs VS Code's WSL helper.</li>
+<li>Time the same command on both file systems:
+<pre><code class="lang-bash">time (for i in $(seq 1 2000); do echo $i &gt; /tmp/f$i; done)
+mkdir -p /mnt/c/temp/wsltest
+time (for i in $(seq 1 2000); do echo $i &gt; /mnt/c/temp/wsltest/f$i; done)
+rm -rf /tmp/f* /mnt/c/temp/wsltest</code></pre></li>
+</ol>
+<p><strong>Done when:</strong> you can explain what <code>/</code>, <code>~</code>, <code>/etc</code>, <code>/var/log</code>, and <code>/mnt/c</code> are, and why your code should live under <code>~/code</code>.</p>
+<h3 id="day-3-install-debian-and-fedora-next-to-ubuntu">Day 3: Install Debian and Fedora next to Ubuntu<a class="anchor" href="#day-3-install-debian-and-fedora-next-to-ubuntu" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> distros differ mainly in their package manager, release cycle, and defaults. Ubuntu and Debian use <code>apt</code> and <code>.deb</code> packages. Fedora and the Red Hat family use <code>dnf</code> and <code>.rpm</code> packages. Most servers you'll meet run one of these two families.</p>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li><a href="https://learn.microsoft.com/en-us/windows/wsl/basic-commands" target="_blank" rel="noopener">Basic commands for WSL</a>: the sections on listing, installing, and running distributions</li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li><strong>(PowerShell)</strong> see what's available, then install two more distros:
+<pre><code class="lang-powershell">wsl --list --online
+wsl --install -d Debian
+wsl --install -d FedoraLinux-44</code></pre>
+<p>Use the Fedora name that <code>--list --online</code> shows, since the version number changes. Create a user in each when asked.</p></li>
+<li><strong>(PowerShell)</strong> run a command in each distro without opening it:
+<pre><code class="lang-powershell">wsl -d Ubuntu  -- cat /etc/os-release
+wsl -d Debian  -- cat /etc/os-release
+wsl -d FedoraLinux-44 -- cat /etc/os-release</code></pre></li>
+<li>Update each one with its own package manager:
+<pre><code class="lang-bash"># In Debian:
+sudo apt update &amp;&amp; sudo apt upgrade -y
+# In Fedora:
+sudo dnf upgrade -y</code></pre></li>
+<li>Install the same tool in both, and compare the commands: <code>sudo apt install -y htop</code> in Debian, and <code>sudo dnf install -y htop</code> in Fedora.</li>
+</ol>
+<p><strong>Done when:</strong> three distros show in <code>wsl --list --verbose</code>, and you've installed a package with both <code>apt</code> and <code>dnf</code>.</p>
+<h3 id="day-4-compare-the-distributions">Day 4: Compare the distributions<a class="anchor" href="#day-4-compare-the-distributions" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> knowing how to find a distro's version, kernel, package manager, and init system is the first thing you do on any unfamiliar server.</p>
+<p><strong>Do:</strong> run these in each of the three distros, and fill in a table in <code>~/code/linux-lab/distros.md</code>:</p>
+<pre><code class="lang-bash">cat /etc/os-release | grep -E '^(NAME|VERSION)='
+uname -r                      # the kernel (shared by all WSL distros)
+ps -p 1 -o comm=              # the init system: systemd or init
+command -v apt dnf apk        # which package manager exists
+ls /etc/apt/sources.list.d 2&gt;/dev/null || ls /etc/yum.repos.d  # where packages come from
+df -h /                       # disk space
+echo $SHELL; bash --version | head -1</code></pre>
+<div class="table-wrap"><table><thead><tr><th scope="col"></th><th scope="col">Ubuntu</th><th scope="col">Debian</th><th scope="col">Fedora</th></tr></thead><tbody><tr><td>Version</td><td></td><td></td><td></td></tr><tr><td>Package manager</td><td></td><td></td><td></td></tr><tr><td>Package format</td><td></td><td></td><td></td></tr><tr><td>Init system</td><td></td><td></td><td></td></tr><tr><td>Default shell</td><td></td><td></td><td></td></tr></tbody></table></div>
+<p><strong>Done when:</strong> your table is filled in, and you've noticed that all three share the same kernel. WSL gives every distro the same Microsoft-built Linux kernel.</p>
+<h3 id="day-5-back-up-restore-and-remove-a-distribution">Day 5: Back up, restore, and remove a distribution<a class="anchor" href="#day-5-back-up-restore-and-remove-a-distribution" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> WSL can export a whole distro to a <code>.tar</code> file and import it again. It's a full backup, and it's also how you'd make a clean copy to experiment on.</p>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li><a href="https://learn.microsoft.com/en-us/windows/wsl/use-custom-distro" target="_blank" rel="noopener">Import any Linux distribution to use with WSL</a> (Microsoft Learn)</li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li><strong>(PowerShell)</strong> export Ubuntu, then import the copy as a new distro named <code>Ubuntu-Sandbox</code>:
+<pre><code class="lang-powershell">mkdir C:\wsl-backups -Force
+wsl --export Ubuntu C:\wsl-backups\ubuntu-backup.tar
+wsl --import Ubuntu-Sandbox C:\wsl-backups\Ubuntu-Sandbox C:\wsl-backups\ubuntu-backup.tar
+wsl -d Ubuntu-Sandbox -u &lt;your-linux-user&gt;</code></pre></li>
+<li>In the sandbox, break something on purpose: <code>sudo rm -rf /usr/share/doc</code>. It's harmless, but you'd never do it on a real server.</li>
+<li><strong>(PowerShell)</strong> delete the sandbox, and confirm your real Ubuntu is untouched:
+<pre><code class="lang-powershell">wsl --unregister Ubuntu-Sandbox
+wsl -d Ubuntu -- ls /usr/share/doc | head -3</code></pre></li>
+</ol>
+<p><strong>Done when:</strong> you've exported, imported, and removed a distro, and you have <code>ubuntu-backup.tar</code> saved.</p>
+<p><strong>Careful:</strong> <code>wsl --unregister</code> deletes a distro and all its files permanently. Check the name twice.</p>
+<h3 id="day-6-your-first-script-on-every-distro">Day 6: Your first script, on every distro<a class="anchor" href="#day-6-your-first-script-on-every-distro" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> a Bash script is a text file of commands. Writing one that runs the same on Ubuntu, Debian, and Fedora teaches you which parts differ between distros.</p>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li><a href="https://tldp.org/LDP/Bash-Beginners-Guide/html/" target="_blank" rel="noopener">Bash Guide for Beginners</a> (The Linux Documentation Project), chapter 2</li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li>In Ubuntu, create <code>~/code/linux-lab/sysinfo.sh</code>:
+<pre><code class="lang-bash">#!/usr/bin/env bash
+set -euo pipefail
+
+. /etc/os-release
+if command -v apt &gt;/dev/null; then pkg=&quot;apt (.deb)&quot;
+elif command -v dnf &gt;/dev/null; then pkg=&quot;dnf (.rpm)&quot;
+else pkg=&quot;unknown&quot;; fi
+
+echo &quot;Distro:   $PRETTY_NAME&quot;
+echo &quot;Kernel:   $(uname -r)&quot;
+echo &quot;Packages: $pkg&quot;
+echo &quot;Init:     $(ps -p 1 -o comm=)&quot;
+echo &quot;Memory:   $(free -h | awk '/Mem:/ {print $2}') total&quot;
+echo &quot;Disk /:   $(df -h / | awk 'NR==2 {print $4}') free&quot;</code></pre></li>
+<li>Make it executable and run it: <code>chmod +x sysinfo.sh &amp;&amp; ./sysinfo.sh</code>.</li>
+<li><strong>(PowerShell)</strong> run the same file in all three distros. WSL can reach Ubuntu's files through a <code>\\wsl$</code> path, but it's simpler to copy the script to <code>/tmp</code> in each:
+<pre><code class="lang-powershell">foreach ($d in &quot;Ubuntu&quot;,&quot;Debian&quot;,&quot;FedoraLinux-44&quot;) {
+  wsl -d Ubuntu -- cat ~/code/linux-lab/sysinfo.sh | wsl -d $d -- bash -c &quot;cat &gt; /tmp/sysinfo.sh &amp;&amp; bash /tmp/sysinfo.sh&quot;
+  &quot;&quot;
+}</code></pre></li>
+</ol>
+<p><strong>Done when:</strong> the script prints correct details in all three distros.</p>
+<h3 id="day-7-review-and-catch-up-light">Day 7: Review and catch-up (light)<a class="anchor" href="#day-7-review-and-catch-up-light" aria-label="Link to this heading">#</a></h3>
+<ul>
+<li>Finish anything you skipped this week.</li>
+<li>Create a GitHub repository named <code>cloud-native-lab</code>, with one folder per week. Push <code>linux-lab</code> (<code>distros.md</code> and <code>sysinfo.sh</code>) to <code>week-01</code>.</li>
+<li>Decide which distro you'll use day to day. This plan assumes Ubuntu.</li>
+<li>Mark this week's roadmap.sh topics in the schedule.</li>
+</ul>
+<p><strong>Done when:</strong> your Week 1 work is on GitHub.</p>
+<nav class="pager" aria-label="Sections"><span></span><a class="next" href="weeks/A-linux-weeks-02-04.html"><small>Next</small>A. Linux (Weeks 2–4) →</a></nav>
+  </main>
+</div>
+<script src="assets/plan-data.js"></script>
+<script src="assets/lessons.js"></script>
+</body>
+</html>

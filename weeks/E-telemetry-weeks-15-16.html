@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Section E: Telemetry with OpenTelemetry (Weeks 15–16) · Cloud-Native .NET Plan</title>
+<meta name="color-scheme" content="light dark">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/common.js"></script>
+</head>
+<body data-page="weeks/E-telemetry-weeks-15-16.html" data-root="../">
+<a class="skip" href="#content">Skip to the lesson</a>
+<div class="read-progress" aria-hidden="true"><span></span></div>
+<header class="topbar">
+  <button type="button" class="icon-btn toc-toggle" id="toc-btn" aria-controls="toc" aria-expanded="false" aria-label="Show contents">☰</button>
+  <a class="brand" href="../schedule.html"><span class="logo" aria-hidden="true">CN</span><span class="brand-text">Cloud-Native .NET Plan</span></a>
+  <nav class="top-links" aria-label="Plan">
+    <a href="../schedule.html">Schedule</a>
+    <a href="../plan.html">Plan</a>
+    <a href="../resources.html">Resources</a>
+  </nav>
+  <span class="grow"></span>
+  <button type="button" class="icon-btn" id="theme-btn"></button>
+</header>
+<div class="layout">
+  <nav class="toc" id="toc" aria-label="On this page"></nav>
+  <main class="prose" id="content">
+<h1 id="section-e-telemetry-with-opentelemetry-weeks-1516">Section E: Telemetry with OpenTelemetry (Weeks 15–16)<a class="anchor" href="#section-e-telemetry-with-opentelemetry-weeks-1516" aria-label="Link to this heading">#</a></h1>
+<p>Telemetry is how you know what your service is doing: <strong>traces</strong> follow one request across services, <strong>metrics</strong> count and measure over time, and <strong>logs</strong> record events. OpenTelemetry (OTel) is the open standard for all three. You'll add it to StudyHub once, then send the same data to the Aspire dashboard now, to Grafana and Jaeger next week, and to Datadog in Week 25, without changing the app's code.</p>
+<p><strong>Courses for this section (optional, see <a href="../resources.html">resources.md</a>):</strong> the <a href="https://opentelemetry.io/docs/languages/dotnet/" target="_blank" rel="noopener">OpenTelemetry .NET docs</a>, and Microsoft Learn's <a href="https://learn.microsoft.com/en-us/dotnet/core/diagnostics/observability-with-otel" target="_blank" rel="noopener">.NET observability with OpenTelemetry</a>. <strong>roadmap.sh:</strong> <a href="https://roadmap.sh/devops" target="_blank" rel="noopener">DevOps</a> (observability, OpenTelemetry, Prometheus, and Grafana) and <a href="https://roadmap.sh/backend" target="_blank" rel="noopener">Backend</a> (telemetry).</p>
+<hr>
+<h2 id="week-15-opentelemetry-in-net">Week 15: OpenTelemetry in .NET<a class="anchor" href="#week-15-opentelemetry-in-net" aria-label="Link to this heading">#</a></h2>
+<p><strong>By the end of the week:</strong> StudyHub and its worker sending traces, metrics, and logs over OTLP, with your own spans and cache metrics, and one trace that follows a request from the API, through Valkey, to the worker.</p>
+<h3 id="day-1-the-three-signals">Day 1: The three signals<a class="anchor" href="#day-1-the-three-signals" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> in .NET, traces are made with <code>ActivitySource</code> and <code>Activity</code>, metrics with <code>Meter</code>, and logs with <code>ILogger</code>. The OpenTelemetry SDK collects all three and exports them over OTLP.</p>
+<p><strong>Learn (~25 min)</strong></p>
+<ul>
+<li><a href="https://learn.microsoft.com/en-us/dotnet/core/diagnostics/observability-with-otel" target="_blank" rel="noopener">.NET observability with OpenTelemetry</a> (Microsoft Learn)</li>
+<li><a href="https://opentelemetry.io/docs/concepts/signals/" target="_blank" rel="noopener">OpenTelemetry concepts: signals</a></li>
+</ul>
+<p><strong>Do:</strong> for one <code>GET /reports/topics</code> request, write down what you'd want to know, and which signal records it: how long each step took, how many requests failed per minute, the error message when MongoDB times out, and the cache hit ratio.</p>
+<p><strong>Done when:</strong> you can say which signal answers each question.</p>
+<h3 id="day-2-add-opentelemetry-to-studyhub">Day 2: Add OpenTelemetry to StudyHub<a class="anchor" href="#day-2-add-opentelemetry-to-studyhub" aria-label="Link to this heading">#</a></h3>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li><a href="https://aspire.dev/dashboard/standalone/" target="_blank" rel="noopener">Standalone Aspire dashboard</a></li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li>Add the Aspire dashboard to Compose:
+<pre><code class="lang-yaml">aspire:
+  image: mcr.microsoft.com/dotnet/aspire-dashboard:latest
+  ports: [&quot;18888:18888&quot;]
+  environment:
+    ASPIRE_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS: &quot;true&quot;   # local use only</code></pre></li>
+<li>Add the packages:
+<pre><code class="lang-bash">dotnet add package OpenTelemetry.Extensions.Hosting
+dotnet add package OpenTelemetry.Exporter.OpenTelemetryProtocol
+dotnet add package OpenTelemetry.Instrumentation.AspNetCore
+dotnet add package OpenTelemetry.Instrumentation.Http
+dotnet add package OpenTelemetry.Instrumentation.Runtime</code></pre></li>
+<li>Register OpenTelemetry:
+<pre><code class="lang-csharp">builder.Services.AddOpenTelemetry()
+    .ConfigureResource(r =&gt; r.AddService(&quot;studyhub-api&quot;, serviceVersion: &quot;0.5.0&quot;))
+    .WithTracing(t =&gt; t.AddAspNetCoreInstrumentation().AddHttpClientInstrumentation().AddSource(&quot;StudyHub&quot;).AddOtlpExporter())
+    .WithMetrics(m =&gt; m.AddAspNetCoreInstrumentation().AddRuntimeInstrumentation().AddMeter(&quot;StudyHub&quot;).AddOtlpExporter())
+    .WithLogging(l =&gt; l.AddOtlpExporter());</code></pre></li>
+<li>In Compose, set <code>OTEL_EXPORTER_OTLP_ENDPOINT: http://aspire:18889</code> on the API.</li>
+<li>Open <code>http://localhost:18888</code>, call a few endpoints, and look at Traces, Metrics, and Structured logs.</li>
+</ol>
+<p><strong>Done when:</strong> requests appear as traces, ASP.NET Core metrics appear, and logs show up with their trace IDs.</p>
+<h3 id="day-3-your-own-spans">Day 3: Your own spans<a class="anchor" href="#day-3-your-own-spans" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> automatic instrumentation shows HTTP requests. Your own spans show the steps inside them, such as the cache lookup, the database call, and the report calculation.</p>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li><a href="https://learn.microsoft.com/en-us/dotnet/core/diagnostics/distributed-tracing-instrumentation-walkthroughs" target="_blank" rel="noopener">Adding distributed tracing instrumentation</a> (Microsoft Learn)</li>
+</ul>
+<p><strong>Do:</strong> create one <code>ActivitySource</code>, and wrap the repository and report steps:</p>
+<pre><code class="lang-csharp">public static class Telemetry
+{
+    public static readonly ActivitySource Source = new(&quot;StudyHub&quot;);
+}
+
+public async Task&lt;Lesson?&gt; GetAsync(int id, CancellationToken ct = default)
+{
+    using var activity = Telemetry.Source.StartActivity(&quot;mongo.lessons.get&quot;);
+    activity?.SetTag(&quot;db.system&quot;, &quot;mongodb&quot;);
+    activity?.SetTag(&quot;studyhub.lesson_id&quot;, id);
+    var doc = await _lessons.Find(l =&gt; l.Id == id).FirstOrDefaultAsync(ct);
+    activity?.SetTag(&quot;studyhub.found&quot;, doc is not null);
+    return doc?.ToLesson();
+}</code></pre>
+<p>Do the same for the aggregation report, the DynamoDB put, and the leaderboard update.</p>
+<p><strong>Done when:</strong> one request's trace shows your spans nested inside the HTTP span, with their tags.</p>
+<h3 id="day-4-metrics-for-the-cache">Day 4: Metrics for the cache<a class="anchor" href="#day-4-metrics-for-the-cache" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> a cache you can't measure is a guess. Count hits and misses, and time the source calls.</p>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li><a href="https://learn.microsoft.com/en-us/dotnet/core/diagnostics/metrics-instrumentation" target="_blank" rel="noopener">Creating metrics</a> (Microsoft Learn)</li>
+</ul>
+<p><strong>Do:</strong> HybridCache calls your factory only on a miss, so count requests and factory calls:</p>
+<pre><code class="lang-csharp">public static class CacheMetrics
+{
+    private static readonly Meter Meter = new(&quot;StudyHub&quot;);
+    public static readonly Counter&lt;long&gt; Requests = Meter.CreateCounter&lt;long&gt;(&quot;studyhub.cache.requests&quot;);
+    public static readonly Counter&lt;long&gt; Misses = Meter.CreateCounter&lt;long&gt;(&quot;studyhub.cache.misses&quot;);
+    public static readonly Histogram&lt;double&gt; SourceMs = Meter.CreateHistogram&lt;double&gt;(&quot;studyhub.source.duration&quot;, unit: &quot;ms&quot;);
+}
+
+// In the HybridCache decorator:
+CacheMetrics.Requests.Add(1, new KeyValuePair&lt;string, object?&gt;(&quot;cache.key_type&quot;, &quot;lesson&quot;));
+return await cache.GetOrCreateAsync(key, async token =&gt;
+{
+    CacheMetrics.Misses.Add(1, new KeyValuePair&lt;string, object?&gt;(&quot;cache.key_type&quot;, &quot;lesson&quot;));
+    var sw = Stopwatch.StartNew();
+    try { return await inner.GetAsync(id, token); }
+    finally { CacheMetrics.SourceMs.Record(sw.Elapsed.TotalMilliseconds); }
+}, tags: [&quot;lessons&quot;, $&quot;lesson:{id}&quot;], cancellationToken: ct);</code></pre>
+<p>Run your k6 test from Week 8, and find both counters in the dashboard.</p>
+<p><strong>Done when:</strong> you can read the hit ratio (1 − misses ÷ requests) from your own metrics.</p>
+<h3 id="day-5-traces-across-services-including-the-stream">Day 5: Traces across services, including the stream<a class="anchor" href="#day-5-traces-across-services-including-the-stream" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> the trace context travels in the <code>traceparent</code> header over HTTP automatically. Across a Valkey stream, nothing carries it for you, so you put it in the message yourself.</p>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li><a href="https://opentelemetry.io/docs/concepts/context-propagation/" target="_blank" rel="noopener">Context propagation</a> (OpenTelemetry docs)</li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li>When adding the stream event, also add the trace context: <code>new(&quot;traceparent&quot;, Activity.Current?.Id ?? &quot;&quot;)</code>.</li>
+<li>In the worker, start a span linked to it:
+<pre><code class="lang-csharp">var parent = e[&quot;traceparent&quot;].ToString();
+ActivityContext.TryParse(parent, null, out var ctx);
+using var activity = Telemetry.Source.StartActivity(&quot;stream.process&quot;, ActivityKind.Consumer, ctx);</code></pre></li>
+<li>Add OpenTelemetry to the worker (service name <code>studyhub-worker</code>), and point it at the same dashboard.</li>
+</ol>
+<p><strong>Done when:</strong> one trace shows the API request and the worker's processing of its event, across both services.</p>
+<h3 id="day-6-mini-project-logging-that-helps">Day 6: Mini project, logging that helps<a class="anchor" href="#day-6-mini-project-logging-that-helps" aria-label="Link to this heading">#</a></h3>
+<p><strong>Do</strong></p>
+<ol>
+<li>Use structured logging everywhere: <code>logger.LogInformation(&quot;Session saved for {User}, {Minutes} min&quot;, user, minutes)</code>, never string concatenation.</li>
+<li>Add <code>[LoggerMessage]</code> source-generated log methods for the three most frequent messages.</li>
+<li>Set log levels in <code>appsettings.json</code> so framework noise is <code>Warning</code> and StudyHub is <code>Information</code>.</li>
+<li>Cause an error (stop MongoDB) and find, in the dashboard, the failing trace, its exception, and the matching log lines, all linked by trace ID.</li>
+</ol>
+<p><strong>Done when:</strong> you can go from an error log to its full trace, and back, in a few clicks.</p>
+<h3 id="day-7-review-and-catch-up-light">Day 7: Review and catch-up (light)<a class="anchor" href="#day-7-review-and-catch-up-light" aria-label="Link to this heading">#</a></h3>
+<ul>
+<li>Push to <code>cloud-native-lab/week-15</code>.</li>
+</ul>
+<hr>
+<h2 id="week-16-an-open-source-observability-stack">Week 16: An open-source observability stack<a class="anchor" href="#week-16-an-open-source-observability-stack" aria-label="Link to this heading">#</a></h2>
+<p><strong>By the end of the week:</strong> the OpenTelemetry Collector routing StudyHub's data to Jaeger (traces), Prometheus (metrics), and Loki (logs), all shown in Grafana, with a dashboard and an alert.</p>
+<h3 id="day-1-the-opentelemetry-collector">Day 1: The OpenTelemetry Collector<a class="anchor" href="#day-1-the-opentelemetry-collector" aria-label="Link to this heading">#</a></h3>
+<p><strong>Topic:</strong> the Collector sits between your apps and your back ends. Apps send everything to it, and it batches, filters, and forwards to one or many destinations. Swapping a back end becomes a config change instead of a code change.</p>
+<p><strong>Learn (~20 min)</strong></p>
+<ul>
+<li><a href="https://opentelemetry.io/docs/collector/configuration/" target="_blank" rel="noopener">Collector: configuration</a> (OpenTelemetry docs)</li>
+</ul>
+<p><strong>Do:</strong> add the Collector to Compose, with a config that forwards to the Aspire dashboard and also prints to its own log:</p>
+<pre><code class="lang-yaml"># otel-collector.yaml
+receivers:
+  otlp:
+    protocols: { grpc: { endpoint: 0.0.0.0:4317 }, http: { endpoint: 0.0.0.0:4318 } }
+processors:
+  batch: {}
+exporters:
+  debug: { verbosity: basic }
+  otlp/aspire: { endpoint: aspire:18889, tls: { insecure: true } }
+service:
+  pipelines:
+    traces:  { receivers: [otlp], processors: [batch], exporters: [debug, otlp/aspire] }
+    metrics: { receivers: [otlp], processors: [batch], exporters: [debug, otlp/aspire] }
+    logs:    { receivers: [otlp], processors: [batch], exporters: [debug, otlp/aspire] }</code></pre>
+<pre><code class="lang-yaml">  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    command: [&quot;--config=/etc/otelcol/config.yaml&quot;]
+    volumes: [&quot;./otel-collector.yaml:/etc/otelcol/config.yaml:ro&quot;]</code></pre>
+<p>Change the apps' <code>OTEL_EXPORTER_OTLP_ENDPOINT</code> to <code>http://otel-collector:4317</code>.</p>
+<p><strong>Done when:</strong> data still reaches the dashboard, now through the Collector, and <code>docker compose logs otel-collector</code> shows it passing through.</p>
+<h3 id="day-2-traces-in-jaeger">Day 2: Traces in Jaeger<a class="anchor" href="#day-2-traces-in-jaeger" aria-label="Link to this heading">#</a></h3>
+<p><strong>Learn (~10 min)</strong></p>
+<ul>
+<li><a href="https://www.jaegertracing.io/docs/latest/getting-started/" target="_blank" rel="noopener">Jaeger getting started</a></li>
+</ul>
+<p><strong>Do:</strong> add Jaeger, and send traces to it from the Collector:</p>
+<pre><code class="lang-yaml">  jaeger:
+    image: jaegertracing/jaeger:latest
+    ports: [&quot;16686:16686&quot;]</code></pre>
+<p>In the Collector, add <code>otlp/jaeger: { endpoint: jaeger:4317, tls: { insecure: true } }</code> to the exporters and to the traces pipeline. Open <code>http://localhost:16686</code>, find a <code>studyhub-api</code> trace, and use the <strong>Compare</strong> view on a fast and a slow request.</p>
+<p><strong>Done when:</strong> you can find the slowest span in a slow request in Jaeger.</p>
+<h3 id="day-3-metrics-in-prometheus">Day 3: Metrics in Prometheus<a class="anchor" href="#day-3-metrics-in-prometheus" aria-label="Link to this heading">#</a></h3>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li><a href="https://prometheus.io/docs/prometheus/latest/getting_started/" target="_blank" rel="noopener">Prometheus: getting started</a> and the basics of <a href="https://prometheus.io/docs/prometheus/latest/querying/basics/" target="_blank" rel="noopener">PromQL</a></li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li>In the Collector, add a Prometheus exporter, <code>prometheus: { endpoint: 0.0.0.0:8889 }</code>, to the metrics pipeline.</li>
+<li>Add Prometheus to Compose with a <code>prometheus.yml</code> that scrapes <code>otel-collector:8889</code> every 15 seconds.</li>
+<li>In <code>http://localhost:9090</code>, run these queries. The Collector converts dots in metric names to underscores:
+<pre><code class="lang-text">rate(studyhub_cache_requests_total[1m])
+1 - (rate(studyhub_cache_misses_total[5m]) / rate(studyhub_cache_requests_total[5m]))
+histogram_quantile(0.95, sum by (le) (rate(http_server_request_duration_seconds_bucket[5m])))</code></pre></li>
+</ol>
+<p><strong>Done when:</strong> you can see the cache hit ratio and p95 latency as numbers in Prometheus.</p>
+<h3 id="day-4-logs-in-loki-and-grafana-for-everything">Day 4: Logs in Loki, and Grafana for everything<a class="anchor" href="#day-4-logs-in-loki-and-grafana-for-everything" aria-label="Link to this heading">#</a></h3>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li><a href="https://grafana.com/docs/loki/latest/send-data/otel/" target="_blank" rel="noopener">Ingesting OpenTelemetry logs to Loki</a> (Grafana docs)</li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li>Add Loki (<code>grafana/loki:latest</code>, port 3100) and Grafana (<code>grafana/grafana:latest</code>, port 3000).</li>
+<li>In the Collector, add an exporter <code>otlphttp/loki: { endpoint: http://loki:3100/otlp }</code> to the logs pipeline.</li>
+<li>In Grafana (<code>admin</code>/<code>admin</code> on first login), add data sources for Prometheus, Loki, and Jaeger. Better still, put them in a provisioning file under <code>grafana/provisioning/datasources/</code> so they survive a rebuild.</li>
+<li>In <strong>Explore</strong>, find StudyHub's logs in Loki, and click through from a log line's trace ID to the trace in Jaeger (set up &quot;Derived fields&quot; on the Loki data source).</li>
+</ol>
+<p><strong>Done when:</strong> logs, metrics, and traces are all in Grafana, and you can jump from a log to its trace.</p>
+<h3 id="day-5-a-dashboard-and-an-alert">Day 5: A dashboard and an alert<a class="anchor" href="#day-5-a-dashboard-and-an-alert" aria-label="Link to this heading">#</a></h3>
+<p><strong>Learn (~15 min)</strong></p>
+<ul>
+<li><a href="https://grafana.com/docs/grafana/latest/visualizations/dashboards/" target="_blank" rel="noopener">Grafana dashboards</a> and <a href="https://grafana.com/docs/grafana/latest/alerting/" target="_blank" rel="noopener">Grafana alerting</a></li>
+</ul>
+<p><strong>Do</strong></p>
+<ol>
+<li>Build a &quot;StudyHub&quot; dashboard with panels for requests per second, p95 latency, error rate (5xx), cache hit ratio, and a logs panel filtered to errors.</li>
+<li>Export it as JSON into <code>grafana/dashboards/studyhub.json</code>, and provision it, so it loads automatically.</li>
+<li>Create an alert rule: cache hit ratio below 50% for 5 minutes. Trigger it by calling <code>POST /admin/cache/clear</code> in a loop while k6 runs.</li>
+</ol>
+<p><strong>Done when:</strong> the dashboard loads automatically on a fresh <code>docker compose up</code>, and the alert fires and then resolves.</p>
+<h3 id="day-6-mini-project-an-incident-drill">Day 6: Mini project, an incident drill<a class="anchor" href="#day-6-mini-project-an-incident-drill" aria-label="Link to this heading">#</a></h3>
+<p><strong>Do:</strong> break something without looking at the code, then find it using only Grafana:</p>
+<ol>
+<li>Add <code>await Task.Delay(Random.Shared.Next(0, 800))</code> inside the MongoDB report query, behind a setting <code>Chaos:SlowReports=true</code>.</li>
+<li>Turn it on, and run k6.</li>
+<li>From the dashboard, find which endpoint got slow. From the trace, find which span. From the logs, find when it started.</li>
+</ol>
+<p>Write <code>telemetry/INCIDENT-01.md</code> with what you saw, how you found it, and how long each step took.</p>
+<p><strong>Done when:</strong> you found the cause from telemetry alone, and wrote it up.</p>
+<h3 id="day-7-review-and-catch-up-light-1">Day 7: Review and catch-up (light)<a class="anchor" href="#day-7-review-and-catch-up-light-1" aria-label="Link to this heading">#</a></h3>
+<ul>
+<li>Push <code>compose.yaml</code>, the Collector config, and the Grafana files to <code>cloud-native-lab/week-16</code>. Section E is complete. Mark the topics on <a href="https://roadmap.sh/devops" target="_blank" rel="noopener">roadmap.sh/devops</a>.</li>
+</ul>
+<nav class="pager" aria-label="Sections"><a class="prev" href="D-nosql-weeks-11-14.html"><small>Previous</small>← D. NoSQL (Weeks 11–14)</a><a class="next" href="F-kubernetes-weeks-17-20.html"><small>Next</small>F. Kubernetes (Weeks 17–20) →</a></nav>
+  </main>
+</div>
+<script src="../assets/plan-data.js"></script>
+<script src="../assets/lessons.js"></script>
+</body>
+</html>

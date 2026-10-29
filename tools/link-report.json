@@ -1,0 +1,2280 @@
+[
+  {
+    "url": "https://algomaster.io/learn/system-design",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://algomaster.io/learn/system-design",
+    "title": "Learn System Design | AlgoMaster.io",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:60",
+      "resources.md:116",
+      "weeks\\C-caching-weeks-08-10.md:7",
+      "weeks\\C-caching-weeks-08-10.md:393",
+      "weeks\\I-capstone-week-26.md:14"
+    ]
+  },
+  {
+    "url": "https://aspire.dev/dashboard/standalone/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://aspire.dev/dashboard/standalone/",
+    "title": "Standalone Aspire dashboard for OpenTelemetry | Aspire",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\E-telemetry-weeks-15-16.md:29"
+    ]
+  },
+  {
+    "url": "https://aws.amazon.com/eks/pricing/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://aws.amazon.com/eks/pricing/",
+    "title": "Amazon EKS Pricing",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\G-eks-weeks-21-23.md:6"
+    ]
+  },
+  {
+    "url": "https://aws.amazon.com/elasticache/pricing/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://aws.amazon.com/elasticache/pricing/",
+    "title": "Amazon ElastiCache Pricing",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\G-eks-weeks-21-23.md:6"
+    ]
+  },
+  {
+    "url": "https://canonical.com/multipass/docs/latest/tutorial/getting-started/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://canonical.com/multipass/docs/latest/tutorial/getting-started/",
+    "title": "Getting started with Multipass - Multipass documentation",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\A-linux-weeks-02-04.md:169"
+    ]
+  },
+  {
+    "url": "https://canonical.com/multipass/install",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://canonical.com/multipass/install",
+    "title": "Trusted open source for enterprises | Canonical",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\A-linux-weeks-02-04.md:172"
+    ]
+  },
+  {
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Caching",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Caching",
+    "title": "HTTP caching - HTTP | MDN",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\C-caching-weeks-08-10.md:145"
+    ]
+  },
+  {
+    "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/bp-partition-key-design.html",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/bp-partition-key-design.html",
+    "title": "Best practices for designing and using partition keys effectively in DynamoDB - Amazon DynamoDB",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\D-nosql-weeks-11-14.md:384"
+    ]
+  },
+  {
+    "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DotNetSDKMidLevel.html",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DotNetSDKMidLevel.html",
+    "title": "Working with the .NET document model in DynamoDB - Amazon DynamoDB",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\D-nosql-weeks-11-14.md:420"
+    ]
+  },
+  {
+    "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.DownloadingAndRunning.html",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.DownloadingAndRunning.html",
+    "title": "Deploying DynamoDB locally on your computer - Amazon DynamoDB",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\D-nosql-weeks-11-14.md:399"
+    ]
+  },
+  {
+    "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.CoreComponents.html",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/HowItWorks.CoreComponents.html",
+    "title": "Core components of Amazon DynamoDB - Amazon DynamoDB",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\D-nosql-weeks-11-14.md:384"
+    ]
+  },
+  {
+    "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Introduction.html",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Introduction.html",
+    "title": "What is Amazon DynamoDB? - Amazon DynamoDB",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:72",
+      "weeks\\D-nosql-weeks-11-14.md:7"
+    ]
+  },
+  {
+    "url": "https://docs.aws.amazon.com/AmazonECR/latest/userguide/docker-push-ecr-image.html",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.aws.amazon.com/AmazonECR/latest/userguide/docker-push-ecr-image.html",
+    "title": "Pushing a Docker image to an Amazon ECR private repository - Amazon ECR",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\G-eks-weeks-21-23.md:46"
+    ]
+  },
+  {
+    "url": "https://docs.aws.amazon.com/AmazonElastiCache/latest/dg/GettingStarted.serverless-valkey.step1.html",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.aws.amazon.com/AmazonElastiCache/latest/dg/GettingStarted.serverless-valkey.step1.html",
+    "title": "Create a Valkey serverless cache - Amazon ElastiCache",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\G-eks-weeks-21-23.md:203"
+    ]
+  },
+  {
+    "url": "https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html",
+    "title": "Installing or updating to the latest version of the AWS CLI - AWS Command Line Interface",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\D-nosql-weeks-11-14.md:403"
+    ]
+  },
+  {
+    "url": "https://docs.aws.amazon.com/eks/latest/best-practices/automode.html",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.aws.amazon.com/eks/latest/best-practices/automode.html",
+    "title": "EKS Auto Mode - Amazon EKS",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\G-eks-weeks-21-23.md:96"
+    ]
+  },
+  {
+    "url": "https://docs.aws.amazon.com/eks/latest/best-practices/introduction.html",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.aws.amazon.com/eks/latest/best-practices/introduction.html",
+    "title": "Amazon EKS Best Practices Guide - Amazon EKS",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:103",
+      "resources.md:116",
+      "weeks\\I-capstone-week-26.md:14"
+    ]
+  },
+  {
+    "url": "https://docs.aws.amazon.com/eks/latest/eksctl/installation.html",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.aws.amazon.com/eks/latest/eksctl/installation.html",
+    "title": "Installation options for Eksctl - Eksctl User Guide",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\G-eks-weeks-21-23.md:28"
+    ]
+  },
+  {
+    "url": "https://docs.aws.amazon.com/eks/latest/userguide/access-entries.html",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.aws.amazon.com/eks/latest/userguide/access-entries.html",
+    "title": "Grant IAM users access to Kubernetes with EKS access entries - Amazon EKS",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\G-eks-weeks-21-23.md:323"
+    ]
+  },
+  {
+    "url": "https://docs.aws.amazon.com/eks/latest/userguide/automode-get-started-eksctl.html",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.aws.amazon.com/eks/latest/userguide/automode-get-started-eksctl.html",
+    "title": "Create an EKS Auto Mode Cluster with the eksctl CLI - Amazon EKS",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\G-eks-weeks-21-23.md:68"
+    ]
+  },
+  {
+    "url": "https://docs.aws.amazon.com/eks/latest/userguide/automode.html",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.aws.amazon.com/eks/latest/userguide/automode.html",
+    "title": "Automate cluster infrastructure with EKS Auto Mode - Amazon EKS",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\G-eks-weeks-21-23.md:68"
+    ]
+  },
+  {
+    "url": "https://docs.aws.amazon.com/eks/latest/userguide/control-plane-logs.html",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.aws.amazon.com/eks/latest/userguide/control-plane-logs.html",
+    "title": "Send control plane logs to CloudWatch Logs - Amazon EKS",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\G-eks-weeks-21-23.md:296"
+    ]
+  },
+  {
+    "url": "https://docs.aws.amazon.com/eks/latest/userguide/create-node-pool.html",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.aws.amazon.com/eks/latest/userguide/create-node-pool.html",
+    "title": "Create a Node Pool for EKS Auto Mode - Amazon EKS",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\G-eks-weeks-21-23.md:271"
+    ]
+  },
+  {
+    "url": "https://docs.aws.amazon.com/eks/latest/userguide/eks-networking.html",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.aws.amazon.com/eks/latest/userguide/eks-networking.html",
+    "title": "Configure networking for Amazon EKS clusters - Amazon EKS",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\G-eks-weeks-21-23.md:242"
+    ]
+  },
+  {
+    "url": "https://docs.aws.amazon.com/eks/latest/userguide/pod-identities.html",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.aws.amazon.com/eks/latest/userguide/pod-identities.html",
+    "title": "Learn how EKS Pod Identity grants pods access to AWS services - Amazon EKS",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\G-eks-weeks-21-23.md:158"
+    ]
+  },
+  {
+    "url": "https://docs.aws.amazon.com/eks/latest/userguide/quickstart.html",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.aws.amazon.com/eks/latest/userguide/quickstart.html",
+    "title": "Quickstart: Deploy a web app and store data - Amazon EKS",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\G-eks-weeks-21-23.md:175"
+    ]
+  },
+  {
+    "url": "https://docs.aws.amazon.com/eks/latest/userguide/setting-up.html",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.aws.amazon.com/eks/latest/userguide/setting-up.html",
+    "title": "Set up to use Amazon EKS - Amazon EKS",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\G-eks-weeks-21-23.md:24"
+    ]
+  },
+  {
+    "url": "https://docs.aws.amazon.com/eks/latest/userguide/update-cluster.html",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.aws.amazon.com/eks/latest/userguide/update-cluster.html",
+    "title": "Update existing cluster to new Kubernetes version - Amazon EKS",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\G-eks-weeks-21-23.md:309"
+    ]
+  },
+  {
+    "url": "https://docs.aws.amazon.com/eks/latest/userguide/what-is-eks.html",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.aws.amazon.com/eks/latest/userguide/what-is-eks.html",
+    "title": "What is Amazon EKS? - Amazon EKS",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:102"
+    ]
+  },
+  {
+    "url": "https://docs.aws.amazon.com/secretsmanager/latest/userguide/retrieving-secrets_cache-net.html",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.aws.amazon.com/secretsmanager/latest/userguide/retrieving-secrets_cache-net.html",
+    "title": "Get a Secrets Manager secret value using .NET with client-side caching - AWS Secrets Manager",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\G-eks-weeks-21-23.md:229"
+    ]
+  },
+  {
+    "url": "https://docs.datadoghq.com/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.datadoghq.com/",
+    "title": "Datadog Docs",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:111",
+      "weeks\\H-datadog-weeks-24-25.md:9"
+    ]
+  },
+  {
+    "url": "https://docs.datadoghq.com/agent/logs/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.datadoghq.com/agent/logs/",
+    "title": "Host Agent Log collection",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\H-datadog-weeks-24-25.md:40"
+    ]
+  },
+  {
+    "url": "https://docs.datadoghq.com/containers/docker/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.datadoghq.com/containers/docker/",
+    "title": "Docker Agent for Docker, containerd, and Podman",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\H-datadog-weeks-24-25.md:61"
+    ]
+  },
+  {
+    "url": "https://docs.datadoghq.com/containers/docker/integrations/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.datadoghq.com/containers/docker/integrations/",
+    "title": "Docker and Integrations",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\H-datadog-weeks-24-25.md:88"
+    ]
+  },
+  {
+    "url": "https://docs.datadoghq.com/containers/kubernetes/installation/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.datadoghq.com/containers/kubernetes/installation/",
+    "title": "Install the Datadog Agent on Kubernetes",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\H-datadog-weeks-24-25.md:181"
+    ]
+  },
+  {
+    "url": "https://docs.datadoghq.com/dashboards/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.datadoghq.com/dashboards/",
+    "title": "Dashboards",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\H-datadog-weeks-24-25.md:106"
+    ]
+  },
+  {
+    "url": "https://docs.datadoghq.com/getting_started/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.datadoghq.com/getting_started/",
+    "title": "Getting Started",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\H-datadog-weeks-24-25.md:23"
+    ]
+  },
+  {
+    "url": "https://docs.datadoghq.com/getting_started/agent/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.datadoghq.com/getting_started/agent/",
+    "title": "Getting Started with the Agent",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\H-datadog-weeks-24-25.md:23"
+    ]
+  },
+  {
+    "url": "https://docs.datadoghq.com/getting_started/containers/datadog_operator/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.datadoghq.com/getting_started/containers/datadog_operator/",
+    "title": "Getting Started with the Datadog Operator",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\H-datadog-weeks-24-25.md:181"
+    ]
+  },
+  {
+    "url": "https://docs.datadoghq.com/getting_started/tagging/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.datadoghq.com/getting_started/tagging/",
+    "title": "Getting Started with Tags",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\H-datadog-weeks-24-25.md:40"
+    ]
+  },
+  {
+    "url": "https://docs.datadoghq.com/getting_started/tagging/unified_service_tagging/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.datadoghq.com/getting_started/tagging/unified_service_tagging/",
+    "title": "Unified Service Tagging",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\H-datadog-weeks-24-25.md:148"
+    ]
+  },
+  {
+    "url": "https://docs.datadoghq.com/integrations/mongodb/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.datadoghq.com/integrations/mongodb/",
+    "title": "MongoDB",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\H-datadog-weeks-24-25.md:88"
+    ]
+  },
+  {
+    "url": "https://docs.datadoghq.com/integrations/redis/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.datadoghq.com/integrations/redis/",
+    "title": "Redis",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\H-datadog-weeks-24-25.md:88"
+    ]
+  },
+  {
+    "url": "https://docs.datadoghq.com/monitors/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.datadoghq.com/monitors/",
+    "title": "Monitors",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\H-datadog-weeks-24-25.md:229"
+    ]
+  },
+  {
+    "url": "https://docs.datadoghq.com/opentelemetry/setup/otlp_ingest_in_the_agent/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.datadoghq.com/opentelemetry/setup/otlp_ingest_in_the_agent/",
+    "title": "OTLP Ingestion by the Datadog Agent",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\H-datadog-weeks-24-25.md:168"
+    ]
+  },
+  {
+    "url": "https://docs.datadoghq.com/service_level_objectives/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.datadoghq.com/service_level_objectives/",
+    "title": "Service Level Objectives",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\H-datadog-weeks-24-25.md:229"
+    ]
+  },
+  {
+    "url": "https://docs.datadoghq.com/tracing/trace_collection/dd_libraries/dotnet-core/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.datadoghq.com/tracing/trace_collection/dd_libraries/dotnet-core/",
+    "title": "Tracing .NET Core Applications",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\H-datadog-weeks-24-25.md:148"
+    ]
+  },
+  {
+    "url": "https://docs.docker.com/build/building/multi-platform/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.docker.com/build/building/multi-platform/",
+    "title": "Multi-platform builds | Docker Docs",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\B-docker-weeks-05-07.md:394"
+    ]
+  },
+  {
+    "url": "https://docs.docker.com/build/cache/optimize/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.docker.com/build/cache/optimize/",
+    "title": "Optimize cache usage in builds | Docker Docs",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\B-docker-weeks-05-07.md:202"
+    ]
+  },
+  {
+    "url": "https://docs.docker.com/compose/gettingstarted/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.docker.com/compose/gettingstarted/",
+    "title": "Docker Compose Quickstart | Docker Docs",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\B-docker-weeks-05-07.md:318"
+    ]
+  },
+  {
+    "url": "https://docs.docker.com/engine/network/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.docker.com/engine/network/",
+    "title": "Networking overview | Docker Docs",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\B-docker-weeks-05-07.md:280"
+    ]
+  },
+  {
+    "url": "https://docs.docker.com/get-started/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.docker.com/get-started/",
+    "title": "Get started | Docker Docs",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:51",
+      "weeks\\B-docker-weeks-05-07.md:7"
+    ]
+  },
+  {
+    "url": "https://docs.docker.com/get-started/docker-concepts/building-images/understanding-image-layers/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.docker.com/get-started/docker-concepts/building-images/understanding-image-layers/",
+    "title": "Understanding the image layers | Docker Docs",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\B-docker-weeks-05-07.md:47"
+    ]
+  },
+  {
+    "url": "https://docs.docker.com/get-started/docker-concepts/building-images/using-the-build-cache/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.docker.com/get-started/docker-concepts/building-images/using-the-build-cache/",
+    "title": "Using the build cache | Docker Docs",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\B-docker-weeks-05-07.md:86"
+    ]
+  },
+  {
+    "url": "https://docs.docker.com/get-started/docker-concepts/building-images/writing-a-dockerfile/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.docker.com/get-started/docker-concepts/building-images/writing-a-dockerfile/",
+    "title": "Writing a Dockerfile | Docker Docs",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\B-docker-weeks-05-07.md:86"
+    ]
+  },
+  {
+    "url": "https://docs.docker.com/get-started/docker-concepts/running-containers/persisting-container-data/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.docker.com/get-started/docker-concepts/running-containers/persisting-container-data/",
+    "title": "Persisting container data | Docker Docs",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\B-docker-weeks-05-07.md:299"
+    ]
+  },
+  {
+    "url": "https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-a-container/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-a-container/",
+    "title": "What is a container? | Docker Docs",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\B-docker-weeks-05-07.md:21"
+    ]
+  },
+  {
+    "url": "https://docs.docker.com/reference/compose-file/services/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.docker.com/reference/compose-file/services/",
+    "title": "Define services in Docker Compose | Docker Docs",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\B-docker-weeks-05-07.md:363"
+    ]
+  },
+  {
+    "url": "https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-in-aws",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-in-aws",
+    "title": "Configuring OpenID Connect in Amazon Web Services - GitHub Docs",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\G-eks-weeks-21-23.md:322"
+    ]
+  },
+  {
+    "url": "https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry",
+    "title": "Working with the Container registry - GitHub Docs",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\B-docker-weeks-05-07.md:378"
+    ]
+  },
+  {
+    "url": "https://gateway-api.sigs.k8s.io/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://gateway-api.sigs.k8s.io/",
+    "title": "Gateway API",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:94"
+    ]
+  },
+  {
+    "url": "https://gateway.envoyproxy.io/docs/tasks/quickstart/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://gateway.envoyproxy.io/docs/tasks/quickstart/",
+    "title": "Quickstart | Envoy Gateway",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\F-kubernetes-weeks-17-20.md:302"
+    ]
+  },
+  {
+    "url": "https://github.com/open-telemetry/opentelemetry-helm-charts/tree/main/charts/opentelemetry-collector",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://github.com/open-telemetry/opentelemetry-helm-charts/tree/main/charts/opentelemetry-collector",
+    "title": "opentelemetry-helm-charts/charts/opentelemetry-collector at main · open-telemetry/opentelemetry-helm-charts · GitHub",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\F-kubernetes-weeks-17-20.md:434"
+    ]
+  },
+  {
+    "url": "https://grafana.com/docs/grafana/latest/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://grafana.com/docs/grafana/latest/",
+    "title": "Grafana OSS and Enterprise | Grafana documentation",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:82"
+    ]
+  },
+  {
+    "url": "https://grafana.com/docs/grafana/latest/alerting/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://grafana.com/docs/grafana/latest/alerting/",
+    "title": "Grafana Alerting | Grafana documentation",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\E-telemetry-weeks-15-16.md:241"
+    ]
+  },
+  {
+    "url": "https://grafana.com/docs/grafana/latest/visualizations/dashboards/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://grafana.com/docs/grafana/latest/visualizations/dashboards/",
+    "title": "Dashboards | Grafana documentation",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\E-telemetry-weeks-15-16.md:241"
+    ]
+  },
+  {
+    "url": "https://grafana.com/docs/k6/latest/set-up/install-k6/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://grafana.com/docs/k6/latest/set-up/install-k6/",
+    "title": "Install k6 | Grafana k6 documentation",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\C-caching-weeks-08-10.md:46"
+    ]
+  },
+  {
+    "url": "https://grafana.com/docs/loki/latest/send-data/otel/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://grafana.com/docs/loki/latest/send-data/otel/",
+    "title": "Ingesting logs to Loki using OpenTelemetry Collector | Grafana Loki documentation",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\E-telemetry-weeks-15-16.md:228"
+    ]
+  },
+  {
+    "url": "https://helm.sh/docs/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://helm.sh/docs/",
+    "title": "Docs Home | Helm",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:93"
+    ]
+  },
+  {
+    "url": "https://helm.sh/docs/chart_template_guide/getting_started/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://helm.sh/docs/chart_template_guide/getting_started/",
+    "title": "Getting Started | Helm",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\F-kubernetes-weeks-17-20.md:328"
+    ]
+  },
+  {
+    "url": "https://helm.sh/docs/intro/install/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://helm.sh/docs/intro/install/",
+    "title": "Installing Helm | Helm",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\F-kubernetes-weeks-17-20.md:5"
+    ]
+  },
+  {
+    "url": "https://kind.sigs.k8s.io/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://kind.sigs.k8s.io/",
+    "title": "kind",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:92"
+    ]
+  },
+  {
+    "url": "https://kind.sigs.k8s.io/docs/user/quick-start/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://kind.sigs.k8s.io/docs/user/quick-start/",
+    "title": "kind – Quick Start",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\F-kubernetes-weeks-17-20.md:5",
+      "weeks\\F-kubernetes-weeks-17-20.md:30"
+    ]
+  },
+  {
+    "url": "https://kubernetes.io/docs/concepts/configuration/configmap/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://kubernetes.io/docs/concepts/configuration/configmap/",
+    "title": "ConfigMaps | Kubernetes",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\F-kubernetes-weeks-17-20.md:162"
+    ]
+  },
+  {
+    "url": "https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/",
+    "title": "Resource Management for Pods and Containers | Kubernetes",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\F-kubernetes-weeks-17-20.md:182"
+    ]
+  },
+  {
+    "url": "https://kubernetes.io/docs/concepts/configuration/secret/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://kubernetes.io/docs/concepts/configuration/secret/",
+    "title": "Secrets | Kubernetes",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\F-kubernetes-weeks-17-20.md:162"
+    ]
+  },
+  {
+    "url": "https://kubernetes.io/docs/concepts/overview/components/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://kubernetes.io/docs/concepts/overview/components/",
+    "title": "Kubernetes Components | Kubernetes",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\F-kubernetes-weeks-17-20.md:21"
+    ]
+  },
+  {
+    "url": "https://kubernetes.io/docs/concepts/overview/working-with-objects/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://kubernetes.io/docs/concepts/overview/working-with-objects/",
+    "title": "Objects In Kubernetes | Kubernetes",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\F-kubernetes-weeks-17-20.md:21"
+    ]
+  },
+  {
+    "url": "https://kubernetes.io/docs/concepts/security/pod-security-standards/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://kubernetes.io/docs/concepts/security/pod-security-standards/",
+    "title": "Pod Security Standards | Kubernetes",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\F-kubernetes-weeks-17-20.md:414"
+    ]
+  },
+  {
+    "url": "https://kubernetes.io/docs/concepts/services-networking/gateway/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://kubernetes.io/docs/concepts/services-networking/gateway/",
+    "title": "Gateway API | Kubernetes",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\F-kubernetes-weeks-17-20.md:292"
+    ]
+  },
+  {
+    "url": "https://kubernetes.io/docs/concepts/services-networking/network-policies/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://kubernetes.io/docs/concepts/services-networking/network-policies/",
+    "title": "Network Policies | Kubernetes",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\F-kubernetes-weeks-17-20.md:400"
+    ]
+  },
+  {
+    "url": "https://kubernetes.io/docs/concepts/services-networking/service/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://kubernetes.io/docs/concepts/services-networking/service/",
+    "title": "Service | Kubernetes",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\F-kubernetes-weeks-17-20.md:79"
+    ]
+  },
+  {
+    "url": "https://kubernetes.io/docs/concepts/storage/persistent-volumes/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://kubernetes.io/docs/concepts/storage/persistent-volumes/",
+    "title": "Persistent Volumes | Kubernetes",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\F-kubernetes-weeks-17-20.md:205"
+    ]
+  },
+  {
+    "url": "https://kubernetes.io/docs/concepts/workloads/autoscaling/horizontal-pod-autoscale/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://kubernetes.io/docs/concepts/workloads/autoscaling/horizontal-pod-autoscale/",
+    "title": "Horizontal Pod Autoscaling | Kubernetes",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\F-kubernetes-weeks-17-20.md:348"
+    ]
+  },
+  {
+    "url": "https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/",
+    "title": "CronJob | Kubernetes",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\F-kubernetes-weeks-17-20.md:257"
+    ]
+  },
+  {
+    "url": "https://kubernetes.io/docs/concepts/workloads/controllers/deployment/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://kubernetes.io/docs/concepts/workloads/controllers/deployment/",
+    "title": "Deployments | Kubernetes",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\F-kubernetes-weeks-17-20.md:79"
+    ]
+  },
+  {
+    "url": "https://kubernetes.io/docs/concepts/workloads/controllers/job/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://kubernetes.io/docs/concepts/workloads/controllers/job/",
+    "title": "Jobs | Kubernetes",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\F-kubernetes-weeks-17-20.md:257"
+    ]
+  },
+  {
+    "url": "https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/",
+    "title": "StatefulSets | Kubernetes",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\F-kubernetes-weeks-17-20.md:205"
+    ]
+  },
+  {
+    "url": "https://kubernetes.io/docs/concepts/workloads/pods/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://kubernetes.io/docs/concepts/workloads/pods/",
+    "title": "Pods | Kubernetes",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\F-kubernetes-weeks-17-20.md:59"
+    ]
+  },
+  {
+    "url": "https://kubernetes.io/docs/reference/access-authn-authz/rbac/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://kubernetes.io/docs/reference/access-authn-authz/rbac/",
+    "title": "Using RBAC Authorization | Kubernetes",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\F-kubernetes-weeks-17-20.md:386"
+    ]
+  },
+  {
+    "url": "https://kubernetes.io/docs/reference/kubectl/quick-reference/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://kubernetes.io/docs/reference/kubectl/quick-reference/",
+    "title": "kubectl Quick Reference | Kubernetes",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\F-kubernetes-weeks-17-20.md:59"
+    ]
+  },
+  {
+    "url": "https://kubernetes.io/docs/setup/best-practices/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://kubernetes.io/docs/setup/best-practices/",
+    "title": "Best practices | Kubernetes",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:116",
+      "weeks\\I-capstone-week-26.md:14"
+    ]
+  },
+  {
+    "url": "https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/",
+    "title": "Configure Liveness, Readiness and Startup Probes | Kubernetes",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\F-kubernetes-weeks-17-20.md:182"
+    ]
+  },
+  {
+    "url": "https://kubernetes.io/docs/tasks/configure-pod-container/security-context/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://kubernetes.io/docs/tasks/configure-pod-container/security-context/",
+    "title": "Configure a Security Context for a Pod or Container | Kubernetes",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\F-kubernetes-weeks-17-20.md:414"
+    ]
+  },
+  {
+    "url": "https://kubernetes.io/docs/tasks/debug/debug-application/debug-running-pod/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://kubernetes.io/docs/tasks/debug/debug-application/debug-running-pod/",
+    "title": "Debug Running Pods | Kubernetes",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\F-kubernetes-weeks-17-20.md:443"
+    ]
+  },
+  {
+    "url": "https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/",
+    "title": "Install and Set Up kubectl on Linux | Kubernetes",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\F-kubernetes-weeks-17-20.md:5"
+    ]
+  },
+  {
+    "url": "https://kubernetes.io/docs/tutorials/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://kubernetes.io/docs/tutorials/",
+    "title": "Tutorials | Kubernetes",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:91",
+      "weeks\\F-kubernetes-weeks-17-20.md:7"
+    ]
+  },
+  {
+    "url": "https://kubernetes.io/docs/tutorials/kubernetes-basics/update/update-intro/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://kubernetes.io/docs/tutorials/kubernetes-basics/update/update-intro/",
+    "title": "Performing a Rolling Update | Kubernetes",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\F-kubernetes-weeks-17-20.md:122"
+    ]
+  },
+  {
+    "url": "https://labex.io/linuxjourney",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://labex.io/linuxjourney",
+    "title": "Linux Journey Official Site | Learn Linux for Free",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:41",
+      "weeks\\A-linux-weeks-02-04.md:5"
+    ]
+  },
+  {
+    "url": "https://learn.datadoghq.com/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://learn.datadoghq.com/",
+    "title": "The Datadog Learning Center",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:110",
+      "weeks\\H-datadog-weeks-24-25.md:9"
+    ]
+  },
+  {
+    "url": "https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/health-checks",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/health-checks?view=aspnetcore-10.0",
+    "title": "Health checks in ASP.NET Core | Microsoft Learn",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\F-kubernetes-weeks-17-20.md:183"
+    ]
+  },
+  {
+    "url": "https://learn.microsoft.com/en-us/aspnet/core/performance/caching/distributed",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://learn.microsoft.com/en-us/aspnet/core/performance/caching/distributed?view=aspnetcore-10.0",
+    "title": "Distributed caching in ASP.NET Core | Microsoft Learn",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\C-caching-weeks-08-10.md:197"
+    ]
+  },
+  {
+    "url": "https://learn.microsoft.com/en-us/aspnet/core/performance/caching/distributed#distributed-redis-cache",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://learn.microsoft.com/en-us/aspnet/core/performance/caching/distributed?view=aspnetcore-10.0",
+    "title": "Distributed caching in ASP.NET Core | Microsoft Learn",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\C-caching-weeks-08-10.md:228"
+    ]
+  },
+  {
+    "url": "https://learn.microsoft.com/en-us/aspnet/core/performance/caching/hybrid",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://learn.microsoft.com/en-us/aspnet/core/performance/caching/hybrid?view=aspnetcore-10.0",
+    "title": "HybridCache library in ASP.NET Core | Microsoft Learn",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:59",
+      "weeks\\C-caching-weeks-08-10.md:334"
+    ]
+  },
+  {
+    "url": "https://learn.microsoft.com/en-us/aspnet/core/performance/caching/memory",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://learn.microsoft.com/en-us/aspnet/core/performance/caching/memory?view=aspnetcore-10.0",
+    "title": "Cache in-memory in ASP.NET Core | Microsoft Learn",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\C-caching-weeks-08-10.md:64"
+    ]
+  },
+  {
+    "url": "https://learn.microsoft.com/en-us/aspnet/core/performance/caching/output",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://learn.microsoft.com/en-us/aspnet/core/performance/caching/output?view=aspnetcore-10.0",
+    "title": "Output caching middleware in ASP.NET Core | Microsoft Learn",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\C-caching-weeks-08-10.md:115"
+    ]
+  },
+  {
+    "url": "https://learn.microsoft.com/en-us/aspnet/core/performance/caching/output#redis-based-output-cache-store",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://learn.microsoft.com/en-us/aspnet/core/performance/caching/output?view=aspnetcore-10.0",
+    "title": "Output caching middleware in ASP.NET Core | Microsoft Learn",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\C-caching-weeks-08-10.md:276"
+    ]
+  },
+  {
+    "url": "https://learn.microsoft.com/en-us/aspnet/core/performance/caching/overview",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://learn.microsoft.com/en-us/aspnet/core/performance/caching/overview?view=aspnetcore-10.0",
+    "title": "Overview of caching in ASP.NET Core | Microsoft Learn",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:58",
+      "weeks\\C-caching-weeks-08-10.md:7",
+      "weeks\\C-caching-weeks-08-10.md:21"
+    ]
+  },
+  {
+    "url": "https://learn.microsoft.com/en-us/dotnet/core/containers/overview",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://learn.microsoft.com/en-us/dotnet/core/containers/overview",
+    "title": ".NET SDK container creation overview - .NET | Microsoft Learn",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:52"
+    ]
+  },
+  {
+    "url": "https://learn.microsoft.com/en-us/dotnet/core/containers/sdk-publish",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://learn.microsoft.com/en-us/dotnet/core/containers/sdk-publish",
+    "title": "Containerize an app with dotnet publish - .NET | Microsoft Learn",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\B-docker-weeks-05-07.md:219"
+    ]
+  },
+  {
+    "url": "https://learn.microsoft.com/en-us/dotnet/core/diagnostics/distributed-tracing-instrumentation-walkthroughs",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://learn.microsoft.com/en-us/dotnet/core/diagnostics/distributed-tracing-instrumentation-walkthroughs",
+    "title": "Add distributed tracing instrumentation - .NET | Microsoft Learn",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\E-telemetry-weeks-15-16.md:66"
+    ]
+  },
+  {
+    "url": "https://learn.microsoft.com/en-us/dotnet/core/diagnostics/metrics-instrumentation",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://learn.microsoft.com/en-us/dotnet/core/diagnostics/metrics-instrumentation",
+    "title": "Creating Metrics - .NET | Microsoft Learn",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\E-telemetry-weeks-15-16.md:94"
+    ]
+  },
+  {
+    "url": "https://learn.microsoft.com/en-us/dotnet/core/diagnostics/observability-with-otel",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://learn.microsoft.com/en-us/dotnet/core/diagnostics/observability-with-otel",
+    "title": ".NET Observability with OpenTelemetry - .NET | Microsoft Learn",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:79",
+      "weeks\\E-telemetry-weeks-15-16.md:5",
+      "weeks\\E-telemetry-weeks-15-16.md:19"
+    ]
+  },
+  {
+    "url": "https://learn.microsoft.com/en-us/dotnet/core/docker/build-container",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://learn.microsoft.com/en-us/dotnet/core/docker/build-container",
+    "title": "Containerize an app with Docker tutorial - .NET | Microsoft Learn",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\B-docker-weeks-05-07.md:149"
+    ]
+  },
+  {
+    "url": "https://learn.microsoft.com/en-us/dotnet/core/docker/container-images",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://learn.microsoft.com/en-us/dotnet/core/docker/container-images",
+    "title": ".NET container images - .NET | Microsoft Learn",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\B-docker-weeks-05-07.md:180"
+    ]
+  },
+  {
+    "url": "https://learn.microsoft.com/en-us/dotnet/core/install/linux-ubuntu-install",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://learn.microsoft.com/en-us/dotnet/core/install/linux-ubuntu-install",
+    "title": "Install .NET on Ubuntu - .NET | Microsoft Learn",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\A-linux-weeks-02-04.md:268"
+    ]
+  },
+  {
+    "url": "https://learn.microsoft.com/en-us/windows/wsl/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://learn.microsoft.com/en-us/windows/wsl/",
+    "title": "Windows Subsystem for Linux Documentation | Microsoft Learn",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:43"
+    ]
+  },
+  {
+    "url": "https://learn.microsoft.com/en-us/windows/wsl/basic-commands",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://learn.microsoft.com/en-us/windows/wsl/basic-commands",
+    "title": "Basic commands for WSL | Microsoft Learn",
+    "softMissing": false,
+    "usedIn": [
+      "plan.md:120",
+      "plan.md:182"
+    ]
+  },
+  {
+    "url": "https://learn.microsoft.com/en-us/windows/wsl/filesystems",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://learn.microsoft.com/en-us/windows/wsl/filesystems",
+    "title": "Working across file systems | Microsoft Learn",
+    "softMissing": false,
+    "usedIn": [
+      "plan.md:149"
+    ]
+  },
+  {
+    "url": "https://learn.microsoft.com/en-us/windows/wsl/install",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://learn.microsoft.com/en-us/windows/wsl/install",
+    "title": "Install WSL | Microsoft Learn",
+    "softMissing": false,
+    "usedIn": [
+      "plan.md:119"
+    ]
+  },
+  {
+    "url": "https://learn.microsoft.com/en-us/windows/wsl/use-custom-distro",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://learn.microsoft.com/en-us/windows/wsl/use-custom-distro",
+    "title": "Import any Linux distribution to use with WSL | Microsoft Learn",
+    "softMissing": false,
+    "usedIn": [
+      "plan.md:239"
+    ]
+  },
+  {
+    "url": "https://learn.mongodb.com/learning-paths/using-mongodb-with-c-sharp",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://learn.mongodb.com/learning-paths/using-mongodb-with-c-sharp",
+    "title": "MongoDB Courses and Trainings | MongoDB University",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:70",
+      "weeks\\D-nosql-weeks-11-14.md:7"
+    ]
+  },
+  {
+    "url": "https://opentelemetry.io/docs/collector/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://opentelemetry.io/docs/collector/",
+    "title": "Collector | OpenTelemetry",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:81"
+    ]
+  },
+  {
+    "url": "https://opentelemetry.io/docs/collector/configuration/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://opentelemetry.io/docs/collector/configuration/",
+    "title": "Configuration | OpenTelemetry",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\E-telemetry-weeks-15-16.md:164"
+    ]
+  },
+  {
+    "url": "https://opentelemetry.io/docs/concepts/context-propagation/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://opentelemetry.io/docs/concepts/context-propagation/",
+    "title": "Context propagation | OpenTelemetry",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\E-telemetry-weeks-15-16.md:125"
+    ]
+  },
+  {
+    "url": "https://opentelemetry.io/docs/concepts/signals/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://opentelemetry.io/docs/concepts/signals/",
+    "title": "Signals | OpenTelemetry",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\E-telemetry-weeks-15-16.md:20"
+    ]
+  },
+  {
+    "url": "https://opentelemetry.io/docs/languages/dotnet/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://opentelemetry.io/docs/languages/dotnet/",
+    "title": ".NET | OpenTelemetry",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:80",
+      "weeks\\E-telemetry-weeks-15-16.md:5"
+    ]
+  },
+  {
+    "url": "https://prometheus.io/docs/prometheus/latest/getting_started/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://prometheus.io/docs/prometheus/latest/getting_started/",
+    "title": "Getting started | Prometheus",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\E-telemetry-weeks-15-16.md:211"
+    ]
+  },
+  {
+    "url": "https://prometheus.io/docs/prometheus/latest/querying/basics/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://prometheus.io/docs/prometheus/latest/querying/basics/",
+    "title": "Querying basics | Prometheus",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\E-telemetry-weeks-15-16.md:211"
+    ]
+  },
+  {
+    "url": "https://roadmap.sh/aspnet-core",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://roadmap.sh/aspnet-core",
+    "title": "ASP.NET Core Roadmap",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:21",
+      "schedule.md:218",
+      "schedule.md:219",
+      "schedule.md:244",
+      "schedule.md:245",
+      "weeks\\C-caching-weeks-08-10.md:8",
+      "weeks\\C-caching-weeks-08-10.md:420"
+    ]
+  },
+  {
+    "url": "https://roadmap.sh/aws",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://roadmap.sh/aws",
+    "title": "AWS Roadmap",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:27",
+      "schedule.md:378",
+      "schedule.md:379",
+      "schedule.md:380",
+      "schedule.md:381",
+      "schedule.md:382",
+      "schedule.md:568",
+      "schedule.md:569",
+      "schedule.md:591",
+      "schedule.md:592",
+      "schedule.md:593",
+      "schedule.md:594",
+      "schedule.md:595",
+      "schedule.md:596",
+      "schedule.md:621",
+      "weeks\\G-eks-weeks-21-23.md:13",
+      "weeks\\G-eks-weeks-21-23.md:347",
+      "weeks\\I-capstone-week-26.md:63"
+    ]
+  },
+  {
+    "url": "https://roadmap.sh/backend",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://roadmap.sh/backend",
+    "title": "Backend Developer Roadmap: What is Backend Development",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:24",
+      "schedule.md:220",
+      "schedule.md:221",
+      "schedule.md:383",
+      "schedule.md:407",
+      "schedule.md:408",
+      "schedule.md:409",
+      "schedule.md:699",
+      "weeks\\D-nosql-weeks-11-14.md:8",
+      "weeks\\D-nosql-weeks-11-14.md:458",
+      "weeks\\D-nosql-weeks-11-14.md:485",
+      "weeks\\E-telemetry-weeks-15-16.md:6"
+    ]
+  },
+  {
+    "url": "https://roadmap.sh/devops",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://roadmap.sh/devops",
+    "title": "DevOps Roadmap: Learn to become a DevOps Engineer or SRE",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:25",
+      "schedule.md:410",
+      "schedule.md:411",
+      "schedule.md:432",
+      "schedule.md:433",
+      "schedule.md:434",
+      "schedule.md:435",
+      "schedule.md:436",
+      "schedule.md:570",
+      "schedule.md:597",
+      "schedule.md:622",
+      "schedule.md:645",
+      "schedule.md:646",
+      "schedule.md:669",
+      "weeks\\E-telemetry-weeks-15-16.md:6",
+      "weeks\\E-telemetry-weeks-15-16.md:263",
+      "weeks\\H-datadog-weeks-24-25.md:10",
+      "weeks\\H-datadog-weeks-24-25.md:252"
+    ]
+  },
+  {
+    "url": "https://roadmap.sh/docker",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://roadmap.sh/docker",
+    "title": "Docker Roadmap",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:20",
+      "schedule.md:139",
+      "schedule.md:140",
+      "schedule.md:141",
+      "schedule.md:142",
+      "schedule.md:143",
+      "schedule.md:144",
+      "schedule.md:165",
+      "schedule.md:166",
+      "schedule.md:167",
+      "schedule.md:168",
+      "schedule.md:169",
+      "schedule.md:190",
+      "schedule.md:191",
+      "schedule.md:192",
+      "schedule.md:193",
+      "schedule.md:194",
+      "schedule.md:195",
+      "weeks\\B-docker-weeks-05-07.md:8",
+      "weeks\\B-docker-weeks-05-07.md:408",
+      "weeks\\I-capstone-week-26.md:63"
+    ]
+  },
+  {
+    "url": "https://roadmap.sh/kubernetes",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://roadmap.sh/kubernetes",
+    "title": "Kubernetes Roadmap",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:26",
+      "schedule.md:459",
+      "schedule.md:460",
+      "schedule.md:461",
+      "schedule.md:462",
+      "schedule.md:463",
+      "schedule.md:464",
+      "schedule.md:465",
+      "schedule.md:466",
+      "schedule.md:487",
+      "schedule.md:488",
+      "schedule.md:489",
+      "schedule.md:490",
+      "schedule.md:491",
+      "schedule.md:492",
+      "schedule.md:493",
+      "schedule.md:514",
+      "schedule.md:515",
+      "schedule.md:516",
+      "schedule.md:517",
+      "schedule.md:518",
+      "schedule.md:539",
+      "schedule.md:540",
+      "schedule.md:541",
+      "schedule.md:542",
+      "schedule.md:543",
+      "schedule.md:566",
+      "schedule.md:567",
+      "schedule.md:618",
+      "schedule.md:619",
+      "schedule.md:620",
+      "schedule.md:648",
+      "schedule.md:670",
+      "schedule.md:671",
+      "schedule.md:673",
+      "schedule.md:698",
+      "weeks\\F-kubernetes-weeks-17-20.md:8",
+      "weeks\\F-kubernetes-weeks-17-20.md:463",
+      "weeks\\G-eks-weeks-21-23.md:13",
+      "weeks\\G-eks-weeks-21-23.md:347",
+      "weeks\\I-capstone-week-26.md:63"
+    ]
+  },
+  {
+    "url": "https://roadmap.sh/linux",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://roadmap.sh/linux",
+    "title": "Linux Roadmap",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:19",
+      "schedule.md:32",
+      "schedule.md:33",
+      "schedule.md:34",
+      "schedule.md:35",
+      "schedule.md:36",
+      "schedule.md:57",
+      "schedule.md:58",
+      "schedule.md:59",
+      "schedule.md:60",
+      "schedule.md:61",
+      "schedule.md:62",
+      "schedule.md:63",
+      "schedule.md:84",
+      "schedule.md:85",
+      "schedule.md:86",
+      "schedule.md:87",
+      "schedule.md:88",
+      "schedule.md:89",
+      "schedule.md:110",
+      "schedule.md:111",
+      "schedule.md:112",
+      "schedule.md:113",
+      "schedule.md:114",
+      "schedule.md:115",
+      "schedule.md:116",
+      "weeks\\A-linux-weeks-02-04.md:6",
+      "weeks\\A-linux-weeks-02-04.md:480",
+      "weeks\\I-capstone-week-26.md:63"
+    ]
+  },
+  {
+    "url": "https://roadmap.sh/mongodb",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://roadmap.sh/mongodb",
+    "title": "MongoDB Roadmap",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:23",
+      "schedule.md:325",
+      "schedule.md:326",
+      "schedule.md:327",
+      "schedule.md:328",
+      "schedule.md:329",
+      "schedule.md:330",
+      "schedule.md:331",
+      "schedule.md:352",
+      "schedule.md:353",
+      "schedule.md:354",
+      "schedule.md:355",
+      "schedule.md:356",
+      "schedule.md:357",
+      "schedule.md:384",
+      "weeks\\D-nosql-weeks-11-14.md:8",
+      "weeks\\D-nosql-weeks-11-14.md:485",
+      "weeks\\I-capstone-week-26.md:63"
+    ]
+  },
+  {
+    "url": "https://roadmap.sh/redis",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://roadmap.sh/redis",
+    "title": "Redis Roadmap",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:22",
+      "schedule.md:246",
+      "schedule.md:247",
+      "schedule.md:248",
+      "schedule.md:249",
+      "schedule.md:250",
+      "schedule.md:275",
+      "schedule.md:298",
+      "schedule.md:299",
+      "schedule.md:300",
+      "schedule.md:301",
+      "schedule.md:302",
+      "schedule.md:303",
+      "schedule.md:304",
+      "schedule.md:647",
+      "weeks\\C-caching-weeks-08-10.md:8",
+      "weeks\\C-caching-weeks-08-10.md:420",
+      "weeks\\D-nosql-weeks-11-14.md:8",
+      "weeks\\D-nosql-weeks-11-14.md:485",
+      "weeks\\I-capstone-week-26.md:63"
+    ]
+  },
+  {
+    "url": "https://roadmap.sh/system-design",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://roadmap.sh/system-design",
+    "title": "System Design Roadmap",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:28",
+      "schedule.md:222",
+      "schedule.md:223",
+      "schedule.md:271",
+      "schedule.md:272",
+      "schedule.md:273",
+      "schedule.md:274",
+      "schedule.md:672",
+      "schedule.md:696",
+      "schedule.md:697",
+      "weeks\\C-caching-weeks-08-10.md:8"
+    ]
+  },
+  {
+    "url": "https://skillbuilder.aws/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://skillbuilder.aws/",
+    "title": "AWS Skill Builder",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:73",
+      "resources.md:104"
+    ]
+  },
+  {
+    "url": "https://stackexchange.github.io/StackExchange.Redis/Basics",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "http://seredis.dev/Basics",
+    "title": "Basic Usage | StackExchange.Redis",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\D-nosql-weeks-11-14.md:45"
+    ]
+  },
+  {
+    "url": "https://tldp.org/LDP/Bash-Beginners-Guide/html/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://tldp.org/LDP/Bash-Beginners-Guide/html/",
+    "title": "",
+    "softMissing": false,
+    "usedIn": [
+      "plan.md:265",
+      "weeks\\A-linux-weeks-02-04.md:386"
+    ]
+  },
+  {
+    "url": "https://trivy.dev/docs/latest/target/container_image/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://trivy.dev/docs/latest/target/container_image/",
+    "title": "Container Image - Trivy",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\B-docker-weeks-05-07.md:240"
+    ]
+  },
+  {
+    "url": "https://ubuntu.com/server/docs/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://ubuntu.com/server/docs/",
+    "title": "Ubuntu Server documentation",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:42"
+    ]
+  },
+  {
+    "url": "https://ubuntu.com/server/docs/explanation/networking/configuring-networks/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://ubuntu.com/server/docs/explanation/networking/configuring-networks/",
+    "title": "Configuring networks - Ubuntu Server documentation",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\A-linux-weeks-02-04.md:354"
+    ]
+  },
+  {
+    "url": "https://ubuntu.com/server/docs/how-to/security/firewalls/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://ubuntu.com/server/docs/how-to/security/firewalls/",
+    "title": "Firewall - Ubuntu Server documentation",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\A-linux-weeks-02-04.md:190"
+    ]
+  },
+  {
+    "url": "https://ubuntu.com/server/docs/how-to/security/openssh-server/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://ubuntu.com/server/docs/how-to/security/openssh-server/",
+    "title": "OpenSSH server - Ubuntu Server documentation",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\A-linux-weeks-02-04.md:189"
+    ]
+  },
+  {
+    "url": "https://ubuntu.com/server/docs/how-to/software/package-management/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://ubuntu.com/server/docs/how-to/software/package-management/",
+    "title": "Install and manage packages - Ubuntu Server documentation",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\A-linux-weeks-02-04.md:148"
+    ]
+  },
+  {
+    "url": "https://ubuntu.com/tutorials/command-line-for-beginners",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://ubuntu.com/tutorials/command-line-for-beginners",
+    "title": "The Linux command line for beginners | Ubuntu",
+    "softMissing": false,
+    "usedIn": [
+      "plan.md:148",
+      "weeks\\A-linux-weeks-02-04.md:19",
+      "weeks\\A-linux-weeks-02-04.md:34",
+      "weeks\\A-linux-weeks-02-04.md:97"
+    ]
+  },
+  {
+    "url": "https://university.redis.io/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://university.redis.io/",
+    "title": "Flockjay",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:68",
+      "weeks\\D-nosql-weeks-11-14.md:7"
+    ]
+  },
+  {
+    "url": "https://valkey.io/commands/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://valkey.io/commands/",
+    "title": "Valkey &middot; Commands",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\C-caching-weeks-08-10.md:206"
+    ]
+  },
+  {
+    "url": "https://valkey.io/docs/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://valkey.io/docs/",
+    "title": "Valkey &middot; Documentation",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:62"
+    ]
+  },
+  {
+    "url": "https://valkey.io/topics/data-types/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://valkey.io/topics/data-types/",
+    "title": "Valkey Documentation &middot; Data types",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\D-nosql-weeks-11-14.md:21"
+    ]
+  },
+  {
+    "url": "https://valkey.io/topics/eval-intro/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://valkey.io/topics/eval-intro/",
+    "title": "Valkey Documentation &middot; Scripting with Lua",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\D-nosql-weeks-11-14.md:76"
+    ]
+  },
+  {
+    "url": "https://valkey.io/topics/lru-cache/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://valkey.io/topics/lru-cache/",
+    "title": "Valkey Documentation &middot; Key eviction",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\C-caching-weeks-08-10.md:297"
+    ]
+  },
+  {
+    "url": "https://valkey.io/topics/persistence/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://valkey.io/topics/persistence/",
+    "title": "Valkey Documentation &middot; Persistence",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\D-nosql-weeks-11-14.md:129"
+    ]
+  },
+  {
+    "url": "https://valkey.io/topics/streams-intro/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://valkey.io/topics/streams-intro/",
+    "title": "Valkey Documentation &middot; Streams",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\D-nosql-weeks-11-14.md:101"
+    ]
+  },
+  {
+    "url": "https://valkey.io/topics/transactions/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://valkey.io/topics/transactions/",
+    "title": "Valkey Documentation &middot; Transactions",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\D-nosql-weeks-11-14.md:76"
+    ]
+  },
+  {
+    "url": "https://www.coursera.org/learn/hands-on-introduction-to-linux-commands-and-shell-scripting",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://www.coursera.org/learn/hands-on-introduction-to-linux-commands-and-shell-scripting",
+    "title": "Hands-on Introduction to Linux Commands and Shell Scripting | Coursera",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:38"
+    ]
+  },
+  {
+    "url": "https://www.coursera.org/learn/ibm-containers-docker-kubernetes-openshift",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://www.coursera.org/learn/ibm-containers-docker-kubernetes-openshift",
+    "title": "Introduction to Containers w/ Docker, Kubernetes &amp; OpenShift | Coursera",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:50"
+    ]
+  },
+  {
+    "url": "https://www.coursera.org/learn/introduction-to-mongodb",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://www.coursera.org/learn/introduction-to-mongodb",
+    "title": "Introduction to MongoDB | Coursera",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:69"
+    ]
+  },
+  {
+    "url": "https://www.datadoghq.com/free-datadog-trial/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://www.datadoghq.com/free-datadog-trial/",
+    "title": "Free Datadog Trial | Datadog",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\H-datadog-weeks-24-25.md:5",
+      "weeks\\H-datadog-weeks-24-25.md:26"
+    ]
+  },
+  {
+    "url": "https://www.eksworkshop.com/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://www.eksworkshop.com/",
+    "title": "Amazon EKS Workshop | Amazon EKS Workshop",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:100",
+      "weeks\\G-eks-weeks-21-23.md:12"
+    ]
+  },
+  {
+    "url": "https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html",
+    "title": "systemd.service",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\A-linux-weeks-02-04.md:226"
+    ]
+  },
+  {
+    "url": "https://www.jaegertracing.io/docs/latest/getting-started/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://www.jaegertracing.io/docs/2.22/getting-started/",
+    "title": "Getting Started | Jaeger",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\E-telemetry-weeks-15-16.md:196"
+    ]
+  },
+  {
+    "url": "https://www.kubernetes.dev/blog/2025/11/12/ingress-nginx-retirement/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://www.kubernetes.dev/blog/2025/11/12/ingress-nginx-retirement/",
+    "title": "Ingress NGINX Retirement: What You Need to Know | Kubernetes Contributors",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\F-kubernetes-weeks-17-20.md:293"
+    ]
+  },
+  {
+    "url": "https://www.linkedin.com/learning/search?keywords=ASP.NET%20Core%20caching",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://www.linkedin.com/learning/search?keywords=ASP.NET%20Core%20caching",
+    "title": "ASP.NET Core caching: Online Courses, Training and Tutorials on LinkedIn Learning",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:61"
+    ]
+  },
+  {
+    "url": "https://www.linkedin.com/learning/search?keywords=Datadog",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://www.linkedin.com/learning/search?keywords=Datadog",
+    "title": "Datadog: Online Courses, Training and Tutorials on LinkedIn Learning",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:112"
+    ]
+  },
+  {
+    "url": "https://www.linkedin.com/learning/search?keywords=Linux%20command%20line",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://www.linkedin.com/learning/search?keywords=Linux%20command%20line",
+    "title": "Linux command line: Online Courses, Training and Tutorials on LinkedIn Learning",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:40",
+      "weeks\\A-linux-weeks-02-04.md:5"
+    ]
+  },
+  {
+    "url": "https://www.linkedin.com/learning/search?keywords=OpenTelemetry",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://www.linkedin.com/learning/search?keywords=OpenTelemetry",
+    "title": "OpenTelemetry: Online Courses, Training and Tutorials on LinkedIn Learning",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:83"
+    ]
+  },
+  {
+    "url": "https://www.mongodb.com/docs/drivers/csharp/current/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://www.mongodb.com/docs/drivers/csharp/current/",
+    "title": "MongoDB .NET/C# Driver - .NET/C# Driver - MongoDB Docs",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:71"
+    ]
+  },
+  {
+    "url": "https://www.mongodb.com/docs/drivers/csharp/current/aggregation/linq/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://www.mongodb.com/docs/drivers/csharp/current/aggregation/linq/",
+    "title": "LINQ Syntax for Aggregation Operations - .NET/C# Driver - MongoDB Docs",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\D-nosql-weeks-11-14.md:211"
+    ]
+  },
+  {
+    "url": "https://www.mongodb.com/docs/drivers/csharp/current/get-started/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://www.mongodb.com/docs/drivers/csharp/current/get-started/",
+    "title": "Get Started with the .NET/C# Driver - .NET/C# Driver - MongoDB Docs",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\D-nosql-weeks-11-14.md:185"
+    ]
+  },
+  {
+    "url": "https://www.mongodb.com/docs/manual/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://www.mongodb.com/docs/manual/",
+    "title": "What is MongoDB? - Database Manual - MongoDB Docs",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\D-nosql-weeks-11-14.md:164"
+    ]
+  },
+  {
+    "url": "https://www.mongodb.com/docs/manual/changestreams/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://www.mongodb.com/docs/manual/changestreams/",
+    "title": "MongoDB Change Streams - Database Manual - MongoDB Docs",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\D-nosql-weeks-11-14.md:353"
+    ]
+  },
+  {
+    "url": "https://www.mongodb.com/docs/manual/core/aggregation-pipeline/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://www.mongodb.com/docs/manual/core/aggregation-pipeline/",
+    "title": "Aggregation Pipeline - Database Manual - MongoDB Docs",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\D-nosql-weeks-11-14.md:286"
+    ]
+  },
+  {
+    "url": "https://www.mongodb.com/docs/manual/core/index-ttl/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://www.mongodb.com/docs/manual/core/index-ttl/",
+    "title": "TTL Indexes - Database Manual - MongoDB Docs",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\D-nosql-weeks-11-14.md:353"
+    ]
+  },
+  {
+    "url": "https://www.mongodb.com/docs/manual/core/transactions/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://www.mongodb.com/docs/manual/core/transactions/",
+    "title": "Transactions - Database Manual - MongoDB Docs",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\D-nosql-weeks-11-14.md:330"
+    ]
+  },
+  {
+    "url": "https://www.mongodb.com/docs/manual/data-modeling/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://www.mongodb.com/docs/manual/data-modeling/",
+    "title": "Data Modeling in MongoDB - Database Manual - MongoDB Docs",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\D-nosql-weeks-11-14.md:273"
+    ]
+  },
+  {
+    "url": "https://www.mongodb.com/docs/manual/indexes/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://www.mongodb.com/docs/manual/indexes/",
+    "title": "Indexes - Database Manual - MongoDB Docs",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\D-nosql-weeks-11-14.md:231"
+    ]
+  },
+  {
+    "url": "https://www.mongodb.com/docs/manual/reference/write-concern/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://www.mongodb.com/docs/manual/reference/write-concern/",
+    "title": "Write Concern - Database Manual - MongoDB Docs",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\D-nosql-weeks-11-14.md:330"
+    ]
+  },
+  {
+    "url": "https://www.mongodb.com/docs/manual/replication/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://www.mongodb.com/docs/manual/replication/",
+    "title": "Replication - Database Manual - MongoDB Docs",
+    "softMissing": false,
+    "usedIn": [
+      "weeks\\D-nosql-weeks-11-14.md:308"
+    ]
+  },
+  {
+    "url": "https://www.udemy.com/course/aws-eks-kubernetes-masterclass-devops-microservices/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://www.udemy.com/course/aws-eks-kubernetes-masterclass-devops-microservices/",
+    "title": "AWS EKS Kubernetes-Masterclass | DevOps, Microservices",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:101",
+      "weeks\\G-eks-weeks-21-23.md:12"
+    ]
+  },
+  {
+    "url": "https://www.udemy.com/course/certified-kubernetes-application-developer/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://www.udemy.com/course/certified-kubernetes-application-developer/",
+    "title": "Kubernetes Certified Application Developer (CKAD) with Tests",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:90",
+      "weeks\\F-kubernetes-weeks-17-20.md:7"
+    ]
+  },
+  {
+    "url": "https://www.udemy.com/course/docker-and-kubernetes-the-complete-guide/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://www.udemy.com/course/docker-and-kubernetes-the-complete-guide/",
+    "title": "Docker and Kubernetes: The Complete Guide",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:49",
+      "weeks\\B-docker-weeks-05-07.md:7"
+    ]
+  },
+  {
+    "url": "https://www.udemy.com/course/learn-kubernetes/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://www.udemy.com/course/learn-kubernetes/",
+    "title": "Kubernetes for the Absolute Beginners - Hands-on",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:89",
+      "weeks\\F-kubernetes-weeks-17-20.md:7"
+    ]
+  },
+  {
+    "url": "https://www.udemy.com/course/linux-mastery/",
+    "verdict": "ok",
+    "status": 200,
+    "finalUrl": "https://www.udemy.com/course/linux-mastery/",
+    "title": "Linux Mastery: Master the Linux Command Line in 11.5 Hours",
+    "softMissing": false,
+    "usedIn": [
+      "resources.md:39",
+      "weeks\\A-linux-weeks-02-04.md:5"
+    ]
+  }
+]

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Section I: Capstone (Week 26) · Cloud-Native .NET Plan</title>
+<meta name="color-scheme" content="light dark">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/common.js"></script>
+</head>
+<body data-page="weeks/I-capstone-week-26.html" data-root="../">
+<a class="skip" href="#content">Skip to the lesson</a>
+<div class="read-progress" aria-hidden="true"><span></span></div>
+<header class="topbar">
+  <button type="button" class="icon-btn toc-toggle" id="toc-btn" aria-controls="toc" aria-expanded="false" aria-label="Show contents">☰</button>
+  <a class="brand" href="../schedule.html"><span class="logo" aria-hidden="true">CN</span><span class="brand-text">Cloud-Native .NET Plan</span></a>
+  <nav class="top-links" aria-label="Plan">
+    <a href="../schedule.html">Schedule</a>
+    <a href="../plan.html">Plan</a>
+    <a href="../resources.html">Resources</a>
+  </nav>
+  <span class="grow"></span>
+  <button type="button" class="icon-btn" id="theme-btn"></button>
+</header>
+<div class="layout">
+  <nav class="toc" id="toc" aria-label="On this page"></nav>
+  <main class="prose" id="content">
+<h1 id="section-i-capstone-week-26">Section I: Capstone (Week 26)<a class="anchor" href="#section-i-capstone-week-26" aria-label="Link to this heading">#</a></h1>
+<p>One week to finish <strong>StudyHub 1.0</strong>: everything from the last 25 weeks working together, documented well enough for someone else to run, and demoed. Nothing new to learn.</p>
+<p><strong>What 1.0 must do</strong> (the week each part was built is in brackets):</p>
+<ul>
+<li>run as a small, non-root, scanned container image, built for x64 and ARM64 (Weeks 6–7)</li>
+<li>cache with output caching and HybridCache over Valkey, with measured hit ratios (Weeks 8–10)</li>
+<li>store lessons and progress in MongoDB, the leaderboard and streaks in Valkey, and session events in DynamoDB (Weeks 11–14)</li>
+<li>send OpenTelemetry traces, metrics, and logs (Weeks 15–16)</li>
+<li>deploy to Kubernetes with Helm, with probes, autoscaling, network policies, and Pod Security (Weeks 17–20)</li>
+<li>deploy to EKS Auto Mode with Pod Identity, ElastiCache, and a public load balancer, and tear down cleanly (Weeks 21–23)</li>
+<li>be monitored with dashboards, monitors, and an SLO (Weeks 16 and 24–25)</li>
+</ul>
+<p><strong>Review resources:</strong> the <a href="https://kubernetes.io/docs/setup/best-practices/" target="_blank" rel="noopener">Kubernetes production best practices</a>, the <a href="https://docs.aws.amazon.com/eks/latest/best-practices/introduction.html" target="_blank" rel="noopener">EKS Best Practices Guide</a>, and AlgoMaster's <a href="https://algomaster.io/learn/system-design" target="_blank" rel="noopener">System Design</a>.</p>
+<hr>
+<h2 id="week-26-studyhub-10">Week 26: StudyHub 1.0<a class="anchor" href="#week-26-studyhub-10" aria-label="Link to this heading">#</a></h2>
+<p><strong>By the end of the week:</strong> StudyHub 1.0 released, running locally, on kind, and on EKS, with a README, an architecture diagram, runbooks, and a recorded demo.</p>
+<h3 id="day-1-gap-check">Day 1: Gap check<a class="anchor" href="#day-1-gap-check" aria-label="Link to this heading">#</a></h3>
+<p><strong>Do:</strong> go through the 1.0 list above. For each item, run it and mark it <strong>works</strong>, <strong>partly works</strong>, or <strong>missing</strong>, in <code>CAPSTONE.md</code>. Order the fixes by importance.</p>
+<p><strong>Done when:</strong> you have an ordered fix list for Days 2–3.</p>
+<h3 id="day-2-fix-the-gaps">Day 2: Fix the gaps<a class="anchor" href="#day-2-fix-the-gaps" aria-label="Link to this heading">#</a></h3>
+<p><strong>Do:</strong> work through the list. After each fix, run the smoke test from Week 14 against Compose and against kind.</p>
+<p><strong>Done when:</strong> the top half of your list is fixed, and both smoke tests pass.</p>
+<h3 id="day-3-finish-the-gaps-and-harden">Day 3: Finish the gaps, and harden<a class="anchor" href="#day-3-finish-the-gaps-and-harden" aria-label="Link to this heading">#</a></h3>
+<p><strong>Do:</strong> finish the list. Then check the hardening items: no secrets in Git (<code>git log -p | grep -i -E &quot;api[_-]?key|password|secret&quot;</code>), every image scanned, every pod passing the <code>restricted</code> Pod Security level or with the exception written down, and every AWS resource tagged. Anything you can't finish goes into a &quot;Known limitations&quot; section, with a reason.</p>
+<p><strong>Done when:</strong> every 1.0 item works, or is listed as a known limitation.</p>
+<h3 id="day-4-the-architecture-document">Day 4: The architecture document<a class="anchor" href="#day-4-the-architecture-document" aria-label="Link to this heading">#</a></h3>
+<p><strong>Do:</strong> write <code>ARCHITECTURE.md</code>, covering:</p>
+<ul>
+<li>a diagram: clients, the Gateway or load balancer, the API and worker, Valkey, MongoDB, DynamoDB, and the telemetry path</li>
+<li>why each data store was chosen (link <code>nosql/CHOOSING.md</code>)</li>
+<li>the caching design (link <code>caching/DESIGN.md</code>) and its measured results</li>
+<li>how it runs locally, on kind, and on EKS, and what differs between them</li>
+<li>the cost of one hour on EKS, from your Cost Explorer numbers</li>
+</ul>
+<p><strong>Done when:</strong> a new engineer could understand StudyHub from this document in 20 minutes.</p>
+<h3 id="day-5-release-on-eks-and-record-the-demo">Day 5: Release on EKS, and record the demo<a class="anchor" href="#day-5-release-on-eks-and-record-the-demo" aria-label="Link to this heading">#</a></h3>
+<p><strong>Do</strong></p>
+<ol>
+<li>Tag release <code>v1.0.0</code>, and let your Week 23 GitHub Actions workflow build and push the images.</li>
+<li>Bring EKS up with <code>up.sh</code>, and deploy <code>v1.0.0</code>.</li>
+<li>Record a 5–8 minute demo: the API working through the public URL, the leaderboard updating, a trace from API to worker, the cache hit ratio dashboard, scaling under k6 load, and the clean teardown with <code>down.sh</code>.</li>
+</ol>
+<p><strong>Done when:</strong> the demo video is linked from the README, and <code>cleanup-check.sh</code> shows nothing left running.</p>
+<h3 id="day-6-look-back-and-plan-whats-next">Day 6: Look back, and plan what's next<a class="anchor" href="#day-6-look-back-and-plan-whats-next" aria-label="Link to this heading">#</a></h3>
+<p><strong>Do</strong></p>
+<ol>
+<li>Open the schedule, and check that every week's roadmap.sh topics are marked. Then open each roadmap (<a href="https://roadmap.sh/linux" target="_blank" rel="noopener">Linux</a>, <a href="https://roadmap.sh/docker" target="_blank" rel="noopener">Docker</a>, <a href="https://roadmap.sh/kubernetes" target="_blank" rel="noopener">Kubernetes</a>, <a href="https://roadmap.sh/mongodb" target="_blank" rel="noopener">MongoDB</a>, <a href="https://roadmap.sh/redis" target="_blank" rel="noopener">Redis</a>, and <a href="https://roadmap.sh/aws" target="_blank" rel="noopener">AWS</a>), and note the topics you haven't touched.</li>
+<li>Pick your next step. Options include the CKAD or CKA Kubernetes exams, the AWS Certified Developer or DevOps Engineer exam, GitOps with Argo CD, a service mesh, or Karpenter in depth. Write a 6–12 week plan for it in the same format as this one.</li>
+</ol>
+<p><strong>Done when:</strong> you have an honest list of strengths and gaps, and a plan for what's next.</p>
+<h3 id="day-7-shut-down-and-celebrate-light">Day 7: Shut down and celebrate (light)<a class="anchor" href="#day-7-shut-down-and-celebrate-light" aria-label="Link to this heading">#</a></h3>
+<ul>
+<li>Run <code>cleanup-check.sh</code> and look at Cost Explorer one last time. Stop or delete the <code>lab1</code> VM (<code>multipass delete lab1 &amp;&amp; multipass purge</code>) if you don't need it.</li>
+<li>Push everything to <code>cloud-native-lab</code>, and pin the repository on your GitHub profile.</li>
+<li>You've finished the plan.</li>
+</ul>
+<nav class="pager" aria-label="Sections"><a class="prev" href="H-datadog-weeks-24-25.html"><small>Previous</small>← H. Datadog (Weeks 24–25)</a><a class="next" href="../resources.html"><small>Next</small>Resources →</a></nav>
+  </main>
+</div>
+<script src="../assets/plan-data.js"></script>
+<script src="../assets/lessons.js"></script>
+</body>
+</html>
